@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+
+# macOS / editor files
+.DS_Store

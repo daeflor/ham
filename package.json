@@ -1,0 +1,9 @@
+{
+  "name": "daeflor-apple-song-scraper",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "A basic app to list Apple Music library info",
+  "dependencies": {
+    "jose": "^6.1.3"
+  }
+}
