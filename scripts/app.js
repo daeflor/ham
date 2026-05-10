@@ -32,6 +32,40 @@ console.info('MusicKit loaded');
 
 let musicInstance;
 let isInitializing = false;
+let appConfigPromise;
+
+async function loadAppConfig() {
+    if (appConfigPromise) {
+        return appConfigPromise;
+    }
+
+    appConfigPromise = fetch('./config.local.json', { cache: 'no-store' })
+        .then(async (response) => {
+            if (!response.ok) {
+                throw new Error('Missing config.local.json. Run node generate-token.js to create it.');
+            }
+
+            const config = await response.json();
+            const developerToken = String(config?.developerToken ?? '').trim();
+            if (!developerToken) {
+                throw new Error('config.local.json is missing developerToken.');
+            }
+
+            return {
+                developerToken,
+                app: {
+                    name: String(config?.app?.name ?? 'HAM'),
+                    build: String(config?.app?.build ?? '0.0.1')
+                }
+            };
+        })
+        .catch((error) => {
+            appConfigPromise = undefined;
+            throw error;
+        });
+
+    return appConfigPromise;
+}
 
 function setLandingStatus(message) {
     elements.landingStatusEl.textContent = message;
@@ -47,12 +81,11 @@ async function ensureMusicKitConfigured() {
         return musicInstance;
     }
 
-    await MusicKit.configure({
+    const config = await loadAppConfig();
 
-        app: {
-            name: 'HAM',
-            build: '0.0.1',
-        },
+    await MusicKit.configure({
+        developerToken: config.developerToken,
+        app: config.app,
     });
 
     musicInstance = MusicKit.getInstance();
@@ -116,8 +149,9 @@ async function startExperience() {
         setLandingStatus('');
     } catch (error) {
         console.error('Failed to start MusicKit flow', error);
-        ui.setStatus('Unable to connect to Apple Music. Please try again.');
-        setLandingStatus('Unable to connect to Apple Music. Please try again.');
+        const message = error instanceof Error ? error.message : 'Unable to connect to Apple Music. Please try again.';
+        ui.setStatus(message);
+        setLandingStatus(message);
         elements.connectButtonEl.disabled = false;
         elements.connectButtonEl.textContent = 'Connect Apple Music';
     } finally {

@@ -3,7 +3,11 @@
   "type": "module",
   "version": "0.0.1",
   "description": "A basic app to list Apple Music library info",
+  "scripts": {
+    "generate-config": "node generate-token.js"
+  },
   "dependencies": {
+    "dotenv": "^16.6.1",
     "jose": "^6.1.3"
   }
 }
