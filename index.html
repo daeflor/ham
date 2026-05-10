@@ -1,126 +1,74 @@
-<html>
-<script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js" data-web-components async></script>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <style>
-        body {
-            margin: 20px;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
-        #status {
-            margin: 8px 0 16px;
-            white-space: pre-wrap;
-        }
-
-        #layout {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 20px;
-            align-items: start;
-        }
-
-        #playlistList {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            display: grid;
-            gap: 6px;
-        }
-
-        .playlistButton {
-            width: 100%;
-            text-align: left;
-            padding: 8px 10px;
-            cursor: pointer;
-        }
-
-        .playlistButton.selected {
-            font-weight: 600;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            border-bottom: 1px solid #ddd;
-            padding: 8px 6px;
-            vertical-align: top;
-        }
-
-        th {
-            text-align: left;
-        }
-
-        td.len {
-            white-space: nowrap;
-        }
-
-        #pagination {
-            margin-top: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        #pagination[hidden] {
-            display: none;
-        }
-
-        #pagination button {
-            padding: 6px 12px;
-            cursor: pointer;
-        }
-
-        #pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        #pageInfo {
-            font-size: 14px;
-            color: #666;
-        }
-    </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js" data-web-components async></script>
+    <link rel="stylesheet" href="./styles/styles.css" />
 
     <script type="module" src='./scripts/app.js'></script>
 </head>
 
 <body>
-    <h1>Apple Music Scraper</h1>
-    <div id="status" hidden></div>
+    <main class="page">
+        <section class="hero" id="landingShell">
+            <div class="heroGrid">
+                <div class="heroCopy">
+                    <span class="eyebrow">Private MusicKit Tool</span>
+                    <h1>Browse your Apple Music playlists.</h1>
+                    <p>
+                        This app signs into your Apple Music account, loads your library playlists, and lets you inspect
+                        track lists in a simple table.
+                    </p>
+                    <div class="heroActions">
+                        <button id="connectButton" class="primaryButton" type="button">Connect Apple Music</button>
+                        <span class="secondaryButton">Local use only</span>
+                    </div>
+                    <div id="landingStatus" class="landingStatus" aria-live="polite"></div>
+                </div>
 
-    <div id="layout">
-        <section>
-            <h2>Playlists</h2>
-            <ul id="playlistList"></ul>
-        </section>
-
-        <section>
-            <h2 id="playlistTitle">Tracks</h2>
-            <div id="tracksEmpty">Select a playlist to view tracks.</div>
-            <table id="tracksTable" hidden>
-                <thead>
-                    <tr>
-                        <th>Track</th>
-                        <th>Artist</th>
-                        <th>Album</th>
-                        <th>Length</th>
-                    </tr>
-                </thead>
-                <tbody id="tracksBody"></tbody>
-            </table>
-            <div id="pagination" hidden>
-                <button id="prevPage" type="button">Previous</button>
-                <span id="pageInfo"></span>
-                <button id="nextPage" type="button">Next</button>
             </div>
         </section>
-    </div>
 
+        <section id="appShell" class="appShell" hidden>
+            <div id="status" hidden></div>
+
+            <div id="layout">
+                <section class="panel">
+                    <div class="panelHeading">
+                        <h2>Playlists</h2>
+                        <p>Your library</p>
+                    </div>
+                    <ul id="playlistList"></ul>
+                </section>
+
+                <section class="panel">
+                    <div class="panelHeading">
+                        <h2 id="playlistTitle">Tracks</h2>
+                        <p>Inspect the selected playlist</p>
+                    </div>
+                    <div id="tracksEmpty">Select a playlist to view tracks.</div>
+                    <table id="tracksTable" hidden>
+                        <thead>
+                            <tr>
+                                <th>Track</th>
+                                <th>Artist</th>
+                                <th>Album</th>
+                                <th>Length</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tracksBody"></tbody>
+                    </table>
+                    <div id="pagination" hidden>
+                        <button id="prevPage" type="button">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" type="button">Next</button>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
 </body>
 
 </html>
