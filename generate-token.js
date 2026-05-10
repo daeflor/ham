@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { SignJWT, importPKCS8 } from 'jose';
 
 const alg = 'ES256';
@@ -36,5 +36,7 @@ const config = {
     },
 };
 
-await writeFile(new URL('./config.local.json', import.meta.url), `${JSON.stringify(config, null, 2)}\n`, 'utf8');
-console.log('Wrote config.local.json');
+const configDirUrl = new URL('./config/', import.meta.url);
+await mkdir(configDirUrl, { recursive: true });
+await writeFile(new URL('./config/config.local.json', import.meta.url), `${JSON.stringify(config, null, 2)}\n`, 'utf8');
+console.log('Wrote config/config.local.json');

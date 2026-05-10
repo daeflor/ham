@@ -3,7 +3,7 @@ node_modules/
 
 # Environment files
 .env
-config.local.json
+config/config.local.json
 
 # macOS / editor files
 .DS_Store

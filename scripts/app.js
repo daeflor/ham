@@ -39,16 +39,16 @@ async function loadAppConfig() {
         return appConfigPromise;
     }
 
-    appConfigPromise = fetch('./config.local.json', { cache: 'no-store' })
+    appConfigPromise = fetch('./config/config.local.json', { cache: 'no-store' })
         .then(async (response) => {
             if (!response.ok) {
-                throw new Error('Missing config.local.json. Run node generate-token.js to create it.');
+                throw new Error('Missing config/config.local.json. Run npm run generate-config to create it.');
             }
 
             const config = await response.json();
             const developerToken = String(config?.developerToken ?? '').trim();
             if (!developerToken) {
-                throw new Error('config.local.json is missing developerToken.');
+                throw new Error('config/config.local.json is missing developerToken.');
             }
 
             return {

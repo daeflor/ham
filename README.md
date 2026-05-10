@@ -11,4 +11,4 @@ This app intentionally does not keep the MusicKit developer token in tracked sou
 3. Run `npm install`.
 4. Run `npm run generate-config`.
 
-That writes `config.local.json`, which is ignored by git and loaded by the app at runtime.
+That writes `config/config.local.json`, which is ignored by git and loaded by the app at runtime.
