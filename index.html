@@ -15,17 +15,14 @@
         <section class="hero" id="landingShell">
             <div class="heroGrid">
                 <div class="heroCopy">
-                    <span class="eyebrow">Private MusicKit Tool</span>
-                    <h1>Browse your Apple Music playlists.</h1>
-                    <p>
-                        This app signs into your Apple Music account, loads your library playlists, and lets you inspect
-                        track lists in a simple table.
-                    </p>
-                    <div class="heroActions">
-                        <button id="connectButton" class="primaryButton" type="button">Connect Apple Music</button>
-                        <span class="secondaryButton">Local use only</span>
+                    <h1 id="landingTitle">Hello Apple Music</h1>
+                    <div class="landingCtaSlot">
+                        <div id="landingActions" class="heroActions">
+                            <button id="connectButton" class="primaryButton" type="button">Show Apple Music
+                                playlists</button>
+                        </div>
+                        <div id="landingStatus" class="landingStatus" aria-live="polite"></div>
                     </div>
-                    <div id="landingStatus" class="landingStatus" aria-live="polite"></div>
                 </div>
 
             </div>
@@ -34,37 +31,79 @@
         <section id="appShell" class="appShell" hidden>
             <div id="status" hidden></div>
 
-            <div id="layout">
-                <section class="panel">
-                    <div class="panelHeading">
-                        <h2>Playlists</h2>
-                        <p>Your library</p>
+            <div id="layout" class="workspaceShell">
+                <div class="leftRail">
+                    <div class="playlistToolbar">
+                        <button id="firebaseButton" class="secondaryButton" type="button" disabled
+                            title="Requires Google Firebase sign-in support">
+                            Sign into Google Firebase
+                        </button>
                     </div>
-                    <ul id="playlistList"></ul>
-                </section>
+                    <section class="panel playlistPanel">
+                        <div class="panelHeading">
+                            <h2>Playlists</h2>
+                            <p id="playlistCount">Load your Apple Music library</p>
+                        </div>
+                        <ul id="playlistList"></ul>
+                    </section>
+                </div>
 
-                <section class="panel">
-                    <div class="panelHeading">
-                        <h2 id="playlistTitle">Tracks</h2>
-                        <p>Inspect the selected playlist</p>
+                <section class="panel detailPanel" id="detailPanel" hidden>
+                    <div class="selectionCard" id="selectionCard" hidden>
+                        <div>
+                            <h2 id="selectionTitle">Choose an Apple Music playlist</h2>
+                            <p id="selectionDescription" hidden></p>
+                        </div>
                     </div>
-                    <div id="tracksEmpty">Select a playlist to view tracks.</div>
-                    <table id="tracksTable" hidden>
-                        <thead>
-                            <tr>
-                                <th>Track</th>
-                                <th>Artist</th>
-                                <th>Album</th>
-                                <th>Length</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tracksBody"></tbody>
-                    </table>
-                    <div id="pagination" hidden>
-                        <button id="prevPage" type="button">Previous</button>
-                        <span id="pageInfo"></span>
-                        <button id="nextPage" type="button">Next</button>
+
+                    <div id="playlistActions" class="actionGrid" hidden>
+                        <button id="showAppleTracksButton" class="actionButton" type="button">
+                            <span class="actionButtonTitle">Apple Music track list</span>
+                        </button>
+                        <button id="showYoutubeTracksButton" class="actionButton" type="button" disabled
+                            title="Requires Google Firebase sign-in">
+                            <span class="actionButtonTitle">YouTube Music equivalent</span>
+                        </button>
+                        <button id="showComparisonButton" class="actionButton" type="button" disabled
+                            title="Requires Google Firebase sign-in">
+                            <span class="actionButtonTitle">Compare Apple Music and YouTube</span>
+                        </button>
                     </div>
+
+                    <div id="viewIntro" class="emptyState">
+                        Select a playlist, then choose an action to continue.
+                    </div>
+
+                    <section id="tracksView" hidden>
+                        <div class="contentHeader">
+                            <div>
+                                <p id="trackSummary">Track data will appear here.</p>
+                            </div>
+                            <div class="contentActions">
+                                <button id="copyTracksButton" class="secondaryButton" type="button" disabled>Copy full
+                                    tracklist</button>
+                                <div id="copyFeedback" class="copyFeedback" aria-live="polite"></div>
+                            </div>
+                        </div>
+
+                        <div id="tracksEmpty">Select a playlist to view tracks.</div>
+                        <table id="tracksTable" hidden>
+                            <thead>
+                                <tr>
+                                    <th>Track</th>
+                                    <th>Artist</th>
+                                    <th>Album</th>
+                                    <th>Length</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tracksBody"></tbody>
+                        </table>
+                        <div id="pagination" hidden>
+                            <button id="prevPage" type="button">Previous</button>
+                            <span id="pageInfo"></span>
+                            <button id="nextPage" type="button">Next</button>
+                        </div>
+                    </section>
                 </section>
             </div>
         </section>

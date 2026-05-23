@@ -7,11 +7,27 @@ await waitForAppReady();
 const elements = {
     appShellEl: document.getElementById('appShell'),
     landingShellEl: document.getElementById('landingShell'),
+    landingTitleEl: document.getElementById('landingTitle'),
+    landingActionsEl: document.getElementById('landingActions'),
     connectButtonEl: document.getElementById('connectButton'),
     landingStatusEl: document.getElementById('landingStatus'),
+    firebaseButtonEl: document.getElementById('firebaseButton'),
     statusEl: document.getElementById('status'),
     playlistListEl: document.getElementById('playlistList'),
-    playlistTitleEl: document.getElementById('playlistTitle'),
+    playlistCountEl: document.getElementById('playlistCount'),
+    detailPanelEl: document.getElementById('detailPanel'),
+    selectionCardEl: document.getElementById('selectionCard'),
+    selectionTitleEl: document.getElementById('selectionTitle'),
+    selectionDescriptionEl: document.getElementById('selectionDescription'),
+    playlistActionsEl: document.getElementById('playlistActions'),
+    showAppleTracksButtonEl: document.getElementById('showAppleTracksButton'),
+    showYoutubeTracksButtonEl: document.getElementById('showYoutubeTracksButton'),
+    showComparisonButtonEl: document.getElementById('showComparisonButton'),
+    viewIntroEl: document.getElementById('viewIntro'),
+    tracksViewEl: document.getElementById('tracksView'),
+    trackSummaryEl: document.getElementById('trackSummary'),
+    copyTracksButtonEl: document.getElementById('copyTracksButton'),
+    copyFeedbackEl: document.getElementById('copyFeedback'),
     tracksEmptyEl: document.getElementById('tracksEmpty'),
     tracksTableEl: document.getElementById('tracksTable'),
     tracksBodyEl: document.getElementById('tracksBody'),
@@ -33,6 +49,12 @@ console.info('MusicKit loaded');
 let musicInstance;
 let isInitializing = false;
 let appConfigPromise;
+let selectedPlaylist = null;
+
+const playlistTracksCache = new Map();
+const firebaseSession = {
+    isSignedIn: false
+};
 
 async function loadAppConfig() {
     if (appConfigPromise) {
@@ -71,9 +93,52 @@ function setLandingStatus(message) {
     elements.landingStatusEl.textContent = message;
 }
 
+function setLandingLoadingState(isLoading) {
+    elements.landingActionsEl.hidden = isLoading;
+    elements.landingShellEl.classList.toggle('heroLoading', isLoading);
+}
+
+function syncFirebaseUi() {
+    ui.setIntegrationState({
+        isFirebaseSignedIn: firebaseSession.isSignedIn
+    });
+}
+
 function showAppShell() {
     elements.appShellEl.hidden = false;
     elements.appShellEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function getPlaylistName(playlist) {
+    return playlist?.attributes?.name ?? 'Untitled playlist';
+}
+
+function getPlaylistDescription(playlist) {
+    const rawDescription = playlist?.attributes?.description;
+    if (typeof rawDescription === 'string' && rawDescription.trim()) {
+        return rawDescription.trim();
+    }
+
+    const standardDescription = rawDescription?.standard;
+    if (typeof standardDescription === 'string' && standardDescription.trim()) {
+        return standardDescription.trim();
+    }
+
+    return '';
+}
+
+function handlePlaylistSelected(playlist) {
+    selectedPlaylist = playlist;
+    ui.setSelectedPlaylistButton(playlist.id);
+    ui.clearSelectedAction();
+    ui.showSelectedPlaylist({
+        name: getPlaylistName(playlist),
+        description: getPlaylistDescription(playlist)
+    });
+    ui.showPlaylistActions({
+        isFirebaseSignedIn: firebaseSession.isSignedIn
+    });
+    ui.showViewIntro('');
 }
 
 async function ensureMusicKitConfigured() {
@@ -94,24 +159,23 @@ async function ensureMusicKitConfigured() {
 
 async function loadTracksForPlaylist(playlist) {
     const playlistId = playlist.id;
-    const playlistName = playlist?.attributes?.name ?? 'Tracks';
+    const playlistName = getPlaylistName(playlist);
 
     ui.setSelectedPlaylistButton(playlistId);
-    ui.setPlaylistTitle(`Tracks — ${playlistName}`);
-    ui.clearTracks();
+    ui.showTracksLoading(playlistName);
 
     try {
-        ui.setStatus('Loading tracks…');
-        const tracks = await fetchPlaylistTracks(musicInstance, playlistId);
+        let tracks = playlistTracksCache.get(playlistId);
+        if (!tracks) {
+            tracks = await fetchPlaylistTracks(musicInstance, playlistId);
+            playlistTracksCache.set(playlistId, tracks);
+        }
         ui.setStatus('');
-        ui.renderTracks(tracks);
+        ui.renderTracks(tracks, { playlistName });
     } catch (error) {
         console.error('Failed to load tracks', error);
         ui.setStatus('Failed to load tracks for this playlist.');
-        elements.tracksEmptyEl.hidden = false;
-        ui.setTracksEmptyText('Failed to load tracks.');
-        elements.tracksTableEl.hidden = true;
-        elements.paginationEl.hidden = true;
+        ui.showTracksError('Failed to load tracks for this playlist.');
     }
 }
 
@@ -123,8 +187,8 @@ async function startExperience() {
     isInitializing = true;
     elements.connectButtonEl.disabled = true;
     elements.connectButtonEl.textContent = 'Connecting…';
+    setLandingLoadingState(true);
     setLandingStatus('Preparing MusicKit…');
-    showAppShell();
 
     try {
         const music = await ensureMusicKitConfigured();
@@ -142,9 +206,12 @@ async function startExperience() {
         const playlists = await fetchLibraryPlaylists(music);
         ui.setStatus('');
         ui.clearTracks();
-        ui.setTracksEmptyText('Select a playlist to view tracks.');
-        ui.renderPlaylists(playlists, loadTracksForPlaylist);
+        ui.showViewIntro('Select a playlist to reveal the Apple Music, YouTube Music, and comparison options.');
+        ui.renderPlaylists(playlists, handlePlaylistSelected);
+        ui.setPlaylistCount(playlists.length);
+        syncFirebaseUi();
 
+        showAppShell();
         elements.landingShellEl.hidden = true;
         setLandingStatus('');
     } catch (error) {
@@ -152,11 +219,20 @@ async function startExperience() {
         const message = error instanceof Error ? error.message : 'Unable to connect to Apple Music. Please try again.';
         ui.setStatus(message);
         setLandingStatus(message);
+        setLandingLoadingState(false);
         elements.connectButtonEl.disabled = false;
-        elements.connectButtonEl.textContent = 'Connect Apple Music';
+        elements.connectButtonEl.textContent = 'Show Apple Music playlists';
     } finally {
         isInitializing = false;
     }
 }
 
 elements.connectButtonEl.addEventListener('click', startExperience);
+elements.showAppleTracksButtonEl.addEventListener('click', async () => {
+    if (!selectedPlaylist) {
+        ui.setStatus('Select a playlist first.');
+        return;
+    }
+
+    await loadTracksForPlaylist(selectedPlaylist);
+});
