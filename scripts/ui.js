@@ -294,7 +294,6 @@ export function createUIController(elements) {
         setIntegrationState,
         showPlaylistActions,
         clearSelectedAction,
-        setSelectedPlaylistButton,
-        setTracksEmptyText: (text) => { tracksEmptyEl.textContent = text; }
+        setSelectedPlaylistButton
     };
 }

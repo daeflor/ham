@@ -7,7 +7,6 @@ await waitForAppReady();
 const elements = {
     appShellEl: document.getElementById('appShell'),
     landingShellEl: document.getElementById('landingShell'),
-    landingTitleEl: document.getElementById('landingTitle'),
     landingActionsEl: document.getElementById('landingActions'),
     connectButtonEl: document.getElementById('connectButton'),
     landingStatusEl: document.getElementById('landingStatus'),
@@ -230,7 +229,7 @@ async function startExperience() {
 elements.connectButtonEl.addEventListener('click', startExperience);
 elements.showAppleTracksButtonEl.addEventListener('click', async () => {
     if (!selectedPlaylist) {
-        ui.setStatus('Select a playlist first.');
+        console.warn('Apple tracks action invoked without a selected playlist.');
         return;
     }
 
