@@ -4,6 +4,7 @@ node_modules/
 # Environment files
 .env
 config/config.local.json
+config/firebase-config.js
 
 # macOS / editor files
 .DS_Store

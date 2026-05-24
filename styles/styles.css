@@ -181,6 +181,37 @@ p {
     color: var(--muted);
 }
 
+.iconButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid var(--surface-border);
+    border-radius: 999px;
+    background: var(--surface-muted);
+    color: var(--muted);
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.iconButton:hover {
+    transform: translateY(-1px);
+}
+
+.iconButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.iconButton svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
 .landingStatus {
     min-height: 46px;
     display: flex;
@@ -253,6 +284,17 @@ p {
 .playlistToolbar {
     display: flex;
     justify-content: flex-start;
+}
+
+.firebaseSession {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.firebaseUser {
+    font-size: 0.95rem;
+    color: var(--text);
 }
 
 #playlistList {

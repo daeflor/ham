@@ -1,6 +1,7 @@
 import { waitForAppReady } from './utils.js';
 import { fetchLibraryPlaylists, fetchPlaylistTracks } from './musickit-api.js';
 import { createUIController } from './ui.js';
+import { signInToFirebase, signOutFromFirebase } from './firebase.js';
 
 await waitForAppReady();
 
@@ -11,6 +12,9 @@ const elements = {
     connectButtonEl: document.getElementById('connectButton'),
     landingStatusEl: document.getElementById('landingStatus'),
     firebaseButtonEl: document.getElementById('firebaseButton'),
+    firebaseSessionEl: document.getElementById('firebaseSession'),
+    firebaseUserEl: document.getElementById('firebaseUser'),
+    firebaseSignOutButtonEl: document.getElementById('firebaseSignOutButton'),
     statusEl: document.getElementById('status'),
     playlistListEl: document.getElementById('playlistList'),
     playlistCountEl: document.getElementById('playlistCount'),
@@ -47,13 +51,29 @@ console.info('MusicKit loaded');
 
 let musicInstance;
 let isInitializing = false;
+let isFirebaseSigningIn = false;
 let appConfigPromise;
 let selectedPlaylist = null;
 
 const playlistTracksCache = new Map();
 const firebaseSession = {
-    isSignedIn: false
+    isSignedIn: false,
+    userName: ''
 };
+
+function getFirebaseUserName(user) {
+    const email = String(user?.email ?? '').trim();
+    if (email.includes('@')) {
+        return email.split('@')[0];
+    }
+
+    const displayName = String(user?.displayName ?? '').trim();
+    if (displayName) {
+        return displayName;
+    }
+
+    return 'Signed in';
+}
 
 async function loadAppConfig() {
     if (appConfigPromise) {
@@ -98,8 +118,19 @@ function setLandingLoadingState(isLoading) {
 }
 
 function syncFirebaseUi() {
+    const isSignedIn = firebaseSession.isSignedIn;
+
+    elements.firebaseButtonEl.hidden = isSignedIn;
+    elements.firebaseSessionEl.hidden = !isSignedIn;
+    elements.firebaseButtonEl.disabled = isFirebaseSigningIn || isSignedIn;
+    elements.firebaseButtonEl.textContent = isFirebaseSigningIn
+        ? 'Signing into Google Firebase…'
+        : 'Sign into Google Firebase';
+    elements.firebaseUserEl.textContent = firebaseSession.userName;
+    elements.firebaseSignOutButtonEl.disabled = isFirebaseSigningIn;
+
     ui.setIntegrationState({
-        isFirebaseSignedIn: firebaseSession.isSignedIn
+        isFirebaseSignedIn: isSignedIn
     });
 }
 
@@ -226,7 +257,56 @@ async function startExperience() {
     }
 }
 
+async function handleFirebaseSignIn() {
+    if (isFirebaseSigningIn || firebaseSession.isSignedIn) {
+        return;
+    }
+
+    isFirebaseSigningIn = true;
+    syncFirebaseUi();
+    ui.setStatus('Opening Google sign-in…');
+
+    try {
+        const result = await signInToFirebase();
+        firebaseSession.isSignedIn = true;
+        firebaseSession.userName = getFirebaseUserName(result.user);
+        ui.setStatus('');
+    } catch (error) {
+        console.error('Failed to sign into Firebase', error);
+        const message = error instanceof Error ? error.message : 'Unable to sign into Google Firebase.';
+        ui.setStatus(message);
+    } finally {
+        isFirebaseSigningIn = false;
+        syncFirebaseUi();
+    }
+}
+
+async function handleFirebaseSignOut() {
+    if (isFirebaseSigningIn || !firebaseSession.isSignedIn) {
+        return;
+    }
+
+    isFirebaseSigningIn = true;
+    syncFirebaseUi();
+
+    try {
+        await signOutFromFirebase();
+        firebaseSession.isSignedIn = false;
+        firebaseSession.userName = '';
+        ui.setStatus('');
+    } catch (error) {
+        console.error('Failed to sign out of Firebase', error);
+        const message = error instanceof Error ? error.message : 'Unable to sign out of Google Firebase.';
+        ui.setStatus(message);
+    } finally {
+        isFirebaseSigningIn = false;
+        syncFirebaseUi();
+    }
+}
+
 elements.connectButtonEl.addEventListener('click', startExperience);
+elements.firebaseButtonEl.addEventListener('click', handleFirebaseSignIn);
+elements.firebaseSignOutButtonEl.addEventListener('click', handleFirebaseSignOut);
 elements.showAppleTracksButtonEl.addEventListener('click', async () => {
     if (!selectedPlaylist) {
         console.warn('Apple tracks action invoked without a selected playlist.');

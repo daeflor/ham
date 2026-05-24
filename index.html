@@ -5,6 +5,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js" data-web-components async></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js"
+            }
+        }
+    </script>
     <link rel="stylesheet" href="./styles/styles.css" />
 
     <script type="module" src='./scripts/app.js'></script>
@@ -38,6 +46,16 @@
                             title="Requires Google Firebase sign-in support">
                             Sign into Google Firebase
                         </button>
+                        <div id="firebaseSession" class="firebaseSession" hidden>
+                            <span id="firebaseUser" class="firebaseUser" aria-live="polite"></span>
+                            <button id="firebaseSignOutButton" class="iconButton" type="button" aria-label="Sign out"
+                                title="Sign out">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path
+                                        d="M15 3h-4a3 3 0 0 0-3 3v2h2V6a1 1 0 0 1 1-1h4zm-1 6 1.41 1.41-1.58 1.59H21v2h-7.17l1.58 1.59L14 17l-4-4zm-6 1H3v8a3 3 0 0 0 3 3h9a3 3 0 0 0 3-3v-2h-2v2a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8h3z" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <section class="panel playlistPanel">
                         <div class="panelHeading">
