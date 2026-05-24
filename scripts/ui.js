@@ -100,9 +100,13 @@ export function createUIController(elements) {
         const endIdx = Math.min(startIdx + TRACKS_PER_PAGE, allTracks.length);
         const pageTracksToShow = allTracks.slice(startIdx, endIdx);
 
-        for (const track of pageTracksToShow) {
+        for (const [pageIndex, track] of pageTracksToShow.entries()) {
             const attributes = track?.attributes ?? {};
             const rowEl = document.createElement('tr');
+
+            const indexEl = document.createElement('td');
+            indexEl.className = 'trackIndex';
+            indexEl.textContent = startIdx + pageIndex + 1;
 
             const nameEl = document.createElement('td');
             nameEl.textContent = attributes.name ?? '—';
@@ -117,7 +121,7 @@ export function createUIController(elements) {
             lenEl.className = 'len';
             lenEl.textContent = formatDuration(attributes.durationInMillis);
 
-            rowEl.append(nameEl, artistEl, albumEl, lenEl);
+            rowEl.append(indexEl, nameEl, artistEl, albumEl, lenEl);
             tracksBodyEl.append(rowEl);
         }
 

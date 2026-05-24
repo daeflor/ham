@@ -476,6 +476,14 @@ th {
     text-transform: uppercase;
 }
 
+th.trackIndexHeader,
+td.trackIndex {
+    width: 44px;
+    color: var(--muted);
+    text-align: right;
+    white-space: nowrap;
+}
+
 td.len {
     white-space: nowrap;
 }
