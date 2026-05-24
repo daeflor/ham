@@ -71,14 +71,15 @@ export function createUIController(elements) {
         tracksViewEl.hidden = true;
     }
 
-    function showTracksLoading(playlistName) {
+    function showTracksLoading(playlistName, options = {}) {
         clearTracks();
+        const sourceName = options.sourceName ?? 'Apple Music';
         currentPlaylistTitle = playlistName;
-        setSelectedAction('apple-tracks');
+        setSelectedAction(options.actionKey ?? 'apple-tracks');
         viewIntroEl.hidden = true;
         tracksViewEl.hidden = false;
         trackSummaryEl.textContent = 'Loading track list…';
-        tracksEmptyEl.textContent = `Loading Apple Music tracks for ${playlistName}…`;
+        tracksEmptyEl.textContent = `Loading ${sourceName} tracks for ${playlistName}…`;
     }
 
     function showTracksError(message) {
@@ -142,7 +143,7 @@ export function createUIController(elements) {
         allTracks = tracks || [];
         currentPage = 0;
         currentPlaylistTitle = options.playlistName ?? currentPlaylistTitle;
-        setSelectedAction('apple-tracks');
+        setSelectedAction(options.actionKey ?? 'apple-tracks');
         viewIntroEl.hidden = true;
         tracksViewEl.hidden = false;
         copyFeedbackEl.textContent = '';
@@ -150,7 +151,7 @@ export function createUIController(elements) {
         if (allTracks.length === 0) {
             tracksTableEl.hidden = true;
             tracksEmptyEl.hidden = false;
-            tracksEmptyEl.textContent = 'No tracks found in this playlist.';
+            tracksEmptyEl.textContent = options.emptyMessage ?? 'No tracks found in this playlist.';
             paginationEl.hidden = true;
             copyTracksButtonEl.disabled = true;
             trackSummaryEl.textContent = '0 tracks loaded.';

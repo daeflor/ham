@@ -1,7 +1,7 @@
 import { waitForAppReady } from './utils.js';
 import { fetchLibraryPlaylists, fetchPlaylistTracks } from './musickit-api.js';
 import { createUIController } from './ui.js';
-import { signInToFirebase, signOutFromFirebase } from './firebase.js';
+import { retrieveTracklistDataFromFirestoreByTitle, signInToFirebase, signOutFromFirebase } from './firebase.js';
 
 await waitForAppReady();
 
@@ -56,10 +56,35 @@ let appConfigPromise;
 let selectedPlaylist = null;
 
 const playlistTracksCache = new Map();
+const youtubeTracklistCache = new Map();
 const firebaseSession = {
     isSignedIn: false,
     userName: ''
 };
+
+function parseDurationToMillis(value) {
+    if (typeof value !== 'string') {
+        return undefined;
+    }
+
+    const parts = value.split(':').map(part => Number.parseInt(part, 10));
+    if (parts.length < 2 || parts.length > 3 || parts.some(part => Number.isNaN(part))) {
+        return undefined;
+    }
+
+    return parts.reduce((total, part) => total * 60 + part, 0) * 1000;
+}
+
+function convertStoredYoutubeTrack(track) {
+    return {
+        attributes: {
+            name: track.title,
+            artistName: track.artist,
+            albumName: track.album,
+            durationInMillis: parseDurationToMillis(track.duration)
+        }
+    };
+}
 
 function getFirebaseUserName(user) {
     const email = String(user?.email ?? '').trim();
@@ -209,6 +234,47 @@ async function loadTracksForPlaylist(playlist) {
     }
 }
 
+async function loadYoutubeTracksForPlaylist(playlist) {
+    const playlistName = getPlaylistName(playlist);
+
+    ui.showTracksLoading(playlistName, {
+        actionKey: 'youtube-tracks',
+        sourceName: 'YouTube Music'
+    });
+
+    try {
+        let tracklistData;
+        if (youtubeTracklistCache.has(playlistName)) {
+            tracklistData = youtubeTracklistCache.get(playlistName);
+        } else {
+            tracklistData = await retrieveTracklistDataFromFirestoreByTitle(playlistName);
+            youtubeTracklistCache.set(playlistName, tracklistData);
+        }
+
+        if (!tracklistData) {
+            ui.setStatus(`No YouTube Music equivalent found for ${playlistName}.`);
+            ui.showTracksError(`No YouTube Music equivalent found for ${playlistName}.`);
+            return;
+        }
+
+        if (!Array.isArray(tracklistData.tracks)) {
+            throw new TypeError('The matching Firebase tracklist does not include a tracks array.');
+        }
+
+        const tracks = tracklistData.tracks.map(convertStoredYoutubeTrack);
+        ui.setStatus('');
+        ui.renderTracks(tracks, {
+            actionKey: 'youtube-tracks',
+            playlistName: `${tracklistData.title ?? playlistName} (YouTube Music)`,
+            emptyMessage: 'No YouTube Music tracks found in this playlist.'
+        });
+    } catch (error) {
+        console.error('Failed to load YouTube Music tracks from Firebase', error);
+        ui.setStatus('Failed to load the YouTube Music equivalent for this playlist.');
+        ui.showTracksError('Failed to load the YouTube Music equivalent for this playlist.');
+    }
+}
+
 async function startExperience() {
     if (isInitializing) {
         return;
@@ -268,6 +334,7 @@ async function handleFirebaseSignIn() {
 
     try {
         const result = await signInToFirebase();
+        youtubeTracklistCache.clear();
         firebaseSession.isSignedIn = true;
         firebaseSession.userName = getFirebaseUserName(result.user);
         ui.setStatus('');
@@ -291,6 +358,7 @@ async function handleFirebaseSignOut() {
 
     try {
         await signOutFromFirebase();
+        youtubeTracklistCache.clear();
         firebaseSession.isSignedIn = false;
         firebaseSession.userName = '';
         ui.setStatus('');
@@ -314,4 +382,17 @@ elements.showAppleTracksButtonEl.addEventListener('click', async () => {
     }
 
     await loadTracksForPlaylist(selectedPlaylist);
+});
+elements.showYoutubeTracksButtonEl.addEventListener('click', async () => {
+    if (!selectedPlaylist) {
+        console.warn('YouTube tracks action invoked without a selected playlist.');
+        return;
+    }
+
+    if (!firebaseSession.isSignedIn) {
+        ui.setStatus('Sign into Google Firebase to load YouTube Music equivalents.');
+        return;
+    }
+
+    await loadYoutubeTracksForPlaylist(selectedPlaylist);
 });
