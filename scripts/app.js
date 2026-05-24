@@ -1,7 +1,12 @@
 import { waitForAppReady } from './utils.js';
 import { fetchLibraryPlaylists, fetchPlaylistTracks } from './musickit-api.js';
 import { createUIController } from './ui.js';
-import { retrieveTracklistDataFromFirestoreByTitle, signInToFirebase, signOutFromFirebase } from './firebase.js';
+import {
+    observeFirebaseAuthState,
+    retrieveTracklistDataFromFirestoreByTitle,
+    signInToFirebase,
+    signOutFromFirebase
+} from './firebase.js';
 
 await waitForAppReady();
 
@@ -51,6 +56,7 @@ console.info('MusicKit loaded');
 
 let musicInstance;
 let isInitializing = false;
+let isFirebaseCheckingAuth = true;
 let isFirebaseSigningIn = false;
 let appConfigPromise;
 let selectedPlaylist = null;
@@ -59,6 +65,7 @@ const playlistTracksCache = new Map();
 const youtubeTracklistCache = new Map();
 const firebaseSession = {
     isSignedIn: false,
+    userId: '',
     userName: ''
 };
 
@@ -142,21 +149,58 @@ function setLandingLoadingState(isLoading) {
     elements.landingShellEl.classList.toggle('heroLoading', isLoading);
 }
 
+function getFirebaseButtonText() {
+    if (isFirebaseCheckingAuth) {
+        return 'Checking Google Firebase sign-in…';
+    }
+
+    if (isFirebaseSigningIn) {
+        return 'Signing into Google Firebase…';
+    }
+
+    return 'Sign into Google Firebase';
+}
+
 function syncFirebaseUi() {
     const isSignedIn = firebaseSession.isSignedIn;
 
     elements.firebaseButtonEl.hidden = isSignedIn;
     elements.firebaseSessionEl.hidden = !isSignedIn;
-    elements.firebaseButtonEl.disabled = isFirebaseSigningIn || isSignedIn;
-    elements.firebaseButtonEl.textContent = isFirebaseSigningIn
-        ? 'Signing into Google Firebase…'
-        : 'Sign into Google Firebase';
+    elements.firebaseButtonEl.disabled = isFirebaseCheckingAuth || isFirebaseSigningIn || isSignedIn;
+    elements.firebaseButtonEl.textContent = getFirebaseButtonText();
     elements.firebaseUserEl.textContent = firebaseSession.userName;
-    elements.firebaseSignOutButtonEl.disabled = isFirebaseSigningIn;
+    elements.firebaseSignOutButtonEl.disabled = isFirebaseCheckingAuth || isFirebaseSigningIn;
 
     ui.setIntegrationState({
         isFirebaseSignedIn: isSignedIn
     });
+}
+
+function applyFirebaseUser(user) {
+    const userId = user?.uid ?? '';
+    if (firebaseSession.userId !== userId) {
+        youtubeTracklistCache.clear();
+    }
+
+    firebaseSession.isSignedIn = Boolean(user);
+    firebaseSession.userId = userId;
+    firebaseSession.userName = user ? getFirebaseUserName(user) : '';
+}
+
+function watchFirebaseSignInState() {
+    observeFirebaseAuthState(
+        (user) => {
+            applyFirebaseUser(user);
+            isFirebaseCheckingAuth = false;
+            syncFirebaseUi();
+        },
+        (error) => {
+            console.error('Failed to observe Firebase sign-in state', error);
+            applyFirebaseUser(null);
+            isFirebaseCheckingAuth = false;
+            syncFirebaseUi();
+        }
+    );
 }
 
 function showAppShell() {
@@ -334,9 +378,7 @@ async function handleFirebaseSignIn() {
 
     try {
         const result = await signInToFirebase();
-        youtubeTracklistCache.clear();
-        firebaseSession.isSignedIn = true;
-        firebaseSession.userName = getFirebaseUserName(result.user);
+        applyFirebaseUser(result.user);
         ui.setStatus('');
     } catch (error) {
         console.error('Failed to sign into Firebase', error);
@@ -358,9 +400,7 @@ async function handleFirebaseSignOut() {
 
     try {
         await signOutFromFirebase();
-        youtubeTracklistCache.clear();
-        firebaseSession.isSignedIn = false;
-        firebaseSession.userName = '';
+        applyFirebaseUser(null);
         ui.setStatus('');
     } catch (error) {
         console.error('Failed to sign out of Firebase', error);
@@ -371,6 +411,8 @@ async function handleFirebaseSignOut() {
         syncFirebaseUi();
     }
 }
+
+watchFirebaseSignInState();
 
 elements.connectButtonEl.addEventListener('click', startExperience);
 elements.firebaseButtonEl.addEventListener('click', handleFirebaseSignIn);

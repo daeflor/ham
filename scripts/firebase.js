@@ -1,6 +1,6 @@
 import firebaseConfig from '../config/firebase-config.js';
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
 const app = initializeApp(firebaseConfig);
@@ -19,6 +19,10 @@ export async function signInToFirebase() {
 
 export function signOutFromFirebase() {
     return signOut(auth);
+}
+
+export function observeFirebaseAuthState(onChange, onError) {
+    return onAuthStateChanged(auth, onChange, onError);
 }
 
 ////
