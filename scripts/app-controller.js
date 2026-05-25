@@ -1,6 +1,5 @@
 import {
     getAppleLibraryPlaylists,
-    getApplePlaylistDescription,
     getApplePlaylistName,
     getApplePlaylistTracks
 } from './apple-playlists.js';
@@ -116,8 +115,7 @@ export function createAppController({ shellView, workspaceView }) {
         workspaceView.setSelectedPlaylistButton(playlist.id);
         workspaceView.clearSelectedAction();
         workspaceView.showSelectedPlaylist({
-            name: getApplePlaylistName(playlist),
-            description: getApplePlaylistDescription(playlist)
+            name: getApplePlaylistName(playlist)
         });
         workspaceView.showPlaylistActions({
             isFirebaseSignedIn: firebaseSession.isSignedIn

@@ -6,7 +6,6 @@ export function createWorkspaceView(elements) {
         detailPanelEl,
         selectionCardEl,
         selectionTitleEl,
-        selectionDescriptionEl,
         playlistActionsEl,
         showAppleTracksButtonEl,
         showYoutubeTracksButtonEl,
@@ -231,12 +230,10 @@ export function createWorkspaceView(elements) {
         playlistCountEl.textContent = `${count} playlists loaded`;
     }
 
-    function showSelectedPlaylist({ name, description }) {
+    function showSelectedPlaylist({ name }) {
         detailPanelEl.hidden = false;
         selectionCardEl.hidden = false;
         selectionTitleEl.textContent = name;
-        selectionDescriptionEl.textContent = description;
-        selectionDescriptionEl.hidden = !description;
     }
 
     function setIntegrationState({ isFirebaseSignedIn }) {

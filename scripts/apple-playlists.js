@@ -13,20 +13,6 @@ export function getApplePlaylistName(playlist) {
     return playlist?.attributes?.name ?? 'Untitled playlist';
 }
 
-export function getApplePlaylistDescription(playlist) {
-    const rawDescription = playlist?.attributes?.description;
-    if (typeof rawDescription === 'string' && rawDescription.trim()) {
-        return rawDescription.trim();
-    }
-
-    const standardDescription = rawDescription?.standard;
-    if (typeof standardDescription === 'string' && standardDescription.trim()) {
-        return standardDescription.trim();
-    }
-
-    return '';
-}
-
 export async function getAppleLibraryPlaylists(music) {
     if (!libraryPlaylistsCache) {
         libraryPlaylistsCache = await fetchLibraryPlaylists(music);

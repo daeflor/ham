@@ -21,7 +21,6 @@ const elements = {
     detailPanelEl: document.getElementById('detailPanel'),
     selectionCardEl: document.getElementById('selectionCard'),
     selectionTitleEl: document.getElementById('selectionTitle'),
-    selectionDescriptionEl: document.getElementById('selectionDescription'),
     playlistActionsEl: document.getElementById('playlistActions'),
     showAppleTracksButtonEl: document.getElementById('showAppleTracksButton'),
     showYoutubeTracksButtonEl: document.getElementById('showYoutubeTracksButton'),
