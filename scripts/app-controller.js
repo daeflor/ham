@@ -169,8 +169,7 @@ export function createAppController({ shellView, workspaceView }) {
             const tracklistData = await getYoutubeTracklistByApplePlaylistName(playlistName);
 
             if (!tracklistData) {
-                workspaceView.setStatus(`No YouTube Music equivalent found for ${playlistName}.`);
-                workspaceView.showTracksError(`No YouTube Music equivalent found for ${playlistName}.`);
+                workspaceView.showTracksError(`No YouTube Music equivalent playlist found.`);
                 return;
             }
 

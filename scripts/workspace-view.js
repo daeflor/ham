@@ -14,7 +14,6 @@ export function createWorkspaceView(elements) {
         trackSummaryEl,
         copyTracksButtonEl,
         copyFeedbackEl,
-        tracksEmptyEl,
         tracksTableEl,
         tracksBodyEl,
         paginationEl,
@@ -46,7 +45,6 @@ export function createWorkspaceView(elements) {
         currentPlaylistTitle = 'Apple Music tracks';
         tracksBodyEl.replaceChildren();
         tracksTableEl.hidden = true;
-        tracksEmptyEl.hidden = false;
         paginationEl.hidden = true;
         copyTracksButtonEl.disabled = true;
         copyFeedbackEl.textContent = '';
@@ -70,19 +68,16 @@ export function createWorkspaceView(elements) {
         currentPlaylistTitle = playlistName;
         setSelectedAction(options.actionKey ?? 'apple-tracks');
         tracksViewEl.hidden = false;
-        trackSummaryEl.textContent = 'Loading track list…';
-        tracksEmptyEl.textContent = `Loading ${sourceName} tracks for ${playlistName}…`;
+        trackSummaryEl.textContent = `Loading ${sourceName} tracks for ${playlistName}...`;
     }
 
     function showTracksError(message) {
         tracksViewEl.hidden = false;
         tracksTableEl.hidden = true;
-        tracksEmptyEl.hidden = false;
-        tracksEmptyEl.textContent = message;
         paginationEl.hidden = true;
         copyTracksButtonEl.disabled = true;
         copyFeedbackEl.textContent = '';
-        trackSummaryEl.textContent = 'Unable to load track data.';
+        trackSummaryEl.textContent = message;
     }
 
     function renderCurrentPage() {
@@ -139,19 +134,16 @@ export function createWorkspaceView(elements) {
 
         if (allTracks.length === 0) {
             tracksTableEl.hidden = true;
-            tracksEmptyEl.hidden = false;
-            tracksEmptyEl.textContent = options.emptyMessage ?? 'No tracks found in this playlist.';
             paginationEl.hidden = true;
             copyTracksButtonEl.disabled = true;
-            trackSummaryEl.textContent = '0 tracks loaded.';
+            trackSummaryEl.textContent = options.emptyMessage ?? 'No tracks found in this playlist.';
             return;
         }
 
-        tracksEmptyEl.hidden = true;
         tracksTableEl.hidden = false;
         paginationEl.hidden = allTracks.length <= TRACKS_PER_PAGE;
         copyTracksButtonEl.disabled = false;
-        trackSummaryEl.textContent = `${allTracks.length} tracks loaded. Showing 50 at a time.`;
+        trackSummaryEl.textContent = `${allTracks.length} tracks loaded. Showing ${TRACKS_PER_PAGE} at a time.`;
 
         renderCurrentPage();
     }

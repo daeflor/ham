@@ -410,14 +410,6 @@ p {
     font-weight: 600;
 }
 
-#tracksEmpty {
-    padding: 24px;
-    border: 1px dashed var(--surface-border);
-    border-radius: 18px;
-    color: var(--muted);
-    background: rgba(248, 242, 234, 0.75);
-}
-
 #tracksView {
     display: grid;
     gap: 16px;

@@ -23,7 +23,6 @@ export function getAppElements() {
         trackSummaryEl: document.getElementById('trackSummary'),
         copyTracksButtonEl: document.getElementById('copyTracksButton'),
         copyFeedbackEl: document.getElementById('copyFeedback'),
-        tracksEmptyEl: document.getElementById('tracksEmpty'),
         tracksTableEl: document.getElementById('tracksTable'),
         tracksBodyEl: document.getElementById('tracksBody'),
         paginationEl: document.getElementById('pagination'),
