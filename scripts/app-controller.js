@@ -176,8 +176,7 @@ export function createAppController({ shellView, workspaceView }) {
             workspaceView.setStatus('');
             workspaceView.renderTracks(tracklistData.tracks, {
                 actionKey: 'youtube-tracks',
-                playlistName: `${tracklistData.title ?? playlistName} (YouTube Music)`,
-                emptyMessage: 'No YouTube Music tracks found in this playlist.'
+                playlistName: `${tracklistData.title ?? playlistName} (YouTube Music)`
             });
         } catch (error) {
             console.error('Failed to load YouTube Music tracks from Firebase', error);

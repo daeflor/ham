@@ -136,7 +136,7 @@ export function createWorkspaceView(elements) {
             tracksTableEl.hidden = true;
             paginationEl.hidden = true;
             copyTracksButtonEl.disabled = true;
-            trackSummaryEl.textContent = options.emptyMessage ?? 'No tracks found in this playlist.';
+            trackSummaryEl.textContent = 'No tracks found in this playlist.';
             return;
         }
 
