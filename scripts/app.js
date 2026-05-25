@@ -1,9 +1,14 @@
 import { waitForAppReady } from './utils.js';
-import { fetchLibraryPlaylists, fetchPlaylistTracks } from './musickit-api.js';
+import {
+    getAppleLibraryPlaylists,
+    getApplePlaylistDescription,
+    getApplePlaylistName,
+    getApplePlaylistTracks
+} from './apple-playlists.js';
+import { clearYoutubeTracklistCache, getYoutubeTracklistByApplePlaylistName } from './youtube-tracklists.js';
 import { createUIController } from './ui.js';
 import {
     observeFirebaseAuthState,
-    retrieveTracklistDataFromFirestoreByTitle,
     signInToFirebase,
     signOutFromFirebase
 } from './firebase.js';
@@ -61,37 +66,11 @@ let isFirebaseSigningIn = false;
 let appConfigPromise;
 let selectedPlaylist = null;
 
-const playlistTracksCache = new Map();
-const youtubeTracklistCache = new Map();
 const firebaseSession = {
     isSignedIn: false,
     userId: '',
     userName: ''
 };
-
-function parseDurationToMillis(value) {
-    if (typeof value !== 'string') {
-        return undefined;
-    }
-
-    const parts = value.split(':').map(part => Number.parseInt(part, 10));
-    if (parts.length < 2 || parts.length > 3 || parts.some(part => Number.isNaN(part))) {
-        return undefined;
-    }
-
-    return parts.reduce((total, part) => total * 60 + part, 0) * 1000;
-}
-
-function convertStoredYoutubeTrack(track) {
-    return {
-        attributes: {
-            name: track.title,
-            artistName: track.artist,
-            albumName: track.album,
-            durationInMillis: parseDurationToMillis(track.duration)
-        }
-    };
-}
 
 function getFirebaseUserName(user) {
     const email = String(user?.email ?? '').trim();
@@ -179,7 +158,7 @@ function syncFirebaseUi() {
 function applyFirebaseUser(user) {
     const userId = user?.uid ?? '';
     if (firebaseSession.userId !== userId) {
-        youtubeTracklistCache.clear();
+        clearYoutubeTracklistCache();
     }
 
     firebaseSession.isSignedIn = Boolean(user);
@@ -208,31 +187,13 @@ function showAppShell() {
     elements.appShellEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function getPlaylistName(playlist) {
-    return playlist?.attributes?.name ?? 'Untitled playlist';
-}
-
-function getPlaylistDescription(playlist) {
-    const rawDescription = playlist?.attributes?.description;
-    if (typeof rawDescription === 'string' && rawDescription.trim()) {
-        return rawDescription.trim();
-    }
-
-    const standardDescription = rawDescription?.standard;
-    if (typeof standardDescription === 'string' && standardDescription.trim()) {
-        return standardDescription.trim();
-    }
-
-    return '';
-}
-
 function handlePlaylistSelected(playlist) {
     selectedPlaylist = playlist;
     ui.setSelectedPlaylistButton(playlist.id);
     ui.clearSelectedAction();
     ui.showSelectedPlaylist({
-        name: getPlaylistName(playlist),
-        description: getPlaylistDescription(playlist)
+        name: getApplePlaylistName(playlist),
+        description: getApplePlaylistDescription(playlist)
     });
     ui.showPlaylistActions({
         isFirebaseSignedIn: firebaseSession.isSignedIn
@@ -258,17 +219,13 @@ async function ensureMusicKitConfigured() {
 
 async function loadTracksForPlaylist(playlist) {
     const playlistId = playlist.id;
-    const playlistName = getPlaylistName(playlist);
+    const playlistName = getApplePlaylistName(playlist);
 
     ui.setSelectedPlaylistButton(playlistId);
     ui.showTracksLoading(playlistName);
 
     try {
-        let tracks = playlistTracksCache.get(playlistId);
-        if (!tracks) {
-            tracks = await fetchPlaylistTracks(musicInstance, playlistId);
-            playlistTracksCache.set(playlistId, tracks);
-        }
+        const tracks = await getApplePlaylistTracks(musicInstance, playlistId);
         ui.setStatus('');
         ui.renderTracks(tracks, { playlistName });
     } catch (error) {
@@ -279,7 +236,7 @@ async function loadTracksForPlaylist(playlist) {
 }
 
 async function loadYoutubeTracksForPlaylist(playlist) {
-    const playlistName = getPlaylistName(playlist);
+    const playlistName = getApplePlaylistName(playlist);
 
     ui.showTracksLoading(playlistName, {
         actionKey: 'youtube-tracks',
@@ -287,13 +244,7 @@ async function loadYoutubeTracksForPlaylist(playlist) {
     });
 
     try {
-        let tracklistData;
-        if (youtubeTracklistCache.has(playlistName)) {
-            tracklistData = youtubeTracklistCache.get(playlistName);
-        } else {
-            tracklistData = await retrieveTracklistDataFromFirestoreByTitle(playlistName);
-            youtubeTracklistCache.set(playlistName, tracklistData);
-        }
+        const tracklistData = await getYoutubeTracklistByApplePlaylistName(playlistName);
 
         if (!tracklistData) {
             ui.setStatus(`No YouTube Music equivalent found for ${playlistName}.`);
@@ -301,13 +252,8 @@ async function loadYoutubeTracksForPlaylist(playlist) {
             return;
         }
 
-        if (!Array.isArray(tracklistData.tracks)) {
-            throw new TypeError('The matching Firebase tracklist does not include a tracks array.');
-        }
-
-        const tracks = tracklistData.tracks.map(convertStoredYoutubeTrack);
         ui.setStatus('');
-        ui.renderTracks(tracks, {
+        ui.renderTracks(tracklistData.tracks, {
             actionKey: 'youtube-tracks',
             playlistName: `${tracklistData.title ?? playlistName} (YouTube Music)`,
             emptyMessage: 'No YouTube Music tracks found in this playlist.'
@@ -343,7 +289,7 @@ async function startExperience() {
 
         ui.setStatus('Loading playlists…');
         setLandingStatus('Loading your library playlists…');
-        const playlists = await fetchLibraryPlaylists(music);
+        const playlists = await getAppleLibraryPlaylists(music);
         ui.setStatus('');
         ui.clearTracks();
         ui.showViewIntro('Select a playlist to reveal the Apple Music, YouTube Music, and comparison options.');

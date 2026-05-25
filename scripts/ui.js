@@ -1,5 +1,3 @@
-import { formatDuration } from './utils.js';
-
 export function createUIController(elements) {
     const {
         statusEl,
@@ -102,7 +100,6 @@ export function createUIController(elements) {
         const pageTracksToShow = allTracks.slice(startIdx, endIdx);
 
         for (const [pageIndex, track] of pageTracksToShow.entries()) {
-            const attributes = track?.attributes ?? {};
             const rowEl = document.createElement('tr');
 
             const indexEl = document.createElement('td');
@@ -110,17 +107,17 @@ export function createUIController(elements) {
             indexEl.textContent = startIdx + pageIndex + 1;
 
             const nameEl = document.createElement('td');
-            nameEl.textContent = attributes.name ?? '—';
+            nameEl.textContent = track.title ?? '—';
 
             const artistEl = document.createElement('td');
-            artistEl.textContent = attributes.artistName ?? '—';
+            artistEl.textContent = track.artist ?? '—';
 
             const albumEl = document.createElement('td');
-            albumEl.textContent = attributes.albumName ?? '—';
+            albumEl.textContent = track.album ?? '—';
 
             const lenEl = document.createElement('td');
             lenEl.className = 'len';
-            lenEl.textContent = formatDuration(attributes.durationInMillis);
+            lenEl.textContent = track.readableDuration ?? '—';
 
             rowEl.append(indexEl, nameEl, artistEl, albumEl, lenEl);
             tracksBodyEl.append(rowEl);
@@ -262,12 +259,11 @@ export function createUIController(elements) {
         }
 
         const lines = allTracks.map((track, index) => {
-            const attributes = track?.attributes ?? {};
             return [
-                `${index + 1}. ${attributes.name ?? '—'}`,
-                attributes.artistName ?? '—',
-                attributes.albumName ?? '—',
-                formatDuration(attributes.durationInMillis)
+                `${index + 1}. ${track.title ?? '—'}`,
+                track.artist ?? '—',
+                track.album ?? '—',
+                track.readableDuration ?? '—'
             ].join(' | ');
         });
 

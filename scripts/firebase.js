@@ -25,8 +25,6 @@ export function observeFirebaseAuthState(onChange, onError) {
     return onAuthStateChanged(auth, onChange, onError);
 }
 
-////
-
 /**
  * Get a reference to the tracklist collection for the currently signed-in user
  * @returns {Object} A reference to the tracklist collection for the currently signed-in user
