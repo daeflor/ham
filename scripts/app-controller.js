@@ -10,7 +10,7 @@ import {
 } from './firebase-api.js';
 import { clearYoutubeTracklistCache, getYoutubeTracklistByApplePlaylistName } from './youtube-tracklists.js';
 
-export function createAppController({ shellView, workspaceView }) {
+export function createAppController({ shellView, playlistsView, selectedPlaylistView }) {
     let musicInstance;
     let isInitializing = false;
     let isFirebaseCheckingAuth = true;
@@ -93,8 +93,8 @@ export function createAppController({ shellView, workspaceView }) {
 
             shellView.setLandingStatus('Loading your library playlists…');
             const playlists = await getAppleLibraryPlaylists(music);
-            workspaceView.renderPlaylists(playlists, handlePlaylistSelected);
-            workspaceView.setPlaylistCount(playlists.length);
+            playlistsView.renderPlaylists(playlists, handlePlaylistSelected);
+            playlistsView.setPlaylistCount(playlists.length);
             syncFirebaseUi();
 
             shellView.showAppShell();
@@ -111,15 +111,15 @@ export function createAppController({ shellView, workspaceView }) {
 
     function handlePlaylistSelected(playlist) {
         selectedPlaylist = playlist;
-        workspaceView.setSelectedPlaylistButton(playlist.id);
-        workspaceView.clearSelectedAction();
-        workspaceView.showSelectedPlaylist({
+        playlistsView.setSelectedPlaylistButton(playlist.id);
+        selectedPlaylistView.clearSelectedAction();
+        selectedPlaylistView.showSelectedPlaylist({
             name: getApplePlaylistName(playlist)
         });
-        workspaceView.showPlaylistActions({
+        selectedPlaylistView.showPlaylistActions({
             isFirebaseSignedIn: firebaseSession.isSignedIn
         });
-        workspaceView.clearTrackView();
+        selectedPlaylistView.clearTrackView();
     }
 
     function handleAppleTracksRequested() {
@@ -127,14 +127,14 @@ export function createAppController({ shellView, workspaceView }) {
     }
 
     async function loadAppleMusicTracks(playlist) {
-        workspaceView.showTracksLoading('apple-tracks');
+        selectedPlaylistView.showTracksLoading('apple-tracks');
 
         try {
             const tracks = await getApplePlaylistTracks(musicInstance, playlist.id);
-            workspaceView.renderTracks(tracks);
+            selectedPlaylistView.renderTracks(tracks);
         } catch (error) {
             console.error('Failed to load tracks', error);
-            workspaceView.showTracksError('Failed to load tracks for this playlist.');
+            selectedPlaylistView.showTracksError('Failed to load tracks for this playlist.');
         }
     }
 
@@ -143,21 +143,21 @@ export function createAppController({ shellView, workspaceView }) {
     }
 
     async function loadYouTubeMusicTracks(playlist) {
-        workspaceView.showTracksLoading('youtube-tracks');
+        selectedPlaylistView.showTracksLoading('youtube-tracks');
 
         try {
             const playlistName = getApplePlaylistName(playlist);
             const tracklistData = await getYoutubeTracklistByApplePlaylistName(playlistName);
 
             if (!tracklistData) {
-                workspaceView.showTracksError(`No YouTube Music equivalent playlist found.`);
+                selectedPlaylistView.showTracksError(`No YouTube Music equivalent playlist found.`);
                 return;
             }
 
-            workspaceView.renderTracks(tracklistData.tracks);
+            selectedPlaylistView.renderTracks(tracklistData.tracks);
         } catch (error) {
             console.error('Failed to load YouTube Music tracks from Firebase', error);
-            workspaceView.showTracksError('Failed to load the YouTube Music equivalent for this playlist.');
+            selectedPlaylistView.showTracksError('Failed to load the YouTube Music equivalent for this playlist.');
         }
     }
 
@@ -182,7 +182,7 @@ export function createAppController({ shellView, workspaceView }) {
             session: firebaseSession
         });
 
-        workspaceView.setIntegrationState({
+        selectedPlaylistView.setIntegrationState({
             isFirebaseSignedIn: firebaseSession.isSignedIn
         });
     }
@@ -263,8 +263,8 @@ export function createAppController({ shellView, workspaceView }) {
         shellView.onConnect(startExperience);
         shellView.onFirebaseSignIn(handleFirebaseSignIn);
         shellView.onFirebaseSignOut(handleFirebaseSignOut);
-        workspaceView.onAppleTracksRequested(handleAppleTracksRequested);
-        workspaceView.onYoutubeTracksRequested(handleYoutubeTracksRequested);
+        selectedPlaylistView.onAppleTracksRequested(handleAppleTracksRequested);
+        selectedPlaylistView.onYoutubeTracksRequested(handleYoutubeTracksRequested);
     }
 
     function start() {
