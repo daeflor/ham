@@ -64,11 +64,10 @@ export function createWorkspaceView(elements) {
 
     function showTracksLoading(playlistName, options = {}) {
         clearTracks();
-        const sourceName = options.sourceName ?? 'Apple Music';
-        currentPlaylistTitle = playlistName;
-        setSelectedAction(options.actionKey ?? 'apple-tracks');
         tracksViewEl.hidden = false;
-        trackSummaryEl.textContent = `Loading ${sourceName} tracks for ${playlistName}...`;
+        trackSummaryEl.textContent = `Loading tracks for ${playlistName}...`;
+        currentPlaylistTitle = playlistName;
+        setSelectedAction(options.actionKey);
     }
 
     function showTracksError(message) {
@@ -128,7 +127,7 @@ export function createWorkspaceView(elements) {
         allTracks = tracks || [];
         currentPage = 0;
         currentPlaylistTitle = options.playlistName ?? currentPlaylistTitle;
-        setSelectedAction(options.actionKey ?? 'apple-tracks');
+        setSelectedAction(options.actionKey);
         tracksViewEl.hidden = false;
         copyFeedbackEl.textContent = '';
 

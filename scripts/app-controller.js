@@ -139,7 +139,7 @@ export function createAppController({ shellView, workspaceView }) {
         return musicInstance;
     }
 
-    async function loadTracksForPlaylist(playlist) {
+    async function loadAppleMusicTracks(playlist) {
         const playlistId = playlist.id;
         const playlistName = getApplePlaylistName(playlist);
 
@@ -157,12 +157,11 @@ export function createAppController({ shellView, workspaceView }) {
         }
     }
 
-    async function loadYoutubeTracksForPlaylist(playlist) {
+    async function loadYouTubeMusicTracks(playlist) {
         const playlistName = getApplePlaylistName(playlist);
 
         workspaceView.showTracksLoading(playlistName, {
-            actionKey: 'youtube-tracks',
-            sourceName: 'YouTube Music'
+            actionKey: 'youtube-tracks'
         });
 
         try {
@@ -272,7 +271,7 @@ export function createAppController({ shellView, workspaceView }) {
             return;
         }
 
-        void loadTracksForPlaylist(selectedPlaylist);
+        void loadAppleMusicTracks(selectedPlaylist);
     }
 
     function handleYoutubeTracksRequested() {
@@ -286,7 +285,7 @@ export function createAppController({ shellView, workspaceView }) {
             return;
         }
 
-        void loadYoutubeTracksForPlaylist(selectedPlaylist);
+        void loadYouTubeMusicTracks(selectedPlaylist);
     }
 
     function bindEvents() {
