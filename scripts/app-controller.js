@@ -24,20 +24,6 @@ export function createAppController({ shellView, workspaceView }) {
         userName: ''
     };
 
-    function getFirebaseUserName(user) {
-        const email = String(user?.email ?? '').trim();
-        if (email.includes('@')) {
-            return email.split('@')[0];
-        }
-
-        const displayName = String(user?.displayName ?? '').trim();
-        if (displayName) {
-            return displayName;
-        }
-
-        return 'Signed in';
-    }
-
     async function loadAppConfig() {
         if (appConfigPromise) {
             return appConfigPromise;
@@ -69,6 +55,153 @@ export function createAppController({ shellView, workspaceView }) {
             });
 
         return appConfigPromise;
+    }
+
+    async function ensureMusicKitConfigured() {
+        if (musicInstance) {
+            return musicInstance;
+        }
+
+        const config = await loadAppConfig();
+
+        await MusicKit.configure({
+            developerToken: config.developerToken,
+            app: config.app,
+        });
+
+        musicInstance = MusicKit.getInstance();
+        return musicInstance;
+    }
+
+    async function startExperience() {
+        if (isInitializing) {
+            return;
+        }
+
+        isInitializing = true;
+        shellView.setConnectButtonLoading();
+        shellView.setLandingLoadingState(true);
+        shellView.setLandingStatus('Preparing MusicKit…');
+
+        try {
+            const music = await ensureMusicKitConfigured();
+
+            shellView.setLandingStatus('Requesting access to your Apple Music account…');
+            if (!music.isAuthorized) {
+                await music.authorize();
+            }
+
+            shellView.setLandingStatus('Loading your library playlists…');
+            const playlists = await getAppleLibraryPlaylists(music);
+            workspaceView.renderPlaylists(playlists, handlePlaylistSelected);
+            workspaceView.setPlaylistCount(playlists.length);
+            syncFirebaseUi();
+
+            shellView.showAppShell();
+            shellView.hideLandingShell();
+            shellView.setLandingStatus('');
+        } catch (error) {
+            console.error('Failed to start MusicKit flow', error);
+            const message = error instanceof Error ? error.message : 'Unable to connect to Apple Music. Please try again.';
+            shellView.setLandingStatus(message);
+        } finally {
+            isInitializing = false;
+        }
+    }
+
+    function handlePlaylistSelected(playlist) {
+        selectedPlaylist = playlist;
+        workspaceView.setSelectedPlaylistButton(playlist.id);
+        workspaceView.clearSelectedAction();
+        workspaceView.showSelectedPlaylist({
+            name: getApplePlaylistName(playlist)
+        });
+        workspaceView.showPlaylistActions({
+            isFirebaseSignedIn: firebaseSession.isSignedIn
+        });
+        workspaceView.clearTrackView();
+    }
+
+    function handleAppleTracksRequested() {
+        if (!selectedPlaylist) {
+            console.warn('Apple tracks action invoked without a selected playlist.');
+            return;
+        }
+
+        void loadAppleMusicTracks(selectedPlaylist);
+    }
+
+    async function loadAppleMusicTracks(playlist) {
+        const playlistId = playlist.id;
+        const playlistName = getApplePlaylistName(playlist);
+
+        workspaceView.setSelectedPlaylistButton(playlistId);
+        workspaceView.showTracksLoading(playlistName);
+
+        try {
+            const tracks = await getApplePlaylistTracks(musicInstance, playlistId);
+            workspaceView.setStatus('');
+            workspaceView.renderTracks(tracks, { playlistName });
+        } catch (error) {
+            console.error('Failed to load tracks', error);
+            workspaceView.setStatus('Failed to load tracks for this playlist.');
+            workspaceView.showTracksError('Failed to load tracks for this playlist.');
+        }
+    }
+
+    function handleYoutubeTracksRequested() {
+        if (!selectedPlaylist) {
+            console.warn('YouTube tracks action invoked without a selected playlist.');
+            return;
+        }
+
+        if (!firebaseSession.isSignedIn) {
+            workspaceView.setStatus('Sign into Google Firebase to load YouTube Music equivalents.');
+            return;
+        }
+
+        void loadYouTubeMusicTracks(selectedPlaylist);
+    }
+
+    async function loadYouTubeMusicTracks(playlist) {
+        const playlistName = getApplePlaylistName(playlist);
+
+        workspaceView.showTracksLoading(playlistName, {
+            actionKey: 'youtube-tracks'
+        });
+
+        try {
+            const tracklistData = await getYoutubeTracklistByApplePlaylistName(playlistName);
+
+            if (!tracklistData) {
+                workspaceView.showTracksError(`No YouTube Music equivalent playlist found.`);
+                return;
+            }
+
+            workspaceView.setStatus('');
+            workspaceView.renderTracks(tracklistData.tracks, {
+                actionKey: 'youtube-tracks',
+                playlistName: `${tracklistData.title ?? playlistName} (YouTube Music)`
+            });
+        } catch (error) {
+            console.error('Failed to load YouTube Music tracks from Firebase', error);
+            workspaceView.setStatus('Failed to load the YouTube Music equivalent for this playlist.');
+            workspaceView.showTracksError('Failed to load the YouTube Music equivalent for this playlist.');
+        }
+    }
+
+    function getFirebaseUserName(user) {
+        const email = String(user?.email ?? '').trim();
+        if (email.includes('@')) {
+            return email.split('@')[0];
+        }
+
+        const displayName = String(user?.displayName ?? '').trim();
+        if (displayName) {
+            return displayName;
+        }
+
+        return 'Signed in';
     }
 
     function syncFirebaseUi() {
@@ -108,116 +241,6 @@ export function createAppController({ shellView, workspaceView }) {
                 syncFirebaseUi();
             }
         );
-    }
-
-    function handlePlaylistSelected(playlist) {
-        selectedPlaylist = playlist;
-        workspaceView.setSelectedPlaylistButton(playlist.id);
-        workspaceView.clearSelectedAction();
-        workspaceView.showSelectedPlaylist({
-            name: getApplePlaylistName(playlist)
-        });
-        workspaceView.showPlaylistActions({
-            isFirebaseSignedIn: firebaseSession.isSignedIn
-        });
-        workspaceView.clearTrackView();
-    }
-
-    async function ensureMusicKitConfigured() {
-        if (musicInstance) {
-            return musicInstance;
-        }
-
-        const config = await loadAppConfig();
-
-        await MusicKit.configure({
-            developerToken: config.developerToken,
-            app: config.app,
-        });
-
-        musicInstance = MusicKit.getInstance();
-        return musicInstance;
-    }
-
-    async function loadAppleMusicTracks(playlist) {
-        const playlistId = playlist.id;
-        const playlistName = getApplePlaylistName(playlist);
-
-        workspaceView.setSelectedPlaylistButton(playlistId);
-        workspaceView.showTracksLoading(playlistName);
-
-        try {
-            const tracks = await getApplePlaylistTracks(musicInstance, playlistId);
-            workspaceView.setStatus('');
-            workspaceView.renderTracks(tracks, { playlistName });
-        } catch (error) {
-            console.error('Failed to load tracks', error);
-            workspaceView.setStatus('Failed to load tracks for this playlist.');
-            workspaceView.showTracksError('Failed to load tracks for this playlist.');
-        }
-    }
-
-    async function loadYouTubeMusicTracks(playlist) {
-        const playlistName = getApplePlaylistName(playlist);
-
-        workspaceView.showTracksLoading(playlistName, {
-            actionKey: 'youtube-tracks'
-        });
-
-        try {
-            const tracklistData = await getYoutubeTracklistByApplePlaylistName(playlistName);
-
-            if (!tracklistData) {
-                workspaceView.showTracksError(`No YouTube Music equivalent playlist found.`);
-                return;
-            }
-
-            workspaceView.setStatus('');
-            workspaceView.renderTracks(tracklistData.tracks, {
-                actionKey: 'youtube-tracks',
-                playlistName: `${tracklistData.title ?? playlistName} (YouTube Music)`
-            });
-        } catch (error) {
-            console.error('Failed to load YouTube Music tracks from Firebase', error);
-            workspaceView.setStatus('Failed to load the YouTube Music equivalent for this playlist.');
-            workspaceView.showTracksError('Failed to load the YouTube Music equivalent for this playlist.');
-        }
-    }
-
-    async function startExperience() {
-        if (isInitializing) {
-            return;
-        }
-
-        isInitializing = true;
-        shellView.setConnectButtonLoading();
-        shellView.setLandingLoadingState(true);
-        shellView.setLandingStatus('Preparing MusicKit…');
-
-        try {
-            const music = await ensureMusicKitConfigured();
-
-            shellView.setLandingStatus('Requesting access to your Apple Music account…');
-            if (!music.isAuthorized) {
-                await music.authorize();
-            }
-
-            shellView.setLandingStatus('Loading your library playlists…');
-            const playlists = await getAppleLibraryPlaylists(music);
-            workspaceView.renderPlaylists(playlists, handlePlaylistSelected);
-            workspaceView.setPlaylistCount(playlists.length);
-            syncFirebaseUi();
-
-            shellView.showAppShell();
-            shellView.hideLandingShell();
-            shellView.setLandingStatus('');
-        } catch (error) {
-            console.error('Failed to start MusicKit flow', error);
-            const message = error instanceof Error ? error.message : 'Unable to connect to Apple Music. Please try again.';
-            shellView.setLandingStatus(message);
-        } finally {
-            isInitializing = false;
-        }
     }
 
     async function handleFirebaseSignIn() {
@@ -263,29 +286,6 @@ export function createAppController({ shellView, workspaceView }) {
             isFirebaseSigningIn = false;
             syncFirebaseUi();
         }
-    }
-
-    function handleAppleTracksRequested() {
-        if (!selectedPlaylist) {
-            console.warn('Apple tracks action invoked without a selected playlist.');
-            return;
-        }
-
-        void loadAppleMusicTracks(selectedPlaylist);
-    }
-
-    function handleYoutubeTracksRequested() {
-        if (!selectedPlaylist) {
-            console.warn('YouTube tracks action invoked without a selected playlist.');
-            return;
-        }
-
-        if (!firebaseSession.isSignedIn) {
-            workspaceView.setStatus('Sign into Google Firebase to load YouTube Music equivalents.');
-            return;
-        }
-
-        void loadYouTubeMusicTracks(selectedPlaylist);
     }
 
     function bindEvents() {

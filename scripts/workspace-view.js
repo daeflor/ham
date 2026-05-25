@@ -49,15 +49,15 @@ export function createWorkspaceView(elements) {
         trackSummaryEl.textContent = 'Track data will appear here.';
     }
 
+    function clearTrackView() {
+        clearTracks();
+        tracksViewEl.hidden = true;
+    }
+
     function setSelectedAction(actionKey) {
         for (const [key, button] of Object.entries(actionButtons)) {
             button.classList.toggle('selected', key === actionKey);
         }
-    }
-
-    function clearTrackView() {
-        clearTracks();
-        tracksViewEl.hidden = true;
     }
 
     function showTracksLoading(playlistName, options = {}) {
