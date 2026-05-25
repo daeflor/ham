@@ -1,4 +1,4 @@
-import { retrieveTracklistDataFromFirestoreByTitle } from './firebase.js';
+import { retrieveTracklistDataFromFirestoreByTitle } from './firebase-api.js';
 import { Track } from './track.js';
 
 const youtubeTracklistCache = new Map();

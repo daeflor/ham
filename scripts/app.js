@@ -11,7 +11,7 @@ import {
     observeFirebaseAuthState,
     signInToFirebase,
     signOutFromFirebase
-} from './firebase.js';
+} from './firebase-api.js';
 
 await waitForAppReady();
 
