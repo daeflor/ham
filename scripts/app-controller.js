@@ -224,8 +224,6 @@ export function createAppController({ shellView, workspaceView }) {
             const message = error instanceof Error ? error.message : 'Unable to connect to Apple Music. Please try again.';
             workspaceView.setStatus(message);
             shellView.setLandingStatus(message);
-            shellView.setLandingLoadingState(false);
-            shellView.resetConnectButton();
         } finally {
             isInitializing = false;
         }

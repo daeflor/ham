@@ -25,11 +25,6 @@ export function createShellView(elements) {
         connectButtonEl.textContent = 'Connecting…';
     }
 
-    function resetConnectButton() {
-        connectButtonEl.disabled = false;
-        connectButtonEl.textContent = 'Show Apple Music playlists';
-    }
-
     function getFirebaseButtonText({ isCheckingAuth, isSigningIn }) {
         if (isCheckingAuth) {
             return 'Checking Google Firebase sign-in…';
@@ -78,7 +73,6 @@ export function createShellView(elements) {
         setLandingStatus,
         setLandingLoadingState,
         setConnectButtonLoading,
-        resetConnectButton,
         renderFirebaseSession,
         showAppShell,
         hideLandingShell,
