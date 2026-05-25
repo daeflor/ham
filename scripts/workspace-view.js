@@ -25,7 +25,6 @@ export function createWorkspaceView(elements) {
     const TRACKS_PER_PAGE = 50;
     let allTracks = [];
     let currentPage = 0;
-    let currentPlaylistTitle = 'Apple Music tracks';
 
     const actionButtons = {
         'apple-tracks': showAppleTracksButtonEl,
@@ -42,7 +41,6 @@ export function createWorkspaceView(elements) {
     function clearTracks() {
         allTracks = [];
         currentPage = 0;
-        currentPlaylistTitle = 'Apple Music tracks';
         tracksBodyEl.replaceChildren();
         tracksTableEl.hidden = true;
         paginationEl.hidden = true;
@@ -66,7 +64,6 @@ export function createWorkspaceView(elements) {
         clearTracks();
         tracksViewEl.hidden = false;
         trackSummaryEl.textContent = `Loading tracks for ${playlistName}...`;
-        currentPlaylistTitle = playlistName;
         setSelectedAction(options.actionKey);
     }
 
@@ -126,7 +123,6 @@ export function createWorkspaceView(elements) {
     function renderTracks(tracks, options = {}) {
         allTracks = tracks || [];
         currentPage = 0;
-        currentPlaylistTitle = options.playlistName ?? currentPlaylistTitle;
         setSelectedAction(options.actionKey);
         tracksViewEl.hidden = false;
         copyFeedbackEl.textContent = '';
@@ -248,7 +244,7 @@ export function createWorkspaceView(elements) {
             ].join(' | ');
         });
 
-        const exportText = [`${currentPlaylistTitle}`, '', ...lines].join('\n');
+        const exportText = lines.join('\n');
 
         try {
             await navigator.clipboard.writeText(exportText);
