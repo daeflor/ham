@@ -10,6 +10,19 @@ import {
 } from './firebase-api.js';
 import { clearYoutubeTracklistCache, getYoutubeTracklistByApplePlaylistName } from './youtube-tracklists.js';
 
+/**
+ * @typedef {ReturnType<typeof import('./shell-view.js').createShellView>} ShellView
+ * @typedef {ReturnType<typeof import('./playlists-view.js').createPlaylistsView>} PlaylistsView
+ * @typedef {ReturnType<typeof import('./selected-playlist-view.js').createSelectedPlaylistView>} SelectedPlaylistView
+ */
+
+/**
+ * @param {{
+ *   shellView: ShellView,
+ *   playlistsView: PlaylistsView,
+ *   selectedPlaylistView: SelectedPlaylistView
+ * }} views
+ */
 export function createAppController({ shellView, playlistsView, selectedPlaylistView }) {
     let musicInstance;
     let isInitializing = false;
