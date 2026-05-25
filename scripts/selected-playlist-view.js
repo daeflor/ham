@@ -154,14 +154,14 @@ export function createSelectedPlaylistView(elements) {
         selectionTitleEl.textContent = name;
     }
 
-    function setIntegrationState({ isFirebaseSignedIn }) {
+    function setFirebaseConnectionState({ isFirebaseSignedIn }) {
         showYoutubeTracksButtonEl.disabled = !isFirebaseSignedIn;
         showComparisonButtonEl.disabled = !isFirebaseSignedIn;
     }
 
     function showPlaylistActions({ isFirebaseSignedIn }) {
         playlistActionsEl.hidden = false;
-        setIntegrationState({ isFirebaseSignedIn });
+        setFirebaseConnectionState({ isFirebaseSignedIn });
     }
 
     function clearSelectedAction() {
@@ -211,7 +211,7 @@ export function createSelectedPlaylistView(elements) {
         showTracksError,
         renderTracks,
         showSelectedPlaylist,
-        setIntegrationState,
+        setFirebaseConnectionState,
         showPlaylistActions,
         clearSelectedAction,
         onAppleTracksRequested,

@@ -195,7 +195,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             session: firebaseSession
         });
 
-        selectedPlaylistView.setIntegrationState({
+        selectedPlaylistView.setFirebaseConnectionState({
             isFirebaseSignedIn: firebaseSession.isSignedIn
         });
     }
