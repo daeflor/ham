@@ -60,11 +60,11 @@ export function createWorkspaceView(elements) {
         }
     }
 
-    function showTracksLoading(playlistName, options = {}) {
+    function showTracksLoading(actionKey) {
         clearTracks();
+        setSelectedAction(actionKey);
         tracksViewEl.hidden = false;
-        trackSummaryEl.textContent = `Loading tracks for ${playlistName}...`;
-        setSelectedAction(options.actionKey);
+        trackSummaryEl.textContent = `Loading tracks...`;
     }
 
     function showTracksError(message) {
@@ -120,10 +120,9 @@ export function createWorkspaceView(elements) {
         pageInfoEl.textContent = `${startIdx}-${endIdx} of ${allTracks.length}`;
     }
 
-    function renderTracks(tracks, options = {}) {
+    function renderTracks(tracks) {
         allTracks = tracks || [];
         currentPage = 0;
-        setSelectedAction(options.actionKey);
         tracksViewEl.hidden = false;
         copyFeedbackEl.textContent = '';
 

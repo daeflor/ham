@@ -123,54 +123,31 @@ export function createAppController({ shellView, workspaceView }) {
     }
 
     function handleAppleTracksRequested() {
-        if (!selectedPlaylist) {
-            console.warn('Apple tracks action invoked without a selected playlist.');
-            return;
-        }
-
         void loadAppleMusicTracks(selectedPlaylist);
     }
 
     async function loadAppleMusicTracks(playlist) {
-        const playlistId = playlist.id;
-        const playlistName = getApplePlaylistName(playlist);
-
-        workspaceView.setSelectedPlaylistButton(playlistId);
-        workspaceView.showTracksLoading(playlistName);
+        workspaceView.showTracksLoading('apple-tracks');
 
         try {
-            const tracks = await getApplePlaylistTracks(musicInstance, playlistId);
+            const tracks = await getApplePlaylistTracks(musicInstance, playlist.id);
             workspaceView.setStatus('');
-            workspaceView.renderTracks(tracks, { playlistName });
+            workspaceView.renderTracks(tracks);
         } catch (error) {
             console.error('Failed to load tracks', error);
-            workspaceView.setStatus('Failed to load tracks for this playlist.');
             workspaceView.showTracksError('Failed to load tracks for this playlist.');
         }
     }
 
     function handleYoutubeTracksRequested() {
-        if (!selectedPlaylist) {
-            console.warn('YouTube tracks action invoked without a selected playlist.');
-            return;
-        }
-
-        if (!firebaseSession.isSignedIn) {
-            workspaceView.setStatus('Sign into Google Firebase to load YouTube Music equivalents.');
-            return;
-        }
-
         void loadYouTubeMusicTracks(selectedPlaylist);
     }
 
     async function loadYouTubeMusicTracks(playlist) {
-        const playlistName = getApplePlaylistName(playlist);
-
-        workspaceView.showTracksLoading(playlistName, {
-            actionKey: 'youtube-tracks'
-        });
+        workspaceView.showTracksLoading('youtube-tracks');
 
         try {
+            const playlistName = getApplePlaylistName(playlist);
             const tracklistData = await getYoutubeTracklistByApplePlaylistName(playlistName);
 
             if (!tracklistData) {
@@ -179,10 +156,7 @@ export function createAppController({ shellView, workspaceView }) {
             }
 
             workspaceView.setStatus('');
-            workspaceView.renderTracks(tracklistData.tracks, {
-                actionKey: 'youtube-tracks',
-                playlistName: `${tracklistData.title ?? playlistName} (YouTube Music)`
-            });
+            workspaceView.renderTracks(tracklistData.tracks);
         } catch (error) {
             console.error('Failed to load YouTube Music tracks from Firebase', error);
             workspaceView.setStatus('Failed to load the YouTube Music equivalent for this playlist.');
