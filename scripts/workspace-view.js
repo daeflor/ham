@@ -1,4 +1,4 @@
-export function createUIController(elements) {
+export function createWorkspaceView(elements) {
     const {
         statusEl,
         playlistListEl,
@@ -278,6 +278,14 @@ export function createUIController(elements) {
         }
     }
 
+    function onAppleTracksRequested(handler) {
+        showAppleTracksButtonEl.addEventListener('click', handler);
+    }
+
+    function onYoutubeTracksRequested(handler) {
+        showYoutubeTracksButtonEl.addEventListener('click', handler);
+    }
+
     copyTracksButtonEl.addEventListener('click', () => {
         void copyTracksToClipboard();
     });
@@ -295,6 +303,8 @@ export function createUIController(elements) {
         setIntegrationState,
         showPlaylistActions,
         clearSelectedAction,
-        setSelectedPlaylistButton
+        setSelectedPlaylistButton,
+        onAppleTracksRequested,
+        onYoutubeTracksRequested
     };
 }
