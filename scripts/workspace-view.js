@@ -1,6 +1,5 @@
 export function createWorkspaceView(elements) {
     const {
-        statusEl,
         playlistListEl,
         playlistCountEl,
         detailPanelEl,
@@ -31,12 +30,6 @@ export function createWorkspaceView(elements) {
         'youtube-tracks': showYoutubeTracksButtonEl,
         comparison: showComparisonButtonEl
     };
-
-    function setStatus(message) {
-        const text = (message ?? '').trim();
-        statusEl.hidden = text.length === 0;
-        statusEl.textContent = text;
-    }
 
     function clearTracks() {
         allTracks = [];
@@ -267,7 +260,6 @@ export function createWorkspaceView(elements) {
     });
 
     return {
-        setStatus,
         clearTrackView,
         showTracksLoading,
         showTracksError,

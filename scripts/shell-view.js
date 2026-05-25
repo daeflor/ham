@@ -8,8 +8,15 @@ export function createShellView(elements) {
         firebaseButtonEl,
         firebaseSessionEl,
         firebaseUserEl,
-        firebaseSignOutButtonEl
+        firebaseSignOutButtonEl,
+        statusEl
     } = elements;
+
+    function setStatus(message) {
+        const text = (message ?? '').trim();
+        statusEl.hidden = text.length === 0;
+        statusEl.textContent = text;
+    }
 
     function setLandingStatus(message) {
         landingStatusEl.textContent = message;
@@ -70,6 +77,7 @@ export function createShellView(elements) {
     }
 
     return {
+        setStatus,
         setLandingStatus,
         setLandingLoadingState,
         setConnectButtonLoading,

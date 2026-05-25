@@ -131,7 +131,6 @@ export function createAppController({ shellView, workspaceView }) {
 
         try {
             const tracks = await getApplePlaylistTracks(musicInstance, playlist.id);
-            workspaceView.setStatus('');
             workspaceView.renderTracks(tracks);
         } catch (error) {
             console.error('Failed to load tracks', error);
@@ -155,11 +154,9 @@ export function createAppController({ shellView, workspaceView }) {
                 return;
             }
 
-            workspaceView.setStatus('');
             workspaceView.renderTracks(tracklistData.tracks);
         } catch (error) {
             console.error('Failed to load YouTube Music tracks from Firebase', error);
-            workspaceView.setStatus('Failed to load the YouTube Music equivalent for this playlist.');
             workspaceView.showTracksError('Failed to load the YouTube Music equivalent for this playlist.');
         }
     }
@@ -224,16 +221,16 @@ export function createAppController({ shellView, workspaceView }) {
 
         isFirebaseSigningIn = true;
         syncFirebaseUi();
-        workspaceView.setStatus('Opening Google sign-in…');
+        shellView.setStatus('Opening Google sign-in…');
 
         try {
             const result = await signInToFirebase();
             applyFirebaseUser(result.user);
-            workspaceView.setStatus('');
+            shellView.setStatus('');
         } catch (error) {
             console.error('Failed to sign into Firebase', error);
             const message = error instanceof Error ? error.message : 'Unable to sign into Google Firebase.';
-            workspaceView.setStatus(message);
+            shellView.setStatus(message);
         } finally {
             isFirebaseSigningIn = false;
             syncFirebaseUi();
@@ -251,11 +248,11 @@ export function createAppController({ shellView, workspaceView }) {
         try {
             await signOutFromFirebase();
             applyFirebaseUser(null);
-            workspaceView.setStatus('');
+            shellView.setStatus('');
         } catch (error) {
             console.error('Failed to sign out of Firebase', error);
             const message = error instanceof Error ? error.message : 'Unable to sign out of Google Firebase.';
-            workspaceView.setStatus(message);
+            shellView.setStatus(message);
         } finally {
             isFirebaseSigningIn = false;
             syncFirebaseUi();
