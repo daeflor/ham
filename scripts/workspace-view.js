@@ -10,7 +10,6 @@ export function createWorkspaceView(elements) {
         showAppleTracksButtonEl,
         showYoutubeTracksButtonEl,
         showComparisonButtonEl,
-        viewIntroEl,
         tracksViewEl,
         trackSummaryEl,
         copyTracksButtonEl,
@@ -60,11 +59,8 @@ export function createWorkspaceView(elements) {
         }
     }
 
-    function showViewIntro(message) {
+    function clearTrackView() {
         clearTracks();
-        const text = (message ?? '').trim();
-        viewIntroEl.hidden = text.length === 0;
-        viewIntroEl.textContent = text;
         tracksViewEl.hidden = true;
     }
 
@@ -73,14 +69,12 @@ export function createWorkspaceView(elements) {
         const sourceName = options.sourceName ?? 'Apple Music';
         currentPlaylistTitle = playlistName;
         setSelectedAction(options.actionKey ?? 'apple-tracks');
-        viewIntroEl.hidden = true;
         tracksViewEl.hidden = false;
         trackSummaryEl.textContent = 'Loading track list…';
         tracksEmptyEl.textContent = `Loading ${sourceName} tracks for ${playlistName}…`;
     }
 
     function showTracksError(message) {
-        viewIntroEl.hidden = true;
         tracksViewEl.hidden = false;
         tracksTableEl.hidden = true;
         tracksEmptyEl.hidden = false;
@@ -140,7 +134,6 @@ export function createWorkspaceView(elements) {
         currentPage = 0;
         currentPlaylistTitle = options.playlistName ?? currentPlaylistTitle;
         setSelectedAction(options.actionKey ?? 'apple-tracks');
-        viewIntroEl.hidden = true;
         tracksViewEl.hidden = false;
         copyFeedbackEl.textContent = '';
 
@@ -289,8 +282,7 @@ export function createWorkspaceView(elements) {
 
     return {
         setStatus,
-        clearTracks,
-        showViewIntro,
+        clearTrackView,
         showTracksLoading,
         showTracksError,
         renderTracks,

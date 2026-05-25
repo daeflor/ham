@@ -120,7 +120,7 @@ export function createAppController({ shellView, workspaceView }) {
         workspaceView.showPlaylistActions({
             isFirebaseSignedIn: firebaseSession.isSignedIn
         });
-        workspaceView.showViewIntro('');
+        workspaceView.clearTrackView();
     }
 
     async function ensureMusicKitConfigured() {
@@ -200,18 +200,13 @@ export function createAppController({ shellView, workspaceView }) {
         try {
             const music = await ensureMusicKitConfigured();
 
-            workspaceView.setStatus('Authorizing…');
             shellView.setLandingStatus('Requesting access to your Apple Music account…');
             if (!music.isAuthorized) {
                 await music.authorize();
             }
 
-            workspaceView.setStatus('Loading playlists…');
             shellView.setLandingStatus('Loading your library playlists…');
             const playlists = await getAppleLibraryPlaylists(music);
-            workspaceView.setStatus('');
-            workspaceView.clearTracks();
-            workspaceView.showViewIntro('Select a playlist to reveal the Apple Music, YouTube Music, and comparison options.');
             workspaceView.renderPlaylists(playlists, handlePlaylistSelected);
             workspaceView.setPlaylistCount(playlists.length);
             syncFirebaseUi();
@@ -222,7 +217,6 @@ export function createAppController({ shellView, workspaceView }) {
         } catch (error) {
             console.error('Failed to start MusicKit flow', error);
             const message = error instanceof Error ? error.message : 'Unable to connect to Apple Music. Please try again.';
-            workspaceView.setStatus(message);
             shellView.setLandingStatus(message);
         } finally {
             isInitializing = false;
