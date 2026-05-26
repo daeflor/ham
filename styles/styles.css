@@ -509,14 +509,12 @@ tbody tr:last-child td {
 @media (max-width: 960px) {
 
     .heroGrid,
-    #layout,
     .metricList {
         grid-template-columns: 1fr;
     }
 
     .appHeader,
     .selectionCard,
-    .workspaceShell,
     .actionGrid {
         grid-template-columns: 1fr;
     }
@@ -527,6 +525,12 @@ tbody tr:last-child td {
 
     .heroCopy h1 {
         max-width: none;
+    }
+}
+
+@media (max-width: 740px) {
+    .workspaceShell {
+        grid-template-columns: 1fr;
     }
 }
 
