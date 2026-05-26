@@ -136,8 +136,10 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.showSelectedPlaylist({
             name: getApplePlaylistName(playlist)
         });
-        selectedPlaylistView.clearContentViews();
+        selectedPlaylistView.clearTracks();
+        selectedPlaylistView.hideTracks();
         comparisonView.clearComparison();
+        comparisonView.hideComparison();
     }
 
     function handleAppleTracksRequested() {
@@ -145,6 +147,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     async function loadAppleMusicTracks(playlist) {
+        comparisonView.hideComparison();
         selectedPlaylistView.showTracksLoading('apple-tracks');
 
         try {
@@ -193,6 +196,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     async function loadYouTubeMusicTracks(playlist) {
+        comparisonView.hideComparison();
         selectedPlaylistView.showTracksLoading('youtube-tracks');
 
         try {

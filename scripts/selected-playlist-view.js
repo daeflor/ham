@@ -6,7 +6,6 @@ export function createSelectedPlaylistView(elements) {
         showYoutubeTracksButtonEl,
         showComparisonButtonEl,
         tracksViewEl,
-        comparisonViewEl,
         trackSummaryEl,
         copyTracksButtonEl,
         copyFeedbackEl,
@@ -39,33 +38,26 @@ export function createSelectedPlaylistView(elements) {
         trackSummaryEl.textContent = 'Track data will appear here.';
     }
 
-    function clearTrackView() {
-        clearTracks();
+    function hideTracks() {
         tracksViewEl.hidden = true;
-    }
-
-    function clearContentViews() {
-        clearTrackView();
-        comparisonViewEl.hidden = true;
-    }
-
-    function setSelectedAction(actionKey) {
-        for (const [key, button] of Object.entries(actionButtons)) {
-            button.classList.toggle('selected', key === actionKey);
-        }
     }
 
     function showTracksLoading(actionKey) {
         clearTracks();
         setSelectedAction(actionKey);
         tracksViewEl.hidden = false;
-        comparisonViewEl.hidden = true;
         trackSummaryEl.textContent = `Loading tracks...`;
     }
 
     function showComparisonSelected() {
-        clearTrackView();
+        hideTracks();
         setSelectedAction('comparison');
+    }
+
+    function setSelectedAction(actionKey) {
+        for (const [key, button] of Object.entries(actionButtons)) {
+            button.classList.toggle('selected', key === actionKey);
+        }
     }
 
     function showTracksError(message) {
@@ -214,8 +206,8 @@ export function createSelectedPlaylistView(elements) {
     });
 
     return {
-        clearTrackView,
-        clearContentViews,
+        clearTracks,
+        hideTracks,
         showTracksLoading,
         showTracksError,
         renderTracks,

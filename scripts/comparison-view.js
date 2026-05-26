@@ -22,13 +22,16 @@ export function createComparisonView(elements) {
         removedTracks = [];
         addedTracks = [];
         checkedTrackIds = new Set();
-        comparisonViewEl.hidden = true;
         comparisonStatusEl.textContent = '';
         comparisonSummaryEl.textContent = '';
         removedComparisonCountEl.textContent = '';
         addedComparisonCountEl.textContent = '';
         removedComparisonListEl.replaceChildren();
         addedComparisonListEl.replaceChildren();
+    }
+
+    function hideComparison() {
+        comparisonViewEl.hidden = true;
     }
 
     function renderComparison({ isTransferred, removedTracks: removed, addedTracks: added }) {
@@ -166,6 +169,7 @@ export function createComparisonView(elements) {
 
     return {
         clearComparison,
+        hideComparison,
         renderComparison,
         setTransferredState,
         showStatus,
