@@ -129,11 +129,17 @@ export function createComparisonView(elements) {
         titleEl.className = 'comparisonTrackTitle';
         titleEl.textContent = track.title ?? '-';
 
-        const metaEl = document.createElement('div');
-        metaEl.className = 'comparisonTrackMeta';
-        metaEl.textContent = [track.artist, track.album, track.readableDuration]
-            .map(value => value || '-')
-            .join(' | ');
+        const artistEl = document.createElement('div');
+        artistEl.className = 'comparisonTrackMeta';
+        artistEl.textContent = track.artist ?? '-';
+
+        const albumEl = document.createElement('div');
+        albumEl.className = 'comparisonTrackMeta';
+        albumEl.textContent = track.album ?? '-';
+
+        const durationEl = document.createElement('div');
+        durationEl.className = 'comparisonTrackMeta';
+        durationEl.textContent = track.readableDuration ?? '-';
 
         checkboxEl.addEventListener('click', () => {
             const isChecked = checkedTrackIds.has(trackId);
@@ -147,7 +153,7 @@ export function createComparisonView(elements) {
             checkboxEl.setAttribute('aria-pressed', String(!isChecked));
         });
 
-        bodyEl.append(titleEl, metaEl);
+        bodyEl.append(titleEl, artistEl, albumEl, durationEl);
         rowEl.append(checkboxEl, bodyEl);
         return rowEl;
     }
