@@ -43,7 +43,7 @@ export function createComparisonView(elements) {
     columnsEl.className = 'comparisonColumns';
 
     actionsEl.append(copyButtonEl, saveButtonEl, markTransferredButtonEl, transferredBadgeEl, statusEl);
-    headerEl.append(summaryEl, actionsEl);
+    headerEl.append(actionsEl, summaryEl);
     comparisonViewEl.append(headerEl, columnsEl);
 
     function clearComparison() {
@@ -56,14 +56,14 @@ export function createComparisonView(elements) {
         columnsEl.replaceChildren();
     }
 
-    function renderComparison({ playlistId, playlistName, isTransferred, removedTracks: removed, addedTracks: added }) {
+    function renderComparison({ playlistId, isTransferred, removedTracks: removed, addedTracks: added }) {
         currentPlaylistId = playlistId;
         removedTracks = removed || [];
         addedTracks = added || [];
         checkedTrackIds = new Set();
         comparisonViewEl.hidden = false;
         statusEl.textContent = '';
-        summaryEl.textContent = `${playlistName}: ${removedTracks.length} removed, ${addedTracks.length} added.`;
+        summaryEl.textContent = `${removedTracks.length} removed, ${addedTracks.length} added.`;
         setTransferredState(isTransferred);
 
         columnsEl.replaceChildren(
