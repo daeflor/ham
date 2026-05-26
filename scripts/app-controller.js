@@ -116,6 +116,77 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
     }
 
+    function watchFirebaseSignInState() {
+        observeFirebaseAuthState(
+            (user) => {
+                isFirebaseAuthPending = false;
+                applyFirebaseUser(user);
+                syncFirebaseUi();
+            },
+            (error) => {
+                isFirebaseAuthPending = false;
+                applyFirebaseUser(null);
+                syncFirebaseUi();
+                console.error('Failed to observe Firebase sign-in state', error);
+            }
+        );
+    }
+
+    function applyFirebaseUser(user) {
+        const userId = user?.uid ?? '';
+        if (firebaseSession.userId !== userId) {
+            clearYoutubeTracklistCache();
+        }
+
+        firebaseSession.isSignedIn = Boolean(user);
+        firebaseSession.userId = userId;
+        firebaseSession.userName = user?.email?.split('@')[0] ?? 'Unknown User';
+    }
+
+    function syncFirebaseUi() {
+        shellView.renderFirebaseSession({
+            isAuthPending: isFirebaseAuthPending,
+            session: firebaseSession
+        });
+
+        selectedPlaylistView.setFirebaseConnectionState({
+            isFirebaseSignedIn: firebaseSession.isSignedIn
+        });
+    }
+
+    async function handleFirebaseSignIn() {
+        if (isFirebaseAuthPending || firebaseSession.isSignedIn) {
+            return;
+        }
+
+        isFirebaseAuthPending = true;
+        syncFirebaseUi();
+
+        try {
+            const result = await signInToFirebase();
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unable to sign into Google Firebase.';
+            shellView.setStatus(message);
+            console.error('Failed to sign into Firebase', error);
+        }
+    }
+
+    async function handleFirebaseSignOut() {
+        if (isFirebaseAuthPending || !firebaseSession.isSignedIn) {
+            return;
+        }
+
+        isFirebaseAuthPending = true;
+
+        try {
+            await signOutFromFirebase();
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unable to sign out of Google Firebase.';
+            shellView.setStatus(message);
+            console.error('Failed to sign out of Firebase', error);
+        }
+    }
+
     function handlePlaylistSelected(playlist) {
         selectedPlaylist = playlist;
         playlistsView.setSelectedPlaylistButton(playlist.id);
@@ -184,77 +255,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         });
         comparisonView.setTransferredState(true);
         comparisonView.showStatus('Marked as transferred.');
-    }
-
-    function watchFirebaseSignInState() {
-        observeFirebaseAuthState(
-            (user) => {
-                isFirebaseAuthPending = false;
-                applyFirebaseUser(user);
-                syncFirebaseUi();
-            },
-            (error) => {
-                isFirebaseAuthPending = false;
-                applyFirebaseUser(null);
-                syncFirebaseUi();
-                console.error('Failed to observe Firebase sign-in state', error);
-            }
-        );
-    }
-
-    function syncFirebaseUi() {
-        shellView.renderFirebaseSession({
-            isAuthPending: isFirebaseAuthPending,
-            session: firebaseSession
-        });
-
-        selectedPlaylistView.setFirebaseConnectionState({
-            isFirebaseSignedIn: firebaseSession.isSignedIn
-        });
-    }
-
-    function applyFirebaseUser(user) {
-        const userId = user?.uid ?? '';
-        if (firebaseSession.userId !== userId) {
-            clearYoutubeTracklistCache();
-        }
-
-        firebaseSession.isSignedIn = Boolean(user);
-        firebaseSession.userId = userId;
-        firebaseSession.userName = user?.email?.split('@')[0] ?? 'Unknown User';
-    }
-
-    async function handleFirebaseSignIn() {
-        if (isFirebaseAuthPending || firebaseSession.isSignedIn) {
-            return;
-        }
-
-        isFirebaseAuthPending = true;
-        syncFirebaseUi();
-
-        try {
-            const result = await signInToFirebase();
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Unable to sign into Google Firebase.';
-            shellView.setStatus(message);
-            console.error('Failed to sign into Firebase', error);
-        }
-    }
-
-    async function handleFirebaseSignOut() {
-        if (isFirebaseAuthPending || !firebaseSession.isSignedIn) {
-            return;
-        }
-
-        isFirebaseAuthPending = true;
-
-        try {
-            await signOutFromFirebase();
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Unable to sign out of Google Firebase.';
-            shellView.setStatus(message);
-            console.error('Failed to sign out of Firebase', error);
-        }
     }
 
     function getPlaceholderRemovedTracks() {
