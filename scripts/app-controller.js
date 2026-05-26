@@ -76,14 +76,14 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         return musicInstance;
     }
 
-    async function startExperience() {
+    async function handleInitializeApp() {
         if (isInitializing) {
             return;
         }
 
         isInitializing = true;
         shellView.setLandingLoadingState(true);
-        shellView.setLandingStatus('Preparing MusicKit…');
+        shellView.setLandingStatus('Configuring MusicKit…');
 
         try {
             const music = await ensureMusicKitConfigured();
@@ -129,16 +129,12 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         comparisonView.hideComparison();
     }
 
-    function handleAppleTracksRequested() {
-        void loadAppleMusicTracks(selectedPlaylist);
-    }
-
-    async function loadAppleMusicTracks(playlist) {
+    async function handleAppleTracksRequested() {
         comparisonView.hideComparison();
         selectedPlaylistView.showTracksLoading('apple-tracks');
 
         try {
-            const tracks = await getApplePlaylistTracks(musicInstance, playlist.id);
+            const tracks = await getApplePlaylistTracks(musicInstance, selectedPlaylist.id);
             selectedPlaylistView.renderTracks(tracks);
         } catch (error) {
             console.error('Failed to load tracks', error);
@@ -146,15 +142,27 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
     }
 
-    function handleYoutubeTracksRequested() {
-        void loadYouTubeMusicTracks(selectedPlaylist);
+    async function handleYoutubeTracksRequested() {
+        comparisonView.hideComparison();
+        selectedPlaylistView.showTracksLoading('youtube-tracks');
+
+        try {
+            const playlistName = getApplePlaylistName(selectedPlaylist);
+            const tracklistData = await getYoutubeTracklistByApplePlaylistName(playlistName);
+
+            if (!tracklistData) {
+                selectedPlaylistView.showTracksError(`No YouTube Music equivalent playlist found.`);
+                return;
+            }
+
+            selectedPlaylistView.renderTracks(tracklistData.tracks);
+        } catch (error) {
+            console.error('Failed to load YouTube Music tracks from Firebase', error);
+            selectedPlaylistView.showTracksError('Failed to load the YouTube Music equivalent for this playlist.');
+        }
     }
 
     function handleComparisonRequested() {
-        if (!selectedPlaylist) {
-            return;
-        }
-
         selectedPlaylistView.showComparisonSelected();
         comparisonView.renderComparison({
             isTransferred: transferredPlaylistIds.has(selectedPlaylist.id),
@@ -168,10 +176,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     function handleMarkPlaylistTransferred() {
-        if (!selectedPlaylist) {
-            return;
-        }
-
         transferredPlaylistIds.add(selectedPlaylist.id);
         playlistsView.setPlaylistTransferred(selectedPlaylist.id, true);
         playlistsView.setPlaylistCount({
@@ -180,26 +184,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         });
         comparisonView.setTransferredState(true);
         comparisonView.showStatus('Marked as transferred.');
-    }
-
-    async function loadYouTubeMusicTracks(playlist) {
-        comparisonView.hideComparison();
-        selectedPlaylistView.showTracksLoading('youtube-tracks');
-
-        try {
-            const playlistName = getApplePlaylistName(playlist);
-            const tracklistData = await getYoutubeTracklistByApplePlaylistName(playlistName);
-
-            if (!tracklistData) {
-                selectedPlaylistView.showTracksError(`No YouTube Music equivalent playlist found.`);
-                return;
-            }
-
-            selectedPlaylistView.renderTracks(tracklistData.tracks);
-        } catch (error) {
-            console.error('Failed to load YouTube Music tracks from Firebase', error);
-            selectedPlaylistView.showTracksError('Failed to load the YouTube Music equivalent for this playlist.');
-        }
     }
 
     function watchFirebaseSignInState() {
@@ -227,22 +211,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.setFirebaseConnectionState({
             isFirebaseSignedIn: firebaseSession.isSignedIn
         });
-    }
-
-    function getPlaceholderRemovedTracks() {
-        return [
-            { title: 'Old Moon', artist: 'The Field Notes', album: 'After Images', readableDuration: '4:12' },
-            { title: 'Static Bloom', artist: 'Glass Harbor', album: 'Half-Light', readableDuration: '3:48' },
-            { title: 'Northbound', artist: 'Mara Vale', album: 'Quiet Signals', readableDuration: '5:07' }
-        ];
-    }
-
-    function getPlaceholderAddedTracks() {
-        return [
-            { title: 'Bright Circuit', artist: 'Glass Harbor', album: 'New Weather', readableDuration: '3:39' },
-            { title: 'Low Tide Edit', artist: 'Mara Vale', album: 'Quiet Signals', readableDuration: '4:44' },
-            { title: 'Paper Sun', artist: 'The Field Notes', album: 'After Images', readableDuration: '3:58' }
-        ];
     }
 
     function applyFirebaseUser(user) {
@@ -303,8 +271,24 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
     }
 
+    function getPlaceholderRemovedTracks() {
+        return [
+            { title: 'Old Moon', artist: 'The Field Notes', album: 'After Images', readableDuration: '4:12' },
+            { title: 'Static Bloom', artist: 'Glass Harbor', album: 'Half-Light', readableDuration: '3:48' },
+            { title: 'Northbound', artist: 'Mara Vale', album: 'Quiet Signals', readableDuration: '5:07' }
+        ];
+    }
+
+    function getPlaceholderAddedTracks() {
+        return [
+            { title: 'Bright Circuit', artist: 'Glass Harbor', album: 'New Weather', readableDuration: '3:39' },
+            { title: 'Low Tide Edit', artist: 'Mara Vale', album: 'Quiet Signals', readableDuration: '4:44' },
+            { title: 'Paper Sun', artist: 'The Field Notes', album: 'After Images', readableDuration: '3:58' }
+        ];
+    }
+
     function bindEvents() {
-        shellView.onConnect(startExperience);
+        shellView.onConnect(handleInitializeApp);
         shellView.onFirebaseSignIn(handleFirebaseSignIn);
         shellView.onFirebaseSignOut(handleFirebaseSignOut);
         selectedPlaylistView.onAppleTracksRequested(handleAppleTracksRequested);
