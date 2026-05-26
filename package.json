@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "description": "A basic app to list Apple Music library info",
   "scripts": {
-    "generate-config": "node generate-token.js"
+    "generate-config": "node generate-token.js",
+    "start": "npx http-server -p 443 -o -c-1"
   },
   "dependencies": {
     "dotenv": "^16.6.1",
