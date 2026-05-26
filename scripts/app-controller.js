@@ -29,7 +29,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     let musicInstance;
     let isInitializing = false;
     let isFirebaseAuthPending = false;
-    let appConfigPromise;
     let selectedPlaylist = null;
     let playlistTotalCount = 0;
     const transferredPlaylistIds = new Set();
@@ -41,36 +40,24 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     };
 
     async function loadAppConfig() {
-        if (appConfigPromise) {
-            return appConfigPromise;
+        const response = await fetch('./config/config.local.json', { cache: 'no-store' });
+        if (!response.ok) {
+            throw new Error(`Missing config/config.local.json. Run 'npm run generate-config' to create it.`);
         }
 
-        appConfigPromise = fetch('./config/config.local.json', { cache: 'no-store' })
-            .then(async (response) => {
-                if (!response.ok) {
-                    throw new Error('Missing config/config.local.json. Run npm run generate-config to create it.');
-                }
+        const config = await response.json();
+        const developerToken = String(config?.developerToken ?? '').trim();
+        if (!developerToken) {
+            throw new Error('config/config.local.json is missing developerToken.');
+        }
 
-                const config = await response.json();
-                const developerToken = String(config?.developerToken ?? '').trim();
-                if (!developerToken) {
-                    throw new Error('config/config.local.json is missing developerToken.');
-                }
-
-                return {
-                    developerToken,
-                    app: {
-                        name: String(config?.app?.name ?? 'HAM'),
-                        build: String(config?.app?.build ?? '0.0.1')
-                    }
-                };
-            })
-            .catch((error) => {
-                appConfigPromise = undefined;
-                throw error;
-            });
-
-        return appConfigPromise;
+        return {
+            developerToken,
+            app: {
+                name: String(config?.app?.name ?? 'HAM'),
+                build: String(config?.app?.build ?? '0.0.1')
+            }
+        };
     }
 
     async function ensureMusicKitConfigured() {
