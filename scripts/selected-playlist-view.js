@@ -1,9 +1,7 @@
 export function createSelectedPlaylistView(elements) {
     const {
         detailPanelEl,
-        selectionCardEl,
         selectionTitleEl,
-        playlistActionsEl,
         showAppleTracksButtonEl,
         showYoutubeTracksButtonEl,
         showComparisonButtonEl,
@@ -150,18 +148,12 @@ export function createSelectedPlaylistView(elements) {
 
     function showSelectedPlaylist({ name }) {
         detailPanelEl.hidden = false;
-        selectionCardEl.hidden = false;
         selectionTitleEl.textContent = name;
     }
 
     function setFirebaseConnectionState({ isFirebaseSignedIn }) {
         showYoutubeTracksButtonEl.disabled = !isFirebaseSignedIn;
         showComparisonButtonEl.disabled = !isFirebaseSignedIn;
-    }
-
-    function showPlaylistActions({ isFirebaseSignedIn }) {
-        playlistActionsEl.hidden = false;
-        setFirebaseConnectionState({ isFirebaseSignedIn });
     }
 
     function clearSelectedAction() {
@@ -212,7 +204,6 @@ export function createSelectedPlaylistView(elements) {
         renderTracks,
         showSelectedPlaylist,
         setFirebaseConnectionState,
-        showPlaylistActions,
         clearSelectedAction,
         onAppleTracksRequested,
         onYoutubeTracksRequested

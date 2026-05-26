@@ -129,9 +129,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.showSelectedPlaylist({
             name: getApplePlaylistName(playlist)
         });
-        selectedPlaylistView.showPlaylistActions({
-            isFirebaseSignedIn: firebaseSession.isSignedIn
-        });
         selectedPlaylistView.clearTrackView();
     }
 
