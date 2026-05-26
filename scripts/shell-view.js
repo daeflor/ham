@@ -27,16 +27,7 @@ export function createShellView(elements) {
         landingShellEl.classList.toggle('heroLoading', isLoading);
     }
 
-    function setConnectButtonLoading() {
-        connectButtonEl.disabled = true;
-        connectButtonEl.textContent = 'Connecting…';
-    }
-
-    function getFirebaseButtonText({ isCheckingAuth, isAuthPending }) {
-        if (isCheckingAuth) {
-            return 'Checking Google Firebase sign-in…';
-        }
-
+    function getFirebaseButtonText({ isAuthPending }) {
         if (isAuthPending) {
             return 'Signing into Google Firebase…';
         }
@@ -44,15 +35,16 @@ export function createShellView(elements) {
         return 'Sign into Google Firebase';
     }
 
-    function renderFirebaseSession({ isCheckingAuth, isAuthPending, session }) {
+    function renderFirebaseSession({ isAuthPending, session }) {
         const isSignedIn = session.isSignedIn;
 
+        firebaseButtonEl.disabled = isAuthPending || isSignedIn;
         firebaseButtonEl.hidden = isSignedIn;
+        firebaseButtonEl.textContent = getFirebaseButtonText({ isAuthPending });
+
         firebaseSessionEl.hidden = !isSignedIn;
-        firebaseButtonEl.disabled = isCheckingAuth || isAuthPending || isSignedIn;
-        firebaseButtonEl.textContent = getFirebaseButtonText({ isCheckingAuth, isAuthPending });
         firebaseUserEl.textContent = session.userName;
-        firebaseSignOutButtonEl.disabled = isCheckingAuth || isAuthPending;
+        firebaseSignOutButtonEl.disabled = isAuthPending;
     }
 
     function showAppShell() {
@@ -80,7 +72,6 @@ export function createShellView(elements) {
         setStatus,
         setLandingStatus,
         setLandingLoadingState,
-        setConnectButtonLoading,
         renderFirebaseSession,
         showAppShell,
         hideLandingShell,

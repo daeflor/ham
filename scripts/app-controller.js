@@ -26,7 +26,6 @@ import { clearYoutubeTracklistCache, getYoutubeTracklistByApplePlaylistName } fr
 export function createAppController({ shellView, playlistsView, selectedPlaylistView }) {
     let musicInstance;
     let isInitializing = false;
-    let isFirebaseCheckingAuth = true;
     let isFirebaseAuthPending = false;
     let appConfigPromise;
     let selectedPlaylist = null;
@@ -92,7 +91,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
 
         isInitializing = true;
-        shellView.setConnectButtonLoading();
         shellView.setLandingLoadingState(true);
         shellView.setLandingStatus('Preparing MusicKit…');
 
@@ -108,11 +106,12 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             const playlists = await getAppleLibraryPlaylists(music);
             playlistsView.renderPlaylists(playlists, handlePlaylistSelected);
             playlistsView.setPlaylistCount(playlists.length);
-            syncFirebaseUi();
 
-            shellView.showAppShell();
-            shellView.hideLandingShell();
+            watchFirebaseSignInState();
+
             shellView.setLandingStatus('');
+            shellView.hideLandingShell();
+            shellView.showAppShell();
         } catch (error) {
             console.error('Failed to start MusicKit flow', error);
             const message = error instanceof Error ? error.message : 'Unable to connect to Apple Music. Please try again.';
@@ -175,13 +174,11 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         observeFirebaseAuthState(
             (user) => {
                 applyFirebaseUser(user);
-                isFirebaseCheckingAuth = false;
                 syncFirebaseUi();
             },
             (error) => {
                 console.error('Failed to observe Firebase sign-in state', error);
                 applyFirebaseUser(null);
-                isFirebaseCheckingAuth = false;
                 syncFirebaseUi();
             }
         );
@@ -189,7 +186,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
     function syncFirebaseUi() {
         shellView.renderFirebaseSession({
-            isCheckingAuth: isFirebaseCheckingAuth,
             isAuthPending: isFirebaseAuthPending,
             session: firebaseSession
         });
@@ -231,12 +227,10 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         isFirebaseAuthPending = true;
         syncFirebaseUi();
-        shellView.setStatus('Opening Google sign-in…');
 
         try {
             const result = await signInToFirebase();
             applyFirebaseUser(result.user);
-            shellView.setStatus('');
         } catch (error) {
             console.error('Failed to sign into Firebase', error);
             const message = error instanceof Error ? error.message : 'Unable to sign into Google Firebase.';
@@ -280,7 +274,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     function start() {
         console.info('MusicKit loaded');
         bindEvents();
-        watchFirebaseSignInState();
     }
 
     return {
