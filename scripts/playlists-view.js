@@ -40,10 +40,23 @@ export function createPlaylistsView(elements) {
             title.className = 'playlistButtonTitle';
             title.textContent = name;
 
-            button.append(title);
+            const transferredBadge = document.createElement('span');
+            transferredBadge.className = 'playlistTransferredBadge';
+            transferredBadge.textContent = 'Transferred';
+            transferredBadge.hidden = true;
+
+            button.append(title, transferredBadge);
             button.addEventListener('click', () => onSelect(playlist));
             li.append(button);
             playlistListEl.append(li);
+        }
+    }
+
+    function setPlaylistTransferred(playlistId, isTransferred) {
+        const button = playlistListEl.querySelector(`button[data-playlist-id="${CSS.escape(playlistId)}"]`);
+        const badge = button?.querySelector('.playlistTransferredBadge');
+        if (badge) {
+            badge.hidden = !isTransferred;
         }
     }
 
@@ -59,6 +72,7 @@ export function createPlaylistsView(elements) {
     return {
         renderPlaylists,
         setPlaylistCount,
-        setSelectedPlaylistButton
+        setSelectedPlaylistButton,
+        setPlaylistTransferred
     };
 }

@@ -14,21 +14,24 @@ import { clearYoutubeTracklistCache, getYoutubeTracklistByApplePlaylistName } fr
  * @typedef {ReturnType<typeof import('./shell-view.js').createShellView>} ShellView
  * @typedef {ReturnType<typeof import('./playlists-view.js').createPlaylistsView>} PlaylistsView
  * @typedef {ReturnType<typeof import('./selected-playlist-view.js').createSelectedPlaylistView>} SelectedPlaylistView
+ * @typedef {ReturnType<typeof import('./comparison-view.js').createComparisonView>} ComparisonView
  */
 
 /**
  * @param {{
  *   shellView: ShellView,
  *   playlistsView: PlaylistsView,
- *   selectedPlaylistView: SelectedPlaylistView
+ *   selectedPlaylistView: SelectedPlaylistView,
+ *   comparisonView: ComparisonView
  * }} views
  */
-export function createAppController({ shellView, playlistsView, selectedPlaylistView }) {
+export function createAppController({ shellView, playlistsView, selectedPlaylistView, comparisonView }) {
     let musicInstance;
     let isInitializing = false;
     let isFirebaseAuthPending = false;
     let appConfigPromise;
     let selectedPlaylist = null;
+    const transferredPlaylistIds = new Set();
 
     const firebaseSession = {
         isSignedIn: false,
@@ -128,7 +131,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.showSelectedPlaylist({
             name: getApplePlaylistName(playlist)
         });
-        selectedPlaylistView.clearTrackView();
+        selectedPlaylistView.clearContentViews();
+        comparisonView.clearComparison();
     }
 
     function handleAppleTracksRequested() {
@@ -149,6 +153,32 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
     function handleYoutubeTracksRequested() {
         void loadYouTubeMusicTracks(selectedPlaylist);
+    }
+
+    function handleComparisonRequested() {
+        if (!selectedPlaylist) {
+            return;
+        }
+
+        selectedPlaylistView.showComparisonSelected();
+        comparisonView.renderComparison({
+            playlistId: selectedPlaylist.id,
+            playlistName: getApplePlaylistName(selectedPlaylist),
+            isTransferred: transferredPlaylistIds.has(selectedPlaylist.id),
+            removedTracks: getPlaceholderRemovedTracks(),
+            addedTracks: getPlaceholderAddedTracks()
+        });
+    }
+
+    function handleSaveCurrentVersion() {
+        comparisonView.showStatus('Saved this playlist as the latest Apple Music version.');
+    }
+
+    function handleMarkPlaylistTransferred(playlistId) {
+        transferredPlaylistIds.add(playlistId);
+        playlistsView.setPlaylistTransferred(playlistId, true);
+        comparisonView.setTransferredState(true);
+        comparisonView.showStatus('Marked as transferred.');
     }
 
     async function loadYouTubeMusicTracks(playlist) {
@@ -195,6 +225,22 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.setFirebaseConnectionState({
             isFirebaseSignedIn: firebaseSession.isSignedIn
         });
+    }
+
+    function getPlaceholderRemovedTracks() {
+        return [
+            { title: 'Old Moon', artist: 'The Field Notes', album: 'After Images', readableDuration: '4:12' },
+            { title: 'Static Bloom', artist: 'Glass Harbor', album: 'Half-Light', readableDuration: '3:48' },
+            { title: 'Northbound', artist: 'Mara Vale', album: 'Quiet Signals', readableDuration: '5:07' }
+        ];
+    }
+
+    function getPlaceholderAddedTracks() {
+        return [
+            { title: 'Bright Circuit', artist: 'Glass Harbor', album: 'New Weather', readableDuration: '3:39' },
+            { title: 'Low Tide Edit', artist: 'Mara Vale', album: 'Quiet Signals', readableDuration: '4:44' },
+            { title: 'Paper Sun', artist: 'The Field Notes', album: 'After Images', readableDuration: '3:58' }
+        ];
     }
 
     function applyFirebaseUser(user) {
@@ -261,6 +307,9 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         shellView.onFirebaseSignOut(handleFirebaseSignOut);
         selectedPlaylistView.onAppleTracksRequested(handleAppleTracksRequested);
         selectedPlaylistView.onYoutubeTracksRequested(handleYoutubeTracksRequested);
+        selectedPlaylistView.onComparisonRequested(handleComparisonRequested);
+        comparisonView.onSaveCurrentVersion(handleSaveCurrentVersion);
+        comparisonView.onMarkTransferred(handleMarkPlaylistTransferred);
     }
 
     function start() {

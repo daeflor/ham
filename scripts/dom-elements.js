@@ -26,7 +26,8 @@ export function getAppElements() {
         paginationEl: document.getElementById('pagination'),
         prevPageBtn: document.getElementById('prevPage'),
         nextPageBtn: document.getElementById('nextPage'),
-        pageInfoEl: document.getElementById('pageInfo')
+        pageInfoEl: document.getElementById('pageInfo'),
+        comparisonViewEl: document.getElementById('comparisonView')
     };
 
     if (Object.values(elements).some(el => !el)) {

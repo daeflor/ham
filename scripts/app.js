@@ -1,4 +1,5 @@
 import { createAppController } from './app-controller.js';
+import { createComparisonView } from './comparison-view.js';
 import { getAppElements } from './dom-elements.js';
 import { createPlaylistsView } from './playlists-view.js';
 import { createSelectedPlaylistView } from './selected-playlist-view.js';
@@ -11,6 +12,7 @@ const elements = getAppElements();
 const shellView = createShellView(elements);
 const playlistsView = createPlaylistsView(elements);
 const selectedPlaylistView = createSelectedPlaylistView(elements);
-const appController = createAppController({ shellView, playlistsView, selectedPlaylistView });
+const comparisonView = createComparisonView(elements);
+const appController = createAppController({ shellView, playlistsView, selectedPlaylistView, comparisonView });
 
 appController.start();

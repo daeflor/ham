@@ -6,6 +6,7 @@ export function createSelectedPlaylistView(elements) {
         showYoutubeTracksButtonEl,
         showComparisonButtonEl,
         tracksViewEl,
+        comparisonViewEl,
         trackSummaryEl,
         copyTracksButtonEl,
         copyFeedbackEl,
@@ -43,6 +44,11 @@ export function createSelectedPlaylistView(elements) {
         tracksViewEl.hidden = true;
     }
 
+    function clearContentViews() {
+        clearTrackView();
+        comparisonViewEl.hidden = true;
+    }
+
     function setSelectedAction(actionKey) {
         for (const [key, button] of Object.entries(actionButtons)) {
             button.classList.toggle('selected', key === actionKey);
@@ -53,7 +59,13 @@ export function createSelectedPlaylistView(elements) {
         clearTracks();
         setSelectedAction(actionKey);
         tracksViewEl.hidden = false;
+        comparisonViewEl.hidden = true;
         trackSummaryEl.textContent = `Loading tracks...`;
+    }
+
+    function showComparisonSelected() {
+        clearTrackView();
+        setSelectedAction('comparison');
     }
 
     function showTracksError(message) {
@@ -193,19 +205,26 @@ export function createSelectedPlaylistView(elements) {
         showYoutubeTracksButtonEl.addEventListener('click', handler);
     }
 
+    function onComparisonRequested(handler) {
+        showComparisonButtonEl.addEventListener('click', handler);
+    }
+
     copyTracksButtonEl.addEventListener('click', () => {
         void copyTracksToClipboard();
     });
 
     return {
         clearTrackView,
+        clearContentViews,
         showTracksLoading,
         showTracksError,
         renderTracks,
         showSelectedPlaylist,
         setFirebaseConnectionState,
+        showComparisonSelected,
         clearSelectedAction,
         onAppleTracksRequested,
-        onYoutubeTracksRequested
+        onYoutubeTracksRequested,
+        onComparisonRequested
     };
 }
