@@ -1,7 +1,6 @@
 export function createComparisonView(elements) {
     const { comparisonViewEl } = elements;
 
-    let currentPlaylistId = '';
     let removedTracks = [];
     let addedTracks = [];
     let checkedTrackIds = new Set();
@@ -47,7 +46,6 @@ export function createComparisonView(elements) {
     comparisonViewEl.append(headerEl, columnsEl);
 
     function clearComparison() {
-        currentPlaylistId = '';
         removedTracks = [];
         addedTracks = [];
         checkedTrackIds = new Set();
@@ -56,8 +54,7 @@ export function createComparisonView(elements) {
         columnsEl.replaceChildren();
     }
 
-    function renderComparison({ playlistId, isTransferred, removedTracks: removed, addedTracks: added }) {
-        currentPlaylistId = playlistId;
+    function renderComparison({ isTransferred, removedTracks: removed, addedTracks: added }) {
         removedTracks = removed || [];
         addedTracks = added || [];
         checkedTrackIds = new Set();
@@ -211,7 +208,7 @@ export function createComparisonView(elements) {
     }
 
     function onMarkTransferred(handler) {
-        markTransferredButtonEl.addEventListener('click', () => handler(currentPlaylistId));
+        markTransferredButtonEl.addEventListener('click', handler);
     }
 
     copyButtonEl.addEventListener('click', () => {

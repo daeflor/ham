@@ -167,8 +167,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         selectedPlaylistView.showComparisonSelected();
         comparisonView.renderComparison({
-            playlistId: selectedPlaylist.id,
-            playlistName: getApplePlaylistName(selectedPlaylist),
             isTransferred: transferredPlaylistIds.has(selectedPlaylist.id),
             removedTracks: getPlaceholderRemovedTracks(),
             addedTracks: getPlaceholderAddedTracks()
@@ -179,9 +177,13 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         comparisonView.showStatus('Saved this playlist as the latest Apple Music version.');
     }
 
-    function handleMarkPlaylistTransferred(playlistId) {
-        transferredPlaylistIds.add(playlistId);
-        playlistsView.setPlaylistTransferred(playlistId, true);
+    function handleMarkPlaylistTransferred() {
+        if (!selectedPlaylist) {
+            return;
+        }
+
+        transferredPlaylistIds.add(selectedPlaylist.id);
+        playlistsView.setPlaylistTransferred(selectedPlaylist.id, true);
         playlistsView.setPlaylistCount({
             transferredCount: transferredPlaylistIds.size,
             totalCount: playlistTotalCount
