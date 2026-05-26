@@ -31,6 +31,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     let isFirebaseAuthPending = false;
     let appConfigPromise;
     let selectedPlaylist = null;
+    let playlistTotalCount = 0;
     const transferredPlaylistIds = new Set();
 
     const firebaseSession = {
@@ -107,8 +108,12 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
             shellView.setLandingStatus('Loading your library playlists…');
             const playlists = await getAppleLibraryPlaylists(music);
+            playlistTotalCount = playlists.length;
             playlistsView.renderPlaylists(playlists, handlePlaylistSelected);
-            playlistsView.setPlaylistCount(playlists.length);
+            playlistsView.setPlaylistCount({
+                transferredCount: transferredPlaylistIds.size,
+                totalCount: playlistTotalCount
+            });
 
             watchFirebaseSignInState();
 
@@ -177,6 +182,10 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     function handleMarkPlaylistTransferred(playlistId) {
         transferredPlaylistIds.add(playlistId);
         playlistsView.setPlaylistTransferred(playlistId, true);
+        playlistsView.setPlaylistCount({
+            transferredCount: transferredPlaylistIds.size,
+            totalCount: playlistTotalCount
+        });
         comparisonView.setTransferredState(true);
         comparisonView.showStatus('Marked as transferred.');
     }

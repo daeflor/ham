@@ -60,13 +60,8 @@ export function createPlaylistsView(elements) {
         }
     }
 
-    function setPlaylistCount(count) {
-        if (count === 1) {
-            playlistCountEl.textContent = '1 playlist loaded';
-            return;
-        }
-
-        playlistCountEl.textContent = `${count} playlists loaded`;
+    function setPlaylistCount({ transferredCount, totalCount }) {
+        playlistCountEl.textContent = `${transferredCount} of ${totalCount} playlists transferred`;
     }
 
     return {
