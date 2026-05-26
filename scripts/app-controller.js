@@ -27,7 +27,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     let musicInstance;
     let isInitializing = false;
     let isFirebaseCheckingAuth = true;
-    let isFirebaseSigningIn = false;
+    let isFirebaseAuthPending = false;
     let appConfigPromise;
     let selectedPlaylist = null;
 
@@ -171,24 +171,26 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
     }
 
-    function getFirebaseUserName(user) {
-        const email = String(user?.email ?? '').trim();
-        if (email.includes('@')) {
-            return email.split('@')[0];
-        }
-
-        const displayName = String(user?.displayName ?? '').trim();
-        if (displayName) {
-            return displayName;
-        }
-
-        return 'Signed in';
+    function watchFirebaseSignInState() {
+        observeFirebaseAuthState(
+            (user) => {
+                applyFirebaseUser(user);
+                isFirebaseCheckingAuth = false;
+                syncFirebaseUi();
+            },
+            (error) => {
+                console.error('Failed to observe Firebase sign-in state', error);
+                applyFirebaseUser(null);
+                isFirebaseCheckingAuth = false;
+                syncFirebaseUi();
+            }
+        );
     }
 
     function syncFirebaseUi() {
         shellView.renderFirebaseSession({
             isCheckingAuth: isFirebaseCheckingAuth,
-            isSigningIn: isFirebaseSigningIn,
+            isAuthPending: isFirebaseAuthPending,
             session: firebaseSession
         });
 
@@ -208,28 +210,26 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         firebaseSession.userName = user ? getFirebaseUserName(user) : '';
     }
 
-    function watchFirebaseSignInState() {
-        observeFirebaseAuthState(
-            (user) => {
-                applyFirebaseUser(user);
-                isFirebaseCheckingAuth = false;
-                syncFirebaseUi();
-            },
-            (error) => {
-                console.error('Failed to observe Firebase sign-in state', error);
-                applyFirebaseUser(null);
-                isFirebaseCheckingAuth = false;
-                syncFirebaseUi();
-            }
-        );
+    function getFirebaseUserName(user) {
+        const email = String(user?.email ?? '').trim();
+        if (email.includes('@')) {
+            return email.split('@')[0];
+        }
+
+        const displayName = String(user?.displayName ?? '').trim();
+        if (displayName) {
+            return displayName;
+        }
+
+        return 'Signed in';
     }
 
     async function handleFirebaseSignIn() {
-        if (isFirebaseSigningIn || firebaseSession.isSignedIn) {
+        if (isFirebaseAuthPending || firebaseSession.isSignedIn) {
             return;
         }
 
-        isFirebaseSigningIn = true;
+        isFirebaseAuthPending = true;
         syncFirebaseUi();
         shellView.setStatus('Opening Google sign-in…');
 
@@ -242,17 +242,17 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             const message = error instanceof Error ? error.message : 'Unable to sign into Google Firebase.';
             shellView.setStatus(message);
         } finally {
-            isFirebaseSigningIn = false;
+            isFirebaseAuthPending = false;
             syncFirebaseUi();
         }
     }
 
     async function handleFirebaseSignOut() {
-        if (isFirebaseSigningIn || !firebaseSession.isSignedIn) {
+        if (isFirebaseAuthPending || !firebaseSession.isSignedIn) {
             return;
         }
 
-        isFirebaseSigningIn = true;
+        isFirebaseAuthPending = true;
         syncFirebaseUi();
 
         try {
@@ -264,7 +264,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             const message = error instanceof Error ? error.message : 'Unable to sign out of Google Firebase.';
             shellView.setStatus(message);
         } finally {
-            isFirebaseSigningIn = false;
+            isFirebaseAuthPending = false;
             syncFirebaseUi();
         }
     }

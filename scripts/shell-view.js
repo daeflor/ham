@@ -32,27 +32,27 @@ export function createShellView(elements) {
         connectButtonEl.textContent = 'Connecting…';
     }
 
-    function getFirebaseButtonText({ isCheckingAuth, isSigningIn }) {
+    function getFirebaseButtonText({ isCheckingAuth, isAuthPending }) {
         if (isCheckingAuth) {
             return 'Checking Google Firebase sign-in…';
         }
 
-        if (isSigningIn) {
+        if (isAuthPending) {
             return 'Signing into Google Firebase…';
         }
 
         return 'Sign into Google Firebase';
     }
 
-    function renderFirebaseSession({ isCheckingAuth, isSigningIn, session }) {
+    function renderFirebaseSession({ isCheckingAuth, isAuthPending, session }) {
         const isSignedIn = session.isSignedIn;
 
         firebaseButtonEl.hidden = isSignedIn;
         firebaseSessionEl.hidden = !isSignedIn;
-        firebaseButtonEl.disabled = isCheckingAuth || isSigningIn || isSignedIn;
-        firebaseButtonEl.textContent = getFirebaseButtonText({ isCheckingAuth, isSigningIn });
+        firebaseButtonEl.disabled = isCheckingAuth || isAuthPending || isSignedIn;
+        firebaseButtonEl.textContent = getFirebaseButtonText({ isCheckingAuth, isAuthPending });
         firebaseUserEl.textContent = session.userName;
-        firebaseSignOutButtonEl.disabled = isCheckingAuth || isSigningIn;
+        firebaseSignOutButtonEl.disabled = isCheckingAuth || isAuthPending;
     }
 
     function showAppShell() {
