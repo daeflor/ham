@@ -221,21 +221,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         firebaseSession.isSignedIn = Boolean(user);
         firebaseSession.userId = userId;
-        firebaseSession.userName = user ? getFirebaseUserName(user) : '';
-    }
-
-    function getFirebaseUserName(user) {
-        const email = String(user?.email ?? '').trim();
-        if (email.includes('@')) {
-            return email.split('@')[0];
-        }
-
-        const displayName = String(user?.displayName ?? '').trim();
-        if (displayName) {
-            return displayName;
-        }
-
-        return 'Signed in';
+        firebaseSession.userName = user?.email?.split('@')[0] ?? 'Unknown User';
     }
 
     async function handleFirebaseSignIn() {
