@@ -119,11 +119,58 @@
                         </div>
                     </section>
 
-                    <section id="comparisonView" class="comparisonView" hidden></section>
+                    <section id="comparisonView" class="comparisonView" hidden>
+                        <div class="comparisonHeader">
+                            <div class="comparisonActions">
+                                <button id="copyComparisonButton" class="secondaryButton" type="button">Copy
+                                    comparison</button>
+                                <button id="saveComparisonButton" class="secondaryButton" type="button">Save latest
+                                    Apple Music version</button>
+                                <button id="markTransferredButton" class="secondaryButton comparisonTransferredButton"
+                                    type="button">Mark as transferred</button>
+                                <span id="comparisonTransferredBadge" class="comparisonTransferredBadge"
+                                    hidden>Transferred</span>
+                                <div id="comparisonStatus" class="copyFeedback" aria-live="polite"></div>
+                            </div>
+                            <p id="comparisonSummary" class="comparisonSummary"></p>
+                        </div>
+
+                        <div class="comparisonColumns">
+                            <section class="comparisonColumn removed">
+                                <div class="comparisonColumnHeading">
+                                    <span class="comparisonColumnIcon" aria-hidden="true">-</span>
+                                    <h3>Removed</h3>
+                                    <span id="removedComparisonCount" class="comparisonCount"></span>
+                                </div>
+                                <div id="removedComparisonList" class="comparisonTrackList"></div>
+                            </section>
+
+                            <section class="comparisonColumn added">
+                                <div class="comparisonColumnHeading">
+                                    <span class="comparisonColumnIcon" aria-hidden="true">+</span>
+                                    <h3>Added</h3>
+                                    <span id="addedComparisonCount" class="comparisonCount"></span>
+                                </div>
+                                <div id="addedComparisonList" class="comparisonTrackList"></div>
+                            </section>
+                        </div>
+                    </section>
                 </section>
             </div>
         </section>
     </main>
+
+    <template id="comparisonTrackTemplate">
+        <article class="comparisonTrack">
+            <button class="comparisonTrackCheck" type="button" aria-pressed="false">✓</button>
+            <div class="comparisonTrackBody">
+                <div class="comparisonTrackTitle" data-track-field="title"></div>
+                <div class="comparisonTrackMeta" data-track-field="artist"></div>
+                <div class="comparisonTrackMeta" data-track-field="album"></div>
+                <div class="comparisonTrackMeta" data-track-field="duration"></div>
+            </div>
+        </article>
+    </template>
 </body>
 
 </html>

@@ -27,7 +27,18 @@ export function getAppElements() {
         prevPageBtn: document.getElementById('prevPage'),
         nextPageBtn: document.getElementById('nextPage'),
         pageInfoEl: document.getElementById('pageInfo'),
-        comparisonViewEl: document.getElementById('comparisonView')
+        comparisonViewEl: document.getElementById('comparisonView'),
+        comparisonSummaryEl: document.getElementById('comparisonSummary'),
+        copyComparisonButtonEl: document.getElementById('copyComparisonButton'),
+        saveComparisonButtonEl: document.getElementById('saveComparisonButton'),
+        markTransferredButtonEl: document.getElementById('markTransferredButton'),
+        comparisonTransferredBadgeEl: document.getElementById('comparisonTransferredBadge'),
+        comparisonStatusEl: document.getElementById('comparisonStatus'),
+        removedComparisonCountEl: document.getElementById('removedComparisonCount'),
+        removedComparisonListEl: document.getElementById('removedComparisonList'),
+        addedComparisonCountEl: document.getElementById('addedComparisonCount'),
+        addedComparisonListEl: document.getElementById('addedComparisonList'),
+        comparisonTrackTemplateEl: document.getElementById('comparisonTrackTemplate')
     };
 
     if (Object.values(elements).some(el => !el)) {
