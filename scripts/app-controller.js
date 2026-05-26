@@ -173,13 +173,15 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     function watchFirebaseSignInState() {
         observeFirebaseAuthState(
             (user) => {
+                isFirebaseAuthPending = false;
                 applyFirebaseUser(user);
                 syncFirebaseUi();
             },
             (error) => {
-                console.error('Failed to observe Firebase sign-in state', error);
+                isFirebaseAuthPending = false;
                 applyFirebaseUser(null);
                 syncFirebaseUi();
+                console.error('Failed to observe Firebase sign-in state', error);
             }
         );
     }
@@ -230,14 +232,10 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         try {
             const result = await signInToFirebase();
-            applyFirebaseUser(result.user);
         } catch (error) {
-            console.error('Failed to sign into Firebase', error);
             const message = error instanceof Error ? error.message : 'Unable to sign into Google Firebase.';
             shellView.setStatus(message);
-        } finally {
-            isFirebaseAuthPending = false;
-            syncFirebaseUi();
+            console.error('Failed to sign into Firebase', error);
         }
     }
 
@@ -247,19 +245,13 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
 
         isFirebaseAuthPending = true;
-        syncFirebaseUi();
 
         try {
             await signOutFromFirebase();
-            applyFirebaseUser(null);
-            shellView.setStatus('');
         } catch (error) {
-            console.error('Failed to sign out of Firebase', error);
             const message = error instanceof Error ? error.message : 'Unable to sign out of Google Firebase.';
             shellView.setStatus(message);
-        } finally {
-            isFirebaseAuthPending = false;
-            syncFirebaseUi();
+            console.error('Failed to sign out of Firebase', error);
         }
     }
 

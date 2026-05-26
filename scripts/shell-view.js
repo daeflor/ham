@@ -44,7 +44,6 @@ export function createShellView(elements) {
 
         firebaseSessionEl.hidden = !isSignedIn;
         firebaseUserEl.textContent = session.userName;
-        firebaseSignOutButtonEl.disabled = isAuthPending;
     }
 
     function showAppShell() {
