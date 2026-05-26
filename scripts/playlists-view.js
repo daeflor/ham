@@ -4,10 +4,10 @@ export function createPlaylistsView(elements) {
         playlistCountEl
     } = elements;
 
-    function setSelectedPlaylistButton(selectedPlaylistId) {
+    function setSelectedPlaylist(playlistId) {
         const buttons = playlistListEl.querySelectorAll('button[data-playlist-id]');
         for (const button of buttons) {
-            const isSelected = button.getAttribute('data-playlist-id') === selectedPlaylistId;
+            const isSelected = button.getAttribute('data-playlist-id') === playlistId;
             button.classList.toggle('selected', isSelected);
         }
     }
@@ -46,7 +46,10 @@ export function createPlaylistsView(elements) {
             transferredBadge.hidden = true;
 
             button.append(title, transferredBadge);
-            button.addEventListener('click', () => onSelect(playlist));
+            button.addEventListener('click', () => {
+                setSelectedPlaylist(playlistId);
+                onSelect(playlist);
+            });
             li.append(button);
             playlistListEl.append(li);
         }
@@ -67,7 +70,6 @@ export function createPlaylistsView(elements) {
     return {
         renderPlaylists,
         setPlaylistCount,
-        setSelectedPlaylistButton,
         setPlaylistTransferred
     };
 }

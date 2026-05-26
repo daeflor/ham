@@ -189,7 +189,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
     function handlePlaylistSelected(playlist) {
         selectedPlaylist = playlist;
-        playlistsView.setSelectedPlaylistButton(playlist.id);
         selectedPlaylistView.clearSelectedAction();
         selectedPlaylistView.showSelectedPlaylist({
             name: getApplePlaylistName(playlist)
