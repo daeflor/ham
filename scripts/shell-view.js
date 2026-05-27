@@ -44,18 +44,11 @@ export function createShellView(elements) {
 
         firebaseButtonEl.disabled = isAuthPending || isSignedIn;
         firebaseButtonEl.hidden = isSignedIn;
-        firebaseButtonEl.textContent = getFirebaseButtonText({ isAuthPending });
+        firebaseButtonEl.textContent = isAuthPending ? 'Signing into Google Firebase…' : 'Sign into Google Firebase';
 
         firebaseSessionEl.hidden = !isSignedIn;
+
         firebaseUserEl.textContent = session.userName;
-    }
-
-    function getFirebaseButtonText({ isAuthPending }) {
-        if (isAuthPending) {
-            return 'Signing into Google Firebase…';
-        }
-
-        return 'Sign into Google Firebase';
     }
 
     function onFirebaseSignIn(handler) {
