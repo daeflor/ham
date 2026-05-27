@@ -12,27 +12,31 @@ export function createShellView(elements) {
         statusEl
     } = elements;
 
-    function setStatus(message) {
-        const text = (message ?? '').trim();
-        statusEl.hidden = text.length === 0;
-        statusEl.textContent = text;
+    function onConnect(handler) {
+        connectButtonEl.addEventListener('click', handler);
+    }
+
+    function setLandingLoadingState(isLoading) {
+        landingActionsEl.hidden = isLoading;
     }
 
     function setLandingStatus(message) {
         landingStatusEl.textContent = message;
     }
 
-    function setLandingLoadingState(isLoading) {
-        landingActionsEl.hidden = isLoading;
-        landingShellEl.classList.toggle('heroLoading', isLoading);
+    function hideLandingShell() {
+        landingShellEl.hidden = true;
     }
 
-    function getFirebaseButtonText({ isAuthPending }) {
-        if (isAuthPending) {
-            return 'Signing into Google Firebase…';
-        }
+    function showAppShell() {
+        appShellEl.hidden = false;
+        appShellEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
-        return 'Sign into Google Firebase';
+    function setStatus(message) {
+        const text = (message ?? '').trim();
+        statusEl.hidden = text.length === 0;
+        statusEl.textContent = text;
     }
 
     function renderFirebaseSession({ isAuthPending, session }) {
@@ -46,17 +50,12 @@ export function createShellView(elements) {
         firebaseUserEl.textContent = session.userName;
     }
 
-    function showAppShell() {
-        appShellEl.hidden = false;
-        appShellEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    function getFirebaseButtonText({ isAuthPending }) {
+        if (isAuthPending) {
+            return 'Signing into Google Firebase…';
+        }
 
-    function hideLandingShell() {
-        landingShellEl.hidden = true;
-    }
-
-    function onConnect(handler) {
-        connectButtonEl.addEventListener('click', handler);
+        return 'Sign into Google Firebase';
     }
 
     function onFirebaseSignIn(handler) {
