@@ -4,14 +4,6 @@ export function createPlaylistsView(elements) {
         playlistCountEl
     } = elements;
 
-    function setSelectedPlaylist(playlistId) {
-        const buttons = playlistListEl.querySelectorAll('button[data-playlist-id]');
-        for (const button of buttons) {
-            const isSelected = button.getAttribute('data-playlist-id') === playlistId;
-            button.classList.toggle('selected', isSelected);
-        }
-    }
-
     function renderPlaylists(playlists, onSelect) {
         playlistListEl.replaceChildren();
 
@@ -55,16 +47,24 @@ export function createPlaylistsView(elements) {
         }
     }
 
+    function setPlaylistCount({ transferredCount, totalCount }) {
+        playlistCountEl.textContent = `${transferredCount} of ${totalCount} playlists transferred`;
+    }
+
+    function setSelectedPlaylist(playlistId) {
+        const buttons = playlistListEl.querySelectorAll('button[data-playlist-id]');
+        for (const button of buttons) {
+            const isSelected = button.getAttribute('data-playlist-id') === playlistId;
+            button.classList.toggle('selected', isSelected);
+        }
+    }
+
     function setPlaylistTransferred(playlistId, isTransferred) {
         const button = playlistListEl.querySelector(`button[data-playlist-id="${CSS.escape(playlistId)}"]`);
         const badge = button?.querySelector('.playlistTransferredBadge');
         if (badge) {
             badge.hidden = !isTransferred;
         }
-    }
-
-    function setPlaylistCount({ transferredCount, totalCount }) {
-        playlistCountEl.textContent = `${transferredCount} of ${totalCount} playlists transferred`;
     }
 
     return {
