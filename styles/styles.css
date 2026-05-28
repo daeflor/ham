@@ -535,6 +535,8 @@ p {
     overflow-y: auto;
     padding-right: 6px;
     scrollbar-gutter: stable;
+    scroll-padding-top: 0;
+    scroll-snap-type: y proximity;
 }
 
 .comparisonTrack {
@@ -546,6 +548,8 @@ p {
     border-radius: 14px;
     background: rgba(255, 252, 247, 0.58);
     cursor: pointer;
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
     transition: background-color 180ms ease, border-color 180ms ease;
 }
 
