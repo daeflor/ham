@@ -4,8 +4,6 @@ export function createComparisonView(elements) {
         comparisonSummaryEl,
         copyComparisonButtonEl,
         saveComparisonButtonEl,
-        markTransferredButtonEl,
-        comparisonTransferredBadgeEl,
         comparisonStatusEl,
         removedComparisonCountEl,
         removedComparisonListEl,
@@ -34,28 +32,25 @@ export function createComparisonView(elements) {
         comparisonViewEl.hidden = true;
     }
 
-    function showLoading({ isTransferred } = {}) {
+    function showLoading() {
         clearComparison();
         comparisonViewEl.hidden = false;
-        setTransferredState(Boolean(isTransferred));
         comparisonSummaryEl.textContent = 'Loading Apple Music and YouTube Music tracklists...';
     }
 
-    function showError(message, { isTransferred } = {}) {
+    function showError(message) {
         clearComparison();
         comparisonViewEl.hidden = false;
-        setTransferredState(Boolean(isTransferred));
         comparisonSummaryEl.textContent = message;
     }
 
-    function renderComparison({ isTransferred, removedTracks: removed, addedTracks: added }) {
+    function renderComparison({ removedTracks: removed, addedTracks: added }) {
         removedTracks = removed || [];
         addedTracks = added || [];
         checkedTrackIds = new Set();
         comparisonViewEl.hidden = false;
         comparisonStatusEl.textContent = '';
         comparisonSummaryEl.textContent = `${removedTracks.length} removed, ${addedTracks.length} added.`;
-        setTransferredState(isTransferred);
 
         renderTrackColumn({
             title: 'Removed',
@@ -133,11 +128,6 @@ export function createComparisonView(elements) {
         return rowEl;
     }
 
-    function setTransferredState(isTransferred) {
-        markTransferredButtonEl.hidden = isTransferred;
-        comparisonTransferredBadgeEl.hidden = !isTransferred;
-    }
-
     function showStatus(message) {
         comparisonStatusEl.textContent = message;
     }
@@ -185,10 +175,6 @@ export function createComparisonView(elements) {
         saveComparisonButtonEl.addEventListener('click', handler);
     }
 
-    function onMarkTransferred(handler) {
-        markTransferredButtonEl.addEventListener('click', handler);
-    }
-
     copyComparisonButtonEl.addEventListener('click', () => {
         void copyComparisonToClipboard();
     });
@@ -199,9 +185,7 @@ export function createComparisonView(elements) {
         showLoading,
         showError,
         renderComparison,
-        setTransferredState,
         showStatus,
-        onSaveCurrentVersion,
-        onMarkTransferred
+        onSaveCurrentVersion
     };
 }

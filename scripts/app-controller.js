@@ -203,7 +203,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylist = playlist;
         selectedPlaylistView.clearSelectedAction();
         selectedPlaylistView.showSelectedPlaylist({
-            name: getApplePlaylistName(playlist)
+            name: getApplePlaylistName(playlist),
+            isTransferred: transferredPlaylistIds.has(playlist.id)
         });
         selectedPlaylistView.clearTracks();
         selectedPlaylistView.hideTracks();
@@ -245,10 +246,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     async function handleComparisonRequested() {
-        const isTransferred = transferredPlaylistIds.has(selectedPlaylist.id);
-
         selectedPlaylistView.showComparisonSelected();
-        comparisonView.showLoading({ isTransferred });
+        comparisonView.showLoading();
 
         try {
             const playlistName = getApplePlaylistName(selectedPlaylist);
@@ -258,21 +257,20 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             ]);
 
             if (!youtubeTracklistData) {
-                comparisonView.showError('No YouTube Music equivalent playlist found.', { isTransferred });
+                comparisonView.showError('No YouTube Music equivalent playlist found.');
                 return;
             }
 
             const comparison = compareTracklists(youtubeTracklistData.tracks, appleTracks);
 
             comparisonView.renderComparison({
-                isTransferred,
                 removedTracks: comparison.removedTracks,
                 addedTracks: comparison.addedTracks
             });
             comparisonView.showStatus(`${comparison.matchedTracks.length} tracks matched.`);
         } catch (error) {
             console.error('Failed to compare tracklists', error);
-            comparisonView.showError('Failed to compare the Apple Music and YouTube Music tracklists.', { isTransferred });
+            comparisonView.showError('Failed to compare the Apple Music and YouTube Music tracklists.');
         }
     }
 
@@ -287,8 +285,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             transferredCount: transferredPlaylistIds.size,
             totalCount: playlistTotalCount
         });
-        comparisonView.setTransferredState(true);
-        comparisonView.showStatus('Marked as transferred.');
+        selectedPlaylistView.setTransferredState(true);
     }
 
     function bindEvents() {
@@ -298,8 +295,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.onAppleTracksRequested(handleAppleTracksRequested);
         selectedPlaylistView.onYoutubeTracksRequested(handleYoutubeTracksRequested);
         selectedPlaylistView.onComparisonRequested(handleComparisonRequested);
+        selectedPlaylistView.onTransferRequested(handleMarkPlaylistTransferred);
         comparisonView.onSaveCurrentVersion(handleSaveCurrentVersion);
-        comparisonView.onMarkTransferred(handleMarkPlaylistTransferred);
     }
 
     function start() {

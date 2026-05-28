@@ -8,8 +8,10 @@ Main page:
     - Shows a list of all Apple Music playlists; each item in the list can be selected
         - Could be a column on a left-side pane
         - Each playlist includes its name
-        - If a playlist has been marked as "transferred", then include a green "transferred" badge here
+        - If a playlist has been marked as "transferred", then include a green checkmark badge to the right of the playlist name (right-aligned)
     - Selecting a playlist will reveal additional options (can use icons and hover text instead of long text buttons)
+        - To the right of the playlist name (right-aligned), a "transfer" button
+            - When the button is selected and/or the playlist is marked as "transferred", the button is hidden and a green "transferred" badge appears instead. This also applies the green checkmark in the playlists list.
         - Show list of tracks in Apple Music playlist
         - Show equivalent tracklist from YouTube Music
             - Disabled unless user has signed into Google Firebase
@@ -34,7 +36,6 @@ Comparison view:
     - List the total number of "Removed" and "Added" tracks
     - Include a copy to clipboard button, which will copy the full "Removed" and "Added" lists side-by-side
     - A button to save the current/latest state of the Apple Music playlist, effectively marking at as a "last known good" version
-    - A button to mark the playlist as "transferred", which will apply a "transferred" badge in the lists of playlists 
 
 Comparison logic notes:
     - In order to consider two tracks as matching, their titles, artists, and albums must match exactly

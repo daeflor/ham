@@ -2,6 +2,8 @@ export function createSelectedPlaylistView(elements) {
     const {
         detailPanelEl,
         selectionTitleEl,
+        selectedTransferButtonEl,
+        selectedTransferredBadgeEl,
         showAppleTracksButtonEl,
         showYoutubeTracksButtonEl,
         showComparisonButtonEl,
@@ -150,9 +152,15 @@ export function createSelectedPlaylistView(elements) {
         }
     });
 
-    function showSelectedPlaylist({ name }) {
+    function showSelectedPlaylist({ name, isTransferred }) {
         detailPanelEl.hidden = false;
         selectionTitleEl.textContent = name;
+        setTransferredState(isTransferred);
+    }
+
+    function setTransferredState(isTransferred) {
+        selectedTransferButtonEl.hidden = isTransferred;
+        selectedTransferredBadgeEl.hidden = !isTransferred;
     }
 
     function setFirebaseConnectionState(isFirebaseConnected) {
@@ -201,6 +209,10 @@ export function createSelectedPlaylistView(elements) {
         showComparisonButtonEl.addEventListener('click', handler);
     }
 
+    function onTransferRequested(handler) {
+        selectedTransferButtonEl.addEventListener('click', handler);
+    }
+
     copyTracksButtonEl.addEventListener('click', () => {
         void copyTracksToClipboard();
     });
@@ -212,11 +224,13 @@ export function createSelectedPlaylistView(elements) {
         showTracksError,
         renderTracks,
         showSelectedPlaylist,
+        setTransferredState,
         setFirebaseConnectionState,
         showComparisonSelected,
         clearSelectedAction,
         onAppleTracksRequested,
         onYoutubeTracksRequested,
-        onComparisonRequested
+        onComparisonRequested,
+        onTransferRequested
     };
 }

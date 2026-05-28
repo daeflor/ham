@@ -69,8 +69,14 @@
 
                 <section class="panel detailPanel" id="detailPanel" hidden>
                     <div class="selectionCard">
-                        <div>
-                            <h2 id="selectionTitle">Choose an Apple Music playlist</h2>
+                        <div class="selectionHeader">
+                            <h2 id="selectionTitle"></h2>
+                            <div class="selectionTransferState">
+                                <button id="selectedTransferButton" class="secondaryButton selectionTransferButton"
+                                    type="button">Transfer</button>
+                                <span id="selectedTransferredBadge" class="selectedTransferredBadge"
+                                    hidden>Transferred</span>
+                            </div>
                         </div>
                     </div>
 
@@ -126,10 +132,6 @@
                                     comparison</button>
                                 <button id="saveComparisonButton" class="secondaryButton" type="button">Save latest
                                     Apple Music version</button>
-                                <button id="markTransferredButton" class="secondaryButton comparisonTransferredButton"
-                                    type="button">Mark as transferred</button>
-                                <span id="comparisonTransferredBadge" class="comparisonTransferredBadge"
-                                    hidden>Transferred</span>
                                 <div id="comparisonStatus" class="copyFeedback" aria-live="polite"></div>
                             </div>
                             <p id="comparisonSummary" class="comparisonSummary"></p>
