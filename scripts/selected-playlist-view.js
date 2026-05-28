@@ -155,9 +155,9 @@ export function createSelectedPlaylistView(elements) {
         selectionTitleEl.textContent = name;
     }
 
-    function setFirebaseConnectionState({ isFirebaseSignedIn }) {
-        showYoutubeTracksButtonEl.disabled = !isFirebaseSignedIn;
-        showComparisonButtonEl.disabled = !isFirebaseSignedIn;
+    function setFirebaseConnectionState(isFirebaseConnected) {
+        showYoutubeTracksButtonEl.disabled = !isFirebaseConnected;
+        showComparisonButtonEl.disabled = !isFirebaseConnected;
     }
 
     function clearSelectedAction() {

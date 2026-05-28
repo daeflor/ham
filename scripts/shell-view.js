@@ -39,18 +39,6 @@ export function createShellView(elements) {
         statusEl.textContent = text;
     }
 
-    function renderFirebaseSession({ isAuthPending, session }) {
-        const isSignedIn = session.isSignedIn;
-
-        firebaseButtonEl.disabled = isAuthPending || isSignedIn;
-        firebaseButtonEl.hidden = isSignedIn;
-        firebaseButtonEl.textContent = isAuthPending ? 'Signing into Google Firebase…' : 'Sign into Google Firebase';
-
-        firebaseSessionEl.hidden = !isSignedIn;
-
-        firebaseUserEl.textContent = session.userName;
-    }
-
     function onFirebaseSignIn(handler) {
         firebaseButtonEl.addEventListener('click', handler);
     }
@@ -59,15 +47,37 @@ export function createShellView(elements) {
         firebaseSignOutButtonEl.addEventListener('click', handler);
     }
 
+    function renderFirebaseAuthenticating() {
+        firebaseButtonEl.textContent = 'Signing into Google Firebase…';
+        firebaseButtonEl.disabled = true;
+    }
+
+    function renderFirebaseSignedIn(username) {
+        firebaseButtonEl.hidden = true;
+
+        firebaseUserEl.textContent = username;
+        firebaseSessionEl.hidden = false;
+    }
+
+    function renderFirebaseSignedOut() {
+        firebaseSessionEl.hidden = true;
+
+        firebaseButtonEl.textContent = 'Sign into Google Firebase';
+        firebaseButtonEl.disabled = false;
+        firebaseButtonEl.hidden = false;
+    }
+
     return {
         setStatus,
         setLandingStatus,
         setLandingLoadingState,
-        renderFirebaseSession,
         showAppShell,
         hideLandingShell,
         onConnect,
         onFirebaseSignIn,
-        onFirebaseSignOut
+        onFirebaseSignOut,
+        renderFirebaseAuthenticating,
+        renderFirebaseSignedIn,
+        renderFirebaseSignedOut
     };
 }

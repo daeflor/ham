@@ -28,13 +28,19 @@ import { clearYoutubeTracklistCache, getYoutubeTracklistByApplePlaylistName } fr
 export function createAppController({ shellView, playlistsView, selectedPlaylistView, comparisonView }) {
     let musicInstance;
     let isInitializing = false;
-    let isFirebaseAuthPending = false;
     let selectedPlaylist = null;
     let playlistTotalCount = 0;
     const transferredPlaylistIds = new Set();
 
+    const FirebaseSessionState = Object.freeze({
+        SIGNED_OUT: 'signed-out',
+        SIGNING_IN: 'signing-in',
+        SIGNING_OUT: 'signing-out',
+        SIGNED_IN: 'signed-in'
+    });
+
     const firebaseSession = {
-        isSignedIn: false,
+        state: FirebaseSessionState.SIGNED_OUT,
         userId: '',
         userName: ''
     };
@@ -119,12 +125,10 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     function watchFirebaseSignInState() {
         observeFirebaseAuthState(
             (user) => {
-                isFirebaseAuthPending = false;
                 applyFirebaseUser(user);
                 syncFirebaseUi();
             },
             (error) => {
-                isFirebaseAuthPending = false;
                 applyFirebaseUser(null);
                 syncFirebaseUi();
                 console.error('Failed to observe Firebase sign-in state', error);
@@ -138,52 +142,59 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             clearYoutubeTracklistCache();
         }
 
-        firebaseSession.isSignedIn = Boolean(user);
+        firebaseSession.state = user ? FirebaseSessionState.SIGNED_IN : FirebaseSessionState.SIGNED_OUT;
         firebaseSession.userId = userId;
-        firebaseSession.userName = user?.email?.split('@')[0] ?? 'Unknown User';
+        firebaseSession.userName = user?.email?.split('@')[0] ?? '';
     }
 
     function syncFirebaseUi() {
-        shellView.renderFirebaseSession({
-            isAuthPending: isFirebaseAuthPending,
-            session: firebaseSession
-        });
-
-        selectedPlaylistView.setFirebaseConnectionState({
-            isFirebaseSignedIn: firebaseSession.isSignedIn
-        });
+        switch (firebaseSession.state) {
+            case FirebaseSessionState.SIGNING_IN:
+                shellView.renderFirebaseAuthenticating();
+                break;
+            case FirebaseSessionState.SIGNED_IN:
+                shellView.renderFirebaseSignedIn(firebaseSession.userName);
+                selectedPlaylistView.setFirebaseConnectionState(true);
+                break;
+            case FirebaseSessionState.SIGNED_OUT:
+                shellView.renderFirebaseSignedOut();
+                selectedPlaylistView.setFirebaseConnectionState(false);
+                break;
+            default:
+                console.warn('Trying to sync UI based on unsupported Firebase session state:', firebaseSession.state);
+        }
     }
 
     async function handleFirebaseSignIn() {
-        if (isFirebaseAuthPending || firebaseSession.isSignedIn) {
-            return;
-        }
+        if (firebaseSession.state === FirebaseSessionState.SIGNED_OUT) {
+            firebaseSession.state = FirebaseSessionState.SIGNING_IN;
+            syncFirebaseUi();
 
-        isFirebaseAuthPending = true;
-        syncFirebaseUi();
-
-        try {
-            const result = await signInToFirebase();
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Unable to sign into Google Firebase.';
-            shellView.setStatus(message);
-            console.error('Failed to sign into Firebase', error);
+            try {
+                await signInToFirebase();
+            } catch (error) {
+                firebaseSession.state = FirebaseSessionState.SIGNED_OUT;
+                syncFirebaseUi();
+                const message = error instanceof Error ? error.message : 'Unable to sign into Google Firebase.';
+                shellView.setStatus(message);
+                console.error('Failed to sign into Firebase', error);
+            }
         }
     }
 
     async function handleFirebaseSignOut() {
-        if (isFirebaseAuthPending || !firebaseSession.isSignedIn) {
-            return;
-        }
+        if (firebaseSession.state === FirebaseSessionState.SIGNED_IN) {
+            // Don't bother updating the UI while signing out since it should complete (or fail) very quickly, at which point the UI will be updated accordingly.
+            firebaseSession.state = FirebaseSessionState.SIGNING_OUT;
 
-        isFirebaseAuthPending = true;
-
-        try {
-            await signOutFromFirebase();
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Unable to sign out of Google Firebase.';
-            shellView.setStatus(message);
-            console.error('Failed to sign out of Firebase', error);
+            try {
+                await signOutFromFirebase();
+            } catch (error) {
+                firebaseSession.state = FirebaseSessionState.SIGNED_IN;
+                const message = error instanceof Error ? error.message : 'Unable to sign out of Google Firebase.';
+                shellView.setStatus(message);
+                console.error('Failed to sign out of Firebase', error);
+            }
         }
     }
 
