@@ -508,6 +508,7 @@ p {
     border: 1px solid transparent;
     border-radius: 14px;
     background: rgba(255, 252, 247, 0.58);
+    cursor: pointer;
     transition: background-color 180ms ease, border-color 180ms ease;
 }
 

@@ -106,7 +106,7 @@ export function createComparisonView(elements) {
         albumEl.textContent = track.album ?? '-';
         durationEl.textContent = track.readableDuration ?? '-';
 
-        checkboxEl.addEventListener('click', () => {
+        function toggleCheckedState() {
             const isChecked = checkedTrackIds.has(trackId);
             if (isChecked) {
                 checkedTrackIds.delete(trackId);
@@ -116,6 +116,18 @@ export function createComparisonView(elements) {
 
             rowEl.classList.toggle('checked', !isChecked);
             checkboxEl.setAttribute('aria-pressed', String(!isChecked));
+        }
+
+        rowEl.addEventListener('click', (event) => {
+            if (event.target === checkboxEl) {
+                return;
+            }
+
+            toggleCheckedState();
+        });
+
+        checkboxEl.addEventListener('click', () => {
+            toggleCheckedState();
         });
 
         return rowEl;

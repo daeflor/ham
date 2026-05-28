@@ -30,7 +30,7 @@ Comparison view:
         - A track in the YouTube Music playlist which doesn't have an exact match in Apple Music will be in the "Removed" section
         - A track in the Apple Music playlist which doesn't have an exact match in YouTube Music will be in the "Added" section
     - Each track includes title, artist, album, length
-    - Each track includes a checkmark which will give it a green background color
+    - Each track includes a checkbox which will give it a green background color. (Clicking anywhere on the track element will toggle the checkbox and "select" or "unselect" it this way).
     - List the total number of "Removed" and "Added" tracks
     - Include a copy to clipboard button, which will copy the full "Removed" and "Added" lists side-by-side
     - A button to save the current/latest state of the Apple Music playlist, effectively marking at as a "last known good" version
