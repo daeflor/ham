@@ -15,6 +15,7 @@ Main page:
             - Disabled unless user has signed into Google Firebase
         - Show comparison between YouTube Music and Apple Music version of playlists 
             - Disabled unless user has signed into Google Firebase
+            - Selecting this button should fetch both the Apple Music and YouTube Music tracklists if they have not been previously cached (i.e. the user should not have to select the other action buttons before this one)
     
 Tracklist view:
     - Probably not a separate page

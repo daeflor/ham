@@ -34,6 +34,20 @@ export function createComparisonView(elements) {
         comparisonViewEl.hidden = true;
     }
 
+    function showLoading({ isTransferred } = {}) {
+        clearComparison();
+        comparisonViewEl.hidden = false;
+        setTransferredState(Boolean(isTransferred));
+        comparisonSummaryEl.textContent = 'Loading Apple Music and YouTube Music tracklists...';
+    }
+
+    function showError(message, { isTransferred } = {}) {
+        clearComparison();
+        comparisonViewEl.hidden = false;
+        setTransferredState(Boolean(isTransferred));
+        comparisonSummaryEl.textContent = message;
+    }
+
     function renderComparison({ isTransferred, removedTracks: removed, addedTracks: added }) {
         removedTracks = removed || [];
         addedTracks = added || [];
@@ -170,6 +184,8 @@ export function createComparisonView(elements) {
     return {
         clearComparison,
         hideComparison,
+        showLoading,
+        showError,
         renderComparison,
         setTransferredState,
         showStatus,

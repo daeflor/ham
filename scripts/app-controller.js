@@ -8,6 +8,7 @@ import {
     signInToFirebase,
     signOutFromFirebase
 } from './firebase-api.js';
+import { compareTracklists } from './tracklist-comparison.js';
 import { clearYoutubeTracklistCache, getYoutubeTracklistByApplePlaylistName } from './youtube-tracklists.js';
 
 /**
@@ -243,13 +244,36 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
     }
 
-    function handleComparisonRequested() {
+    async function handleComparisonRequested() {
+        const isTransferred = transferredPlaylistIds.has(selectedPlaylist.id);
+
         selectedPlaylistView.showComparisonSelected();
-        comparisonView.renderComparison({
-            isTransferred: transferredPlaylistIds.has(selectedPlaylist.id),
-            removedTracks: getPlaceholderRemovedTracks(),
-            addedTracks: getPlaceholderAddedTracks()
-        });
+        comparisonView.showLoading({ isTransferred });
+
+        try {
+            const playlistName = getApplePlaylistName(selectedPlaylist);
+            const [appleTracks, youtubeTracklistData] = await Promise.all([
+                getApplePlaylistTracks(musicInstance, selectedPlaylist.id),
+                getYoutubeTracklistByApplePlaylistName(playlistName)
+            ]);
+
+            if (!youtubeTracklistData) {
+                comparisonView.showError('No YouTube Music equivalent playlist found.', { isTransferred });
+                return;
+            }
+
+            const comparison = compareTracklists(youtubeTracklistData.tracks, appleTracks);
+
+            comparisonView.renderComparison({
+                isTransferred,
+                removedTracks: comparison.removedTracks,
+                addedTracks: comparison.addedTracks
+            });
+            comparisonView.showStatus(`${comparison.matchedTracks.length} tracks matched.`);
+        } catch (error) {
+            console.error('Failed to compare tracklists', error);
+            comparisonView.showError('Failed to compare the Apple Music and YouTube Music tracklists.', { isTransferred });
+        }
     }
 
     function handleSaveCurrentVersion() {
@@ -265,22 +289,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         });
         comparisonView.setTransferredState(true);
         comparisonView.showStatus('Marked as transferred.');
-    }
-
-    function getPlaceholderRemovedTracks() {
-        return [
-            { title: 'Old Moon', artist: 'The Field Notes', album: 'After Images', readableDuration: '4:12' },
-            { title: 'Static Bloom', artist: 'Glass Harbor', album: 'Half-Light', readableDuration: '3:48' },
-            { title: 'Northbound', artist: 'Mara Vale', album: 'Quiet Signals', readableDuration: '5:07' }
-        ];
-    }
-
-    function getPlaceholderAddedTracks() {
-        return [
-            { title: 'Bright Circuit', artist: 'Glass Harbor', album: 'New Weather', readableDuration: '3:39' },
-            { title: 'Low Tide Edit', artist: 'Mara Vale', album: 'Quiet Signals', readableDuration: '4:44' },
-            { title: 'Paper Sun', artist: 'The Field Notes', album: 'After Images', readableDuration: '3:58' }
-        ];
     }
 
     function bindEvents() {
