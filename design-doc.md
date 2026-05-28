@@ -35,3 +35,6 @@ Comparison view:
     - A button to save the current/latest state of the Apple Music playlist, effectively marking at as a "last known good" version
     - A button to mark the playlist as "transferred", which will apply a "transferred" badge in the lists of playlists 
 
+Comparison logic notes:
+    - In order to consider two tracks as matching, their titles, artists, and albums must match exactly
+    - The duration can vary by up to 3 seconds and still be considered a match
