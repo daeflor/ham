@@ -128,8 +128,13 @@
                     <section id="comparisonView" class="comparisonView" hidden>
                         <div class="comparisonHeader">
                             <div class="comparisonActions">
-                                <button id="copyComparisonButton" class="secondaryButton" type="button">Copy
-                                    comparison</button>
+                                <button id="copyComparisonButton" class="iconButton" type="button"
+                                    aria-label="Copy comparison" title="Copy comparison">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path
+                                            d="M9 3h6a2 2 0 0 1 2 2v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-1H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 3h6V5H9zm-4 9h1V8a2 2 0 0 1 2-2h7V5H5zm3-7v11h10V8z" />
+                                    </svg>
+                                </button>
                                 <button id="saveComparisonButton" class="secondaryButton" type="button">Save latest
                                     Apple Music version</button>
                                 <div id="comparisonStatus" class="copyFeedback" aria-live="polite"></div>
