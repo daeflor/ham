@@ -15,6 +15,8 @@ export function createComparisonView(elements) {
     let removedTracks = [];
     let addedTracks = [];
     let checkedTrackIds = new Set();
+    // const rowScrollThreshold = 60;
+    // const rowScrollCooldownMs = 240;
 
     function clearComparison() {
         removedTracks = [];
@@ -174,6 +176,69 @@ export function createComparisonView(elements) {
     function onSaveCurrentVersion(handler) {
         saveComparisonButtonEl.addEventListener('click', handler);
     }
+
+    // function setupRowSnapScrolling(listEl) {
+    //     let wheelDelta = 0;
+    //     let lastScrollAt = 0;
+
+    //     listEl.addEventListener('wheel', (event) => {
+    //         const rows = Array.from(listEl.querySelectorAll('.comparisonTrack'));
+
+    //         if (rows.length === 0) {
+    //             return;
+    //         }
+
+    //         event.preventDefault();
+    //         wheelDelta += event.deltaY;
+
+    //         const now = performance.now();
+    //         if (Math.abs(wheelDelta) < rowScrollThreshold || now - lastScrollAt < rowScrollCooldownMs) {
+    //             return;
+    //         }
+
+    //         scrollColumnByRow(listEl, rows, Math.sign(wheelDelta));
+    //         wheelDelta = 0;
+    //         lastScrollAt = now;
+    //     }, { passive: false });
+    // }
+
+    // function scrollColumnByRow(listEl, rows, direction) {
+    //     const targetRow = getTargetRowForScroll(listEl, rows, direction);
+
+    //     if (!targetRow) {
+    //         return;
+    //     }
+
+    //     const listRect = listEl.getBoundingClientRect();
+    //     const rowRect = targetRow.getBoundingClientRect();
+    //     const top = listEl.scrollTop + rowRect.top - listRect.top;
+
+    //     listEl.scrollTo({ top, behavior: 'smooth' });
+    // }
+
+    // function getTargetRowForScroll(listEl, rows, direction) {
+    //     const listTop = listEl.getBoundingClientRect().top;
+    //     const firstVisibleIndex = rows.findIndex((row) => row.getBoundingClientRect().bottom > listTop + 1);
+
+    //     if (firstVisibleIndex === -1) {
+    //         return rows.at(-1);
+    //     }
+
+    //     const firstVisibleTop = rows[firstVisibleIndex].getBoundingClientRect().top - listTop;
+
+    //     if (direction > 0 && Math.abs(firstVisibleTop) <= 1) {
+    //         return rows[Math.min(firstVisibleIndex + 1, rows.length - 1)];
+    //     }
+
+    //     if (direction < 0 && firstVisibleTop < -1) {
+    //         return rows[firstVisibleIndex];
+    //     }
+
+    //     return rows[Math.max(firstVisibleIndex - 1, 0)];
+    // }
+
+    // setupRowSnapScrolling(removedComparisonListEl);
+    // setupRowSnapScrolling(addedComparisonListEl);
 
     copyComparisonButtonEl.addEventListener('click', () => {
         void copyComparisonToClipboard();
