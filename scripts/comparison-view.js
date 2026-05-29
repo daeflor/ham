@@ -2,6 +2,7 @@ export function createComparisonView(elements) {
     const {
         comparisonViewEl,
         comparisonSummaryEl,
+        ignoreCapitalizationCheckboxEl,
         copyComparisonButtonEl,
         saveComparisonButtonEl,
         comparisonStatusEl,
@@ -134,6 +135,10 @@ export function createComparisonView(elements) {
         comparisonStatusEl.textContent = message;
     }
 
+    function shouldIgnoreCapitalization() {
+        return ignoreCapitalizationCheckboxEl.checked;
+    }
+
     async function copyComparisonToClipboard() {
         const exportText = formatSideBySideComparison();
 
@@ -175,6 +180,12 @@ export function createComparisonView(elements) {
 
     function onSaveCurrentVersion(handler) {
         saveComparisonButtonEl.addEventListener('click', handler);
+    }
+
+    function onIgnoreCapitalizationChanged(handler) {
+        ignoreCapitalizationCheckboxEl.addEventListener('change', () => {
+            handler(shouldIgnoreCapitalization());
+        });
     }
 
     // function setupRowSnapScrolling(listEl) {
@@ -251,6 +262,8 @@ export function createComparisonView(elements) {
         showError,
         renderComparison,
         showStatus,
+        shouldIgnoreCapitalization,
+        onIgnoreCapitalizationChanged,
         onSaveCurrentVersion
     };
 }

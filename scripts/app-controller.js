@@ -31,6 +31,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     let isInitializing = false;
     let selectedPlaylist = null;
     let playlistTotalCount = 0;
+    let comparisonTracks = null;
     const transferredPlaylistIds = new Set();
 
     const FirebaseSessionState = Object.freeze({
@@ -208,6 +209,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         });
         selectedPlaylistView.clearTracks();
         selectedPlaylistView.hideTracks();
+        comparisonTracks = null;
         comparisonView.clearComparison();
         comparisonView.hideComparison();
     }
@@ -247,6 +249,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
     async function handleComparisonRequested() {
         selectedPlaylistView.showComparisonSelected();
+        comparisonTracks = null;
         comparisonView.showLoading();
 
         try {
@@ -261,17 +264,33 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
                 return;
             }
 
-            const comparison = compareTracklists(youtubeTracklistData.tracks, appleTracks);
-
-            comparisonView.renderComparison({
-                removedTracks: comparison.removedTracks,
-                addedTracks: comparison.addedTracks
-            });
-            comparisonView.showStatus(`${comparison.matchedTracks.length} tracks matched.`);
+            comparisonTracks = {
+                youtubeTracks: youtubeTracklistData.tracks,
+                appleTracks
+            };
+            renderCurrentComparison(comparisonView.shouldIgnoreCapitalization());
         } catch (error) {
             console.error('Failed to compare tracklists', error);
             comparisonView.showError('Failed to compare the Apple Music and YouTube Music tracklists.');
         }
+    }
+
+    function renderCurrentComparison(ignoreCapitalization = comparisonView.shouldIgnoreCapitalization()) {
+        if (!comparisonTracks) {
+            return;
+        }
+
+        const comparison = compareTracklists(
+            comparisonTracks.youtubeTracks,
+            comparisonTracks.appleTracks,
+            { matchCapitalization: !ignoreCapitalization }
+        );
+
+        comparisonView.renderComparison({
+            removedTracks: comparison.removedTracks,
+            addedTracks: comparison.addedTracks
+        });
+        comparisonView.showStatus(`${comparison.matchedTracks.length} tracks matched.`);
     }
 
     function handleSaveCurrentVersion() {
@@ -296,6 +315,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.onYoutubeTracksRequested(handleYoutubeTracksRequested);
         selectedPlaylistView.onComparisonRequested(handleComparisonRequested);
         selectedPlaylistView.onTransferRequested(handleMarkPlaylistTransferred);
+        comparisonView.onIgnoreCapitalizationChanged(renderCurrentComparison);
         comparisonView.onSaveCurrentVersion(handleSaveCurrentVersion);
     }
 

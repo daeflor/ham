@@ -444,6 +444,23 @@ p {
     gap: 10px;
 }
 
+.comparisonOption {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.comparisonOption input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--accent);
+}
+
 .selectedTransferredBadge,
 .playlistTransferredBadge {
     display: inline-flex;
