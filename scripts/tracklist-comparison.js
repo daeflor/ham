@@ -3,13 +3,13 @@ const DEFAULT_DURATION_TOLERANCE_MS = 3000;
 export function compareTracklists(youtubeTracks, appleTracks, options = {}) {
     const durationToleranceMs = options.durationToleranceMs ?? DEFAULT_DURATION_TOLERANCE_MS;
     const matchCapitalization = options.matchCapitalization ?? true;
-    const availableAppleMatches = appleTracks.map(track => ({ track }));
+    const availableAppleMatches = [...appleTracks];
     const matchedTracks = [];
     const removedTracks = [];
 
     for (const youtubeTrack of youtubeTracks) {
-        const appleMatchIndex = availableAppleMatches.findIndex(({ track }) => {
-            return tracksMatch(youtubeTrack, track, { durationToleranceMs, matchCapitalization });
+        const appleMatchIndex = availableAppleMatches.findIndex(appleTrack => {
+            return tracksMatch(youtubeTrack, appleTrack, { durationToleranceMs, matchCapitalization });
         });
 
         if (appleMatchIndex === -1) {
@@ -17,12 +17,12 @@ export function compareTracklists(youtubeTracks, appleTracks, options = {}) {
             continue;
         }
 
-        const [appleMatch] = availableAppleMatches.splice(appleMatchIndex, 1);
+        const [appleTrack] = availableAppleMatches.splice(appleMatchIndex, 1);
         matchedTracks.push({
             youtubeTrack,
-            appleTrack: appleMatch.track,
+            appleTrack,
             youtubePlaylistIndex: youtubeTrack.playlistIndex,
-            applePlaylistIndex: appleMatch.track.playlistIndex
+            applePlaylistIndex: appleTrack.playlistIndex
         });
     }
 
@@ -30,8 +30,6 @@ export function compareTracklists(youtubeTracks, appleTracks, options = {}) {
         matchedTracks,
         removedTracks,
         addedTracks: availableAppleMatches
-            .sort((a, b) => a.track.playlistIndex - b.track.playlistIndex)
-            .map(({ track }) => track)
     };
 }
 
