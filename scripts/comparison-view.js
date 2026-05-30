@@ -13,11 +13,20 @@ export function createComparisonView(elements) {
         comparisonTrackTemplateEl
     } = elements;
 
+    const scrollButtons = {
+        removed: {
+            up: comparisonViewEl.querySelector('[data-comparison-scroll="removed"][data-scroll-direction="-1"]'),
+            down: comparisonViewEl.querySelector('[data-comparison-scroll="removed"][data-scroll-direction="1"]')
+        },
+        added: {
+            up: comparisonViewEl.querySelector('[data-comparison-scroll="added"][data-scroll-direction="-1"]'),
+            down: comparisonViewEl.querySelector('[data-comparison-scroll="added"][data-scroll-direction="1"]')
+        }
+    };
     let removedTracks = [];
     let addedTracks = [];
     let checkedTrackIds = new Set();
-    // const rowScrollThreshold = 60;
-    // const rowScrollCooldownMs = 240;
+    let sharedWheelScrollTimeoutId = null;
 
     function clearComparison() {
         removedTracks = [];
@@ -29,6 +38,8 @@ export function createComparisonView(elements) {
         addedComparisonCountEl.textContent = '';
         removedComparisonListEl.replaceChildren();
         addedComparisonListEl.replaceChildren();
+        resetComparisonScroll();
+        updateScrollButtonStates();
     }
 
     function hideComparison() {
@@ -69,6 +80,8 @@ export function createComparisonView(elements) {
             countEl: addedComparisonCountEl,
             listEl: addedComparisonListEl
         });
+        resetComparisonScroll();
+        updateScrollButtonStates();
     }
 
     function renderTrackColumn({ title, tone, tracks, countEl, listEl }) {
@@ -188,68 +201,143 @@ export function createComparisonView(elements) {
         });
     }
 
-    // function setupRowSnapScrolling(listEl) {
-    //     let wheelDelta = 0;
-    //     let lastScrollAt = 0;
+    function resetComparisonScroll() {
+        removedComparisonListEl.scrollTop = 0;
+        addedComparisonListEl.scrollTop = 0;
+    }
 
-    //     listEl.addEventListener('wheel', (event) => {
-    //         const rows = Array.from(listEl.querySelectorAll('.comparisonTrack'));
+    function setupSharedWheelScrolling() {
+        setupSharedWheelScroll(removedComparisonListEl, addedComparisonListEl);
+        setupSharedWheelScroll(addedComparisonListEl, removedComparisonListEl);
+    }
 
-    //         if (rows.length === 0) {
-    //             return;
-    //         }
+    function setupSharedWheelScroll(sourceListEl, targetListEl) {
+        sourceListEl.addEventListener('wheel', (event) => {
+            const deltaY = normalizeWheelDelta(event);
 
-    //         event.preventDefault();
-    //         wheelDelta += event.deltaY;
+            if (deltaY === 0 || !canAnyListScroll(deltaY)) {
+                return;
+            }
 
-    //         const now = performance.now();
-    //         if (Math.abs(wheelDelta) < rowScrollThreshold || now - lastScrollAt < rowScrollCooldownMs) {
-    //             return;
-    //         }
+            event.preventDefault();
+            startSharedWheelScroll();
+            sourceListEl.scrollTop += deltaY;
+            targetListEl.scrollTop += deltaY;
+            updateScrollButtonStates();
+        }, { passive: false });
+    }
 
-    //         scrollColumnByRow(listEl, rows, Math.sign(wheelDelta));
-    //         wheelDelta = 0;
-    //         lastScrollAt = now;
-    //     }, { passive: false });
-    // }
+    function startSharedWheelScroll() {
+        removedComparisonListEl.classList.add('isSharedScrolling');
+        addedComparisonListEl.classList.add('isSharedScrolling');
 
-    // function scrollColumnByRow(listEl, rows, direction) {
-    //     const targetRow = getTargetRowForScroll(listEl, rows, direction);
+        window.clearTimeout(sharedWheelScrollTimeoutId);
+        sharedWheelScrollTimeoutId = window.setTimeout(() => {
+            removedComparisonListEl.classList.remove('isSharedScrolling');
+            addedComparisonListEl.classList.remove('isSharedScrolling');
+            sharedWheelScrollTimeoutId = null;
+            updateScrollButtonStates();
+        }, 140);
+    }
 
-    //     if (!targetRow) {
-    //         return;
-    //     }
+    function normalizeWheelDelta(event) {
+        if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+            return event.deltaY * 16;
+        }
 
-    //     const listRect = listEl.getBoundingClientRect();
-    //     const rowRect = targetRow.getBoundingClientRect();
-    //     const top = listEl.scrollTop + rowRect.top - listRect.top;
+        if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+            return event.deltaY * removedComparisonListEl.clientHeight;
+        }
 
-    //     listEl.scrollTo({ top, behavior: 'smooth' });
-    // }
+        return event.deltaY;
+    }
 
-    // function getTargetRowForScroll(listEl, rows, direction) {
-    //     const listTop = listEl.getBoundingClientRect().top;
-    //     const firstVisibleIndex = rows.findIndex((row) => row.getBoundingClientRect().bottom > listTop + 1);
+    function canAnyListScroll(deltaY) {
+        return [removedComparisonListEl, addedComparisonListEl].some((listEl) => canListScroll(listEl, deltaY));
+    }
 
-    //     if (firstVisibleIndex === -1) {
-    //         return rows.at(-1);
-    //     }
+    function canListScroll(listEl, deltaY) {
+        if (deltaY > 0) {
+            return listEl.scrollTop < getMaxScrollTop(listEl);
+        }
 
-    //     const firstVisibleTop = rows[firstVisibleIndex].getBoundingClientRect().top - listTop;
+        if (deltaY < 0) {
+            return listEl.scrollTop > 0;
+        }
 
-    //     if (direction > 0 && Math.abs(firstVisibleTop) <= 1) {
-    //         return rows[Math.min(firstVisibleIndex + 1, rows.length - 1)];
-    //     }
+        return false;
+    }
 
-    //     if (direction < 0 && firstVisibleTop < -1) {
-    //         return rows[firstVisibleIndex];
-    //     }
+    function getMaxScrollTop(listEl) {
+        return Math.max(0, listEl.scrollHeight - listEl.clientHeight);
+    }
 
-    //     return rows[Math.max(firstVisibleIndex - 1, 0)];
-    // }
+    function setupColumnScrollButtons() {
+        setupColumnScrollButton(scrollButtons.removed.up, removedComparisonListEl, -1);
+        setupColumnScrollButton(scrollButtons.removed.down, removedComparisonListEl, 1);
+        setupColumnScrollButton(scrollButtons.added.up, addedComparisonListEl, -1);
+        setupColumnScrollButton(scrollButtons.added.down, addedComparisonListEl, 1);
 
-    // setupRowSnapScrolling(removedComparisonListEl);
-    // setupRowSnapScrolling(addedComparisonListEl);
+        removedComparisonListEl.addEventListener('scroll', updateScrollButtonStates);
+        addedComparisonListEl.addEventListener('scroll', updateScrollButtonStates);
+    }
+
+    function setupColumnScrollButton(buttonEl, listEl, direction) {
+        buttonEl.addEventListener('click', () => {
+            scrollColumnByRow(listEl, direction);
+        });
+    }
+
+    function scrollColumnByRow(listEl, direction) {
+        const rows = Array.from(listEl.querySelectorAll('.comparisonTrack'));
+        const targetRow = getTargetRowForScroll(listEl, rows, direction);
+
+        if (!targetRow) {
+            return;
+        }
+
+        const listRect = listEl.getBoundingClientRect();
+        const rowRect = targetRow.getBoundingClientRect();
+        const top = listEl.scrollTop + rowRect.top - listRect.top;
+
+        listEl.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    function getTargetRowForScroll(listEl, rows, direction) {
+        const listTop = listEl.getBoundingClientRect().top;
+        const firstVisibleIndex = rows.findIndex((row) => row.getBoundingClientRect().bottom > listTop + 1);
+
+        if (firstVisibleIndex === -1) {
+            return rows.at(-1);
+        }
+
+        const firstVisibleTop = rows[firstVisibleIndex].getBoundingClientRect().top - listTop;
+
+        if (direction > 0 && Math.abs(firstVisibleTop) <= 1) {
+            return rows[Math.min(firstVisibleIndex + 1, rows.length - 1)];
+        }
+
+        if (direction < 0 && firstVisibleTop < -1) {
+            return rows[firstVisibleIndex];
+        }
+
+        return rows[Math.max(firstVisibleIndex - 1, 0)];
+    }
+
+    function updateScrollButtonStates() {
+        updateColumnScrollButtonStates(removedComparisonListEl, scrollButtons.removed);
+        updateColumnScrollButtonStates(addedComparisonListEl, scrollButtons.added);
+    }
+
+    function updateColumnScrollButtonStates(listEl, buttons) {
+        const hasRows = listEl.querySelector('.comparisonTrack') !== null;
+        buttons.up.disabled = !hasRows || listEl.scrollTop <= 0;
+        buttons.down.disabled = !hasRows || listEl.scrollTop >= getMaxScrollTop(listEl) - 1;
+    }
+
+    setupSharedWheelScrolling();
+    setupColumnScrollButtons();
+    updateScrollButtonStates();
 
     copyComparisonButtonEl.addEventListener('click', () => {
         void copyComparisonToClipboard();

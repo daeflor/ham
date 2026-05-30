@@ -544,6 +544,43 @@ p {
     font-size: 0.9rem;
 }
 
+.comparisonScrollControls {
+    display: inline-grid;
+    grid-template-columns: repeat(2, 28px);
+    gap: 4px;
+}
+
+.comparisonScrollButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    background: var(--surface-muted);
+    color: var(--muted);
+    cursor: pointer;
+    transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.comparisonScrollButton:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: var(--surface-strong);
+}
+
+.comparisonScrollButton:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.comparisonScrollButton svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
 .comparisonTrackList {
     display: grid;
     gap: 8px;
@@ -554,6 +591,10 @@ p {
     scrollbar-gutter: stable;
     scroll-padding-top: 0;
     scroll-snap-type: y proximity;
+}
+
+.comparisonTrackList.isSharedScrolling {
+    scroll-snap-type: none;
 }
 
 .comparisonTrack {

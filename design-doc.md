@@ -27,16 +27,17 @@ Tracklist view:
 
 Comparison view: 
     - Probably not a separate page
+    - An "ignore capitalization" checkbox
     - "Removed" tracks on the left; "Added" tracks on the right
     - "Removed" and "Added" tracks are determined based on a metadata comparison check. 
-        - A track in the YouTube Music playlist which doesn't have an exact match in Apple Music will be in the "Removed" section
-        - A track in the Apple Music playlist which doesn't have an exact match in YouTube Music will be in the "Added" section
+        - A track in the YouTube Music playlist which doesn't have a match in Apple Music will be in the "Removed" section
+        - A track in the Apple Music playlist which doesn't have a match in YouTube Music will be in the "Added" section
     - Each track includes title, artist, album, length
     - Each track includes a checkbox which will give it a green background color. (Clicking anywhere on the track element will toggle the checkbox and "select" or "unselect" it this way).
     - List the total number of "Removed" and "Added" tracks
     - Include a copy to clipboard button, which will copy the full "Removed" and "Added" lists side-by-side
-    - A button to save the current/latest state of the Apple Music playlist, effectively marking at as a "last known good" version
+    - Scroll behavior: trackpad scrolling affects both Added & Removed columns together. But each column has up and down arrow buttons to scroll that column individually by one track element/row.
 
 Comparison logic notes:
-    - In order to consider two tracks as matching, their titles, artists, and albums must match exactly
-    - The duration can vary by up to 3 seconds and still be considered a match
+    - By defualt, in order to consider two tracks as matching, their titles, artists, and albums must match exactly. The duration can vary by up to 3 seconds and still be considered a match.
+    - If "ignore capitalization" is enabled, then capitalization is ignored for matching
