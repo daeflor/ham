@@ -335,7 +335,6 @@ p {
     max-height: min(86vh, 1040px);
     overflow-y: auto;
     padding-right: 16px;
-    padding-bottom: 64px;
     scrollbar-gutter: stable;
 }
 
