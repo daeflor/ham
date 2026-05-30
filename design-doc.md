@@ -43,4 +43,5 @@ Comparison logic notes:
     - If "ignore capitalization" is enabled, then capitalization is ignored for matching
 
 General app usage & architecture notes:
-    - This app is only going to be used by me / the developer. It doesn't need overly defensive checks for edge cases that are purely hypothetical or exploitable. The UI can be minimal and functional, and doesn't need to be flashy or overly attention-grabbing.
+    - This app is only going to be used by me / the developer. It doesn't need overly defensive checks for edge cases that are purely hypothetical or exploitable. The UI can be minimal and functional, and doesn't need to be flashy or overly attention-grabbing. 
+    - The app isn't intended or planned to be used on mobile / small screens.

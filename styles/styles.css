@@ -495,6 +495,10 @@ p {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
+    max-height: calc(var(--comparison-list-scroll-height) + 56px);
+    overflow-y: auto;
+    position: relative;
+    scrollbar-gutter: stable;
 }
 
 .comparisonColumn {
@@ -502,7 +506,10 @@ p {
     min-height: 0;
     display: grid;
     align-content: start;
+    align-self: start;
     gap: 12px;
+    position: sticky;
+    top: 0;
 }
 
 .comparisonColumnHeading {
@@ -584,11 +591,17 @@ p {
 .comparisonTrackList {
     display: grid;
     gap: 8px;
-    max-height: var(--comparison-list-scroll-height);
+    height: var(--comparison-list-scroll-height);
     min-height: 0;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding-right: 6px;
-    scrollbar-gutter: stable;
+}
+
+.comparisonScrollSpacer {
+    grid-column: 1 / -1;
+    height: 0;
+    pointer-events: none;
+    visibility: hidden;
 }
 
 .comparisonTrack {
@@ -766,6 +779,25 @@ tbody tr:last-child td {
     .actionGrid,
     .comparisonColumns {
         grid-template-columns: 1fr;
+    }
+
+    .comparisonColumns {
+        max-height: none;
+        overflow-y: visible;
+        scrollbar-gutter: auto;
+    }
+
+    .comparisonColumn {
+        position: static;
+    }
+
+    .comparisonTrackList {
+        overflow-y: auto;
+        scrollbar-gutter: stable;
+    }
+
+    .comparisonScrollSpacer {
+        display: none;
     }
 
     .appHeaderActions {
