@@ -1,3 +1,5 @@
+import { copyTextToClipboard, formatComparisonExport, formatTrackMetadataRow } from './clipboard-export.js';
+
 export function createComparisonView(elements) {
     const {
         comparisonViewEl,
@@ -179,10 +181,10 @@ export function createComparisonView(elements) {
     }
 
     async function copyTrackToClipboard(track) {
-        const exportText = formatTrackForExport(track).join('\t');
+        const exportText = formatTrackMetadataRow(track);
 
         try {
-            await navigator.clipboard.writeText(exportText);
+            await copyTextToClipboard(exportText);
             showStatus('Copied removed track.');
         } catch (error) {
             console.error('Unable to copy removed track', error);
@@ -203,55 +205,15 @@ export function createComparisonView(elements) {
     }
 
     async function copyComparisonToClipboard() {
-        const exportText = formatSideBySideComparison();
+        const exportText = formatComparisonExport({ removedTracks, addedTracks });
 
         try {
-            await navigator.clipboard.writeText(exportText);
+            await copyTextToClipboard(exportText);
             showStatus('Copied comparison.');
         } catch (error) {
             console.error('Unable to copy comparison', error);
             showStatus('Clipboard copy failed.');
         }
-    }
-
-    function formatSideBySideComparison() {
-        const rowCount = Math.max(removedTracks.length, addedTracks.length);
-        const lines = [[
-            'Removed title',
-            'Removed artist',
-            'Removed album',
-            'Removed duration',
-            'Added title',
-            'Added artist',
-            'Added album',
-            'Added duration'
-        ].join('\t')];
-
-        for (let index = 0; index < rowCount; index++) {
-            lines.push([
-                ...formatTrackForExport(removedTracks[index]),
-                ...formatTrackForExport(addedTracks[index])
-            ].join('\t'));
-        }
-
-        return lines.join('\n');
-    }
-
-    function formatTrackForExport(track) {
-        if (!track) {
-            return ['', '', '', ''];
-        }
-
-        return [
-            track.title,
-            track.artist,
-            track.album,
-            track.readableDuration
-        ].map(formatExportCell);
-    }
-
-    function formatExportCell(value) {
-        return String(value ?? '').replace(/[\t\r\n]+/g, ' ').trim();
     }
 
     function onSaveCurrentVersion(handler) {
