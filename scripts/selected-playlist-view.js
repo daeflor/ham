@@ -177,14 +177,7 @@ export function createSelectedPlaylistView(elements) {
             return;
         }
 
-        const lines = allTracks.map((track) => {
-            return [
-                `${track.playlistIndex}. ${track.title ?? '—'}`,
-                track.artist ?? '—',
-                track.album ?? '—',
-                track.readableDuration ?? '—'
-            ].join(' | ');
-        });
+        const lines = allTracks.map(formatTrackForExport);
 
         const exportText = lines.join('\n');
 
@@ -195,6 +188,19 @@ export function createSelectedPlaylistView(elements) {
             console.error('Unable to copy track list', error);
             copyFeedbackEl.textContent = 'Clipboard copy failed.';
         }
+    }
+
+    function formatTrackForExport(track) {
+        return [
+            track.title,
+            track.artist,
+            track.album,
+            track.readableDuration
+        ].map(formatExportCell).join('\t');
+    }
+
+    function formatExportCell(value) {
+        return String(value ?? '').replace(/[\t\r\n]+/g, ' ').trim();
     }
 
     function onAppleTracksRequested(handler) {

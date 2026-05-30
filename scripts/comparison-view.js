@@ -179,12 +179,21 @@ export function createComparisonView(elements) {
 
     function formatSideBySideComparison() {
         const rowCount = Math.max(removedTracks.length, addedTracks.length);
-        const lines = ['Removed\tAdded'];
+        const lines = [[
+            'Removed title',
+            'Removed artist',
+            'Removed album',
+            'Removed duration',
+            'Added title',
+            'Added artist',
+            'Added album',
+            'Added duration'
+        ].join('\t')];
 
         for (let index = 0; index < rowCount; index++) {
             lines.push([
-                formatTrackForExport(removedTracks[index]),
-                formatTrackForExport(addedTracks[index])
+                ...formatTrackForExport(removedTracks[index]),
+                ...formatTrackForExport(addedTracks[index])
             ].join('\t'));
         }
 
@@ -193,15 +202,19 @@ export function createComparisonView(elements) {
 
     function formatTrackForExport(track) {
         if (!track) {
-            return '';
+            return ['', '', '', ''];
         }
 
         return [
-            `#${track.playlistIndex} ${track.title ?? '-'}`,
-            track.artist ?? '-',
-            track.album ?? '-',
-            track.readableDuration ?? '-'
-        ].join(' | ');
+            track.title,
+            track.artist,
+            track.album,
+            track.readableDuration
+        ].map(formatExportCell);
+    }
+
+    function formatExportCell(value) {
+        return String(value ?? '').replace(/[\t\r\n]+/g, ' ').trim();
     }
 
     function onSaveCurrentVersion(handler) {
