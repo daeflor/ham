@@ -104,11 +104,11 @@ export function createComparisonView(elements) {
         }
 
         for (const track of tracks) {
-            listEl.append(createTrackRow(track));
+            listEl.append(createTrackRow(track, { canCopy: tone === 'removed' }));
         }
     }
 
-    function createTrackRow(track) {
+    function createTrackRow(track, { canCopy }) {
         const trackKey = getTrackKey(track);
         const rowEl = comparisonTrackTemplateEl.content.firstElementChild.cloneNode(true);
         const checkboxEl = rowEl.querySelector('.comparisonTrackCheck');
@@ -125,6 +125,11 @@ export function createComparisonView(elements) {
         artistEl.textContent = track.artist ?? '-';
         albumEl.textContent = track.album ?? '-';
         durationEl.textContent = track.readableDuration ?? '-';
+
+        if (canCopy) {
+            rowEl.classList.add('hasCopyButton');
+            rowEl.append(createTrackCopyButton(track));
+        }
 
         function toggleCheckedState() {
             const isChecked = checkedTrackKeys.has(trackKey);
@@ -151,6 +156,38 @@ export function createComparisonView(elements) {
         });
 
         return rowEl;
+    }
+
+    function createTrackCopyButton(track) {
+        const buttonEl = document.createElement('button');
+        buttonEl.className = 'comparisonTrackCopyButton';
+        buttonEl.type = 'button';
+        buttonEl.setAttribute('aria-label', `Copy metadata for ${track.title ?? 'removed track'}`);
+        buttonEl.title = 'Copy track metadata';
+        buttonEl.innerHTML = `
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M9 3h6a2 2 0 0 1 2 2v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-1H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 3h6V5H9zm-4 9h1V8a2 2 0 0 1 2-2h7V5H5zm3-7v11h10V8z" />
+            </svg>
+        `;
+
+        buttonEl.addEventListener('click', (event) => {
+            event.stopPropagation();
+            void copyTrackToClipboard(track);
+        });
+
+        return buttonEl;
+    }
+
+    async function copyTrackToClipboard(track) {
+        const exportText = formatTrackForExport(track).join('\t');
+
+        try {
+            await navigator.clipboard.writeText(exportText);
+            showStatus('Copied removed track.');
+        } catch (error) {
+            console.error('Unable to copy removed track', error);
+            showStatus('Clipboard copy failed.');
+        }
     }
 
     function getTrackKey(track) {

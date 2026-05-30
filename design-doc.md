@@ -34,6 +34,7 @@ Comparison view:
         - A track in the Apple Music playlist which doesn't have a match in YouTube Music will be in the "Added" section
     - Each track includes title, artist, album, length, and index (its position in its playlist, starting with 1)
     - Each track includes a checkbox which will give it a green background color. (Clicking anywhere on the track element will toggle the checkbox and "select" or "unselect" it this way).
+    - Each track in the "Removed" column includes a copy to clipboard button that copies the metadata for that track, separated into individual columns.
     - List the total number of "Removed" and "Added" tracks
     - Include a copy to clipboard button, which will copy the full "Removed" and "Added" lists side-by-side
     - Scroll behavior: trackpad scrolling affects both Added & Removed columns together. But each column has up and down arrow buttons to scroll that column individually by one track element/row.

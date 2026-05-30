@@ -617,6 +617,10 @@ p {
     transition: background-color 180ms ease, border-color 180ms ease;
 }
 
+.comparisonTrack.hasCopyButton {
+    grid-template-columns: 28px 42px minmax(0, 1fr) 34px;
+}
+
 .comparisonTrack.checked {
     border-color: rgba(31, 107, 93, 0.2);
     background: var(--accent-soft);
@@ -637,6 +641,32 @@ p {
     border-color: rgba(31, 107, 93, 0.3);
     background: var(--accent);
     color: #fff;
+}
+
+.comparisonTrackCopyButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--surface-border);
+    border-radius: 999px;
+    background: var(--surface-strong);
+    color: var(--muted);
+    cursor: pointer;
+    transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.comparisonTrackCopyButton:hover {
+    transform: translateY(-1px);
+    background: var(--surface-muted);
+}
+
+.comparisonTrackCopyButton svg {
+    width: 15px;
+    height: 15px;
+    fill: currentColor;
 }
 
 .comparisonTrackIndex {
