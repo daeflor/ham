@@ -27,6 +27,6 @@ export async function getYoutubeTracklistByApplePlaylistName(playlistName) {
     return {
         title: tracklistData.title ?? playlistName,
         type: tracklistData.type,
-        tracks: tracklistData.tracks.map(track => Track.fromStoredYoutubeMusic(track))
+        tracks: tracklistData.tracks.map((track, index) => Track.fromStoredYoutubeMusic(track, index + 1))
     };
 }

@@ -1,7 +1,7 @@
 import { formatDuration } from './utils.js';
 
 export class Track {
-    constructor(metadata, source) {
+    constructor(metadata, source, playlistIndex) {
         const { title, artist, album, durationInMillis, readableDuration } = Track.normalizeMetadata(metadata, source);
 
         this.title = title;
@@ -10,6 +10,7 @@ export class Track {
         this.durationInMillis = durationInMillis;
         this.readableDuration = readableDuration;
         this.source = source;
+        this.playlistIndex = playlistIndex;
     }
 
     static normalizeMetadata(metadata, source) {
@@ -40,12 +41,12 @@ export class Track {
         throw new Error(`Unsupported track source: ${source}`);
     }
 
-    static fromAppleMusic(metadata) {
-        return new Track(metadata, 'apple-music');
+    static fromAppleMusic(metadata, playlistIndex) {
+        return new Track(metadata, 'apple-music', playlistIndex);
     }
 
-    static fromStoredYoutubeMusic(metadata) {
-        return new Track(metadata, 'youtube-music');
+    static fromStoredYoutubeMusic(metadata, playlistIndex) {
+        return new Track(metadata, 'youtube-music', playlistIndex);
     }
 
     static parseDurationToMillis(value) {

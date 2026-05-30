@@ -599,7 +599,8 @@ p {
 
 .comparisonTrack {
     display: grid;
-    grid-template-columns: 28px minmax(0, 1fr);
+    grid-template-columns: 28px 42px minmax(0, 1fr);
+    align-items: start;
     gap: 10px;
     padding: 12px;
     border: 1px solid transparent;
@@ -631,6 +632,19 @@ p {
     border-color: rgba(31, 107, 93, 0.3);
     background: var(--accent);
     color: #fff;
+}
+
+.comparisonTrackIndex {
+    min-width: 0;
+    padding-top: 3px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .comparisonTrackBody {

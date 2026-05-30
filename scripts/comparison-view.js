@@ -25,13 +25,13 @@ export function createComparisonView(elements) {
     };
     let removedTracks = [];
     let addedTracks = [];
-    let checkedTrackIds = new Set();
+    let checkedTrackKeys = new Set();
     let sharedWheelScrollTimeoutId = null;
 
     function clearComparison() {
         removedTracks = [];
         addedTracks = [];
-        checkedTrackIds = new Set();
+        checkedTrackKeys = new Set();
         comparisonStatusEl.textContent = '';
         comparisonSummaryEl.textContent = '';
         removedComparisonCountEl.textContent = '';
@@ -61,7 +61,7 @@ export function createComparisonView(elements) {
     function renderComparison({ removedTracks: removed, addedTracks: added }) {
         removedTracks = removed || [];
         addedTracks = added || [];
-        checkedTrackIds = new Set();
+        checkedTrackKeys = new Set();
         comparisonViewEl.hidden = false;
         comparisonStatusEl.textContent = '';
         comparisonSummaryEl.textContent = `${removedTracks.length} removed, ${addedTracks.length} added.`;
@@ -101,10 +101,11 @@ export function createComparisonView(elements) {
         }
     }
 
-    function createTrackRow(track, fallbackId) {
-        const trackId = track.id ?? fallbackId;
+    function createTrackRow(track, rowKey) {
+        const trackKey = getTrackKey(track, rowKey);
         const rowEl = comparisonTrackTemplateEl.content.firstElementChild.cloneNode(true);
         const checkboxEl = rowEl.querySelector('.comparisonTrackCheck');
+        const indexEl = rowEl.querySelector('[data-track-field="playlistIndex"]');
         const titleEl = rowEl.querySelector('[data-track-field="title"]');
         const artistEl = rowEl.querySelector('[data-track-field="artist"]');
         const albumEl = rowEl.querySelector('[data-track-field="album"]');
@@ -112,17 +113,18 @@ export function createComparisonView(elements) {
 
         checkboxEl.setAttribute('aria-label', `Mark ${track.title ?? 'track'} as reviewed`);
         checkboxEl.setAttribute('aria-pressed', 'false');
+        indexEl.textContent = formatPlaylistIndex(track.playlistIndex);
         titleEl.textContent = track.title ?? '-';
         artistEl.textContent = track.artist ?? '-';
         albumEl.textContent = track.album ?? '-';
         durationEl.textContent = track.readableDuration ?? '-';
 
         function toggleCheckedState() {
-            const isChecked = checkedTrackIds.has(trackId);
+            const isChecked = checkedTrackKeys.has(trackKey);
             if (isChecked) {
-                checkedTrackIds.delete(trackId);
+                checkedTrackKeys.delete(trackKey);
             } else {
-                checkedTrackIds.add(trackId);
+                checkedTrackKeys.add(trackKey);
             }
 
             rowEl.classList.toggle('checked', !isChecked);
@@ -142,6 +144,14 @@ export function createComparisonView(elements) {
         });
 
         return rowEl;
+    }
+
+    function getTrackKey(track, rowKey) {
+        if (track.source && Number.isInteger(track.playlistIndex) && track.playlistIndex > 0) {
+            return `${track.source}-${track.playlistIndex}`;
+        }
+
+        return rowKey;
     }
 
     function showStatus(message) {
@@ -184,11 +194,23 @@ export function createComparisonView(elements) {
         }
 
         return [
-            `${index + 1}. ${track.title ?? '-'}`,
+            `${formatPlaylistIndex(track.playlistIndex, index)} ${track.title ?? '-'}`,
             track.artist ?? '-',
             track.album ?? '-',
             track.readableDuration ?? '-'
         ].join(' | ');
+    }
+
+    function formatPlaylistIndex(playlistIndex, fallbackIndex) {
+        if (Number.isInteger(playlistIndex) && playlistIndex > 0) {
+            return `#${playlistIndex}`;
+        }
+
+        if (Number.isInteger(fallbackIndex) && fallbackIndex >= 0) {
+            return `#${fallbackIndex + 1}`;
+        }
+
+        return '#-';
     }
 
     function onSaveCurrentVersion(handler) {

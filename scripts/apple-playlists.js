@@ -26,7 +26,7 @@ export async function getApplePlaylistTracks(music, playlistId) {
         const appleMusicTracks = await fetchPlaylistTracks(music, playlistId);
         playlistTracksCache.set(
             playlistId,
-            appleMusicTracks.map(track => Track.fromAppleMusic(track))
+            appleMusicTracks.map((track, index) => Track.fromAppleMusic(track, index + 1))
         );
     }
 

@@ -83,7 +83,7 @@ export function createSelectedPlaylistView(elements) {
 
             const indexEl = document.createElement('td');
             indexEl.className = 'trackIndex';
-            indexEl.textContent = startIdx + pageIndex + 1;
+            indexEl.textContent = getTrackPlaylistIndex(track, startIdx + pageIndex);
 
             const nameEl = document.createElement('td');
             nameEl.textContent = track.title ?? '—';
@@ -179,7 +179,7 @@ export function createSelectedPlaylistView(elements) {
 
         const lines = allTracks.map((track, index) => {
             return [
-                `${index + 1}. ${track.title ?? '—'}`,
+                `${getTrackPlaylistIndex(track, index)}. ${track.title ?? '—'}`,
                 track.artist ?? '—',
                 track.album ?? '—',
                 track.readableDuration ?? '—'
@@ -195,6 +195,14 @@ export function createSelectedPlaylistView(elements) {
             console.error('Unable to copy track list', error);
             copyFeedbackEl.textContent = 'Clipboard copy failed.';
         }
+    }
+
+    function getTrackPlaylistIndex(track, fallbackIndex) {
+        if (Number.isInteger(track.playlistIndex) && track.playlistIndex > 0) {
+            return track.playlistIndex;
+        }
+
+        return fallbackIndex + 1;
     }
 
     function onAppleTracksRequested(handler) {
