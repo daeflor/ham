@@ -26,7 +26,6 @@ export function createComparisonView(elements) {
     let removedTracks = [];
     let addedTracks = [];
     let checkedTrackKeys = new Set();
-    let sharedWheelScrollTimeoutId = null;
 
     function clearComparison() {
         removedTracks = [];
@@ -227,24 +226,10 @@ export function createComparisonView(elements) {
             }
 
             event.preventDefault();
-            startSharedWheelScroll();
             sourceListEl.scrollTop += deltaY;
             targetListEl.scrollTop += deltaY;
             updateScrollButtonStates();
         }, { passive: false });
-    }
-
-    function startSharedWheelScroll() {
-        removedComparisonListEl.classList.add('isSharedScrolling');
-        addedComparisonListEl.classList.add('isSharedScrolling');
-
-        window.clearTimeout(sharedWheelScrollTimeoutId);
-        sharedWheelScrollTimeoutId = window.setTimeout(() => {
-            removedComparisonListEl.classList.remove('isSharedScrolling');
-            addedComparisonListEl.classList.remove('isSharedScrolling');
-            sharedWheelScrollTimeoutId = null;
-            updateScrollButtonStates();
-        }, 140);
     }
 
     function normalizeWheelDelta(event) {
@@ -312,23 +297,12 @@ export function createComparisonView(elements) {
 
     function getTargetRowForScroll(listEl, rows, direction) {
         const listTop = listEl.getBoundingClientRect().top;
-        const firstVisibleIndex = rows.findIndex((row) => row.getBoundingClientRect().bottom > listTop + 1);
 
-        if (firstVisibleIndex === -1) {
-            return rows.at(-1);
+        if (direction > 0) {
+            return rows.find((row) => row.getBoundingClientRect().top > listTop + 1) ?? rows.at(-1);
         }
 
-        const firstVisibleTop = rows[firstVisibleIndex].getBoundingClientRect().top - listTop;
-
-        if (direction > 0 && Math.abs(firstVisibleTop) <= 1) {
-            return rows[Math.min(firstVisibleIndex + 1, rows.length - 1)];
-        }
-
-        if (direction < 0 && firstVisibleTop < -1) {
-            return rows[firstVisibleIndex];
-        }
-
-        return rows[Math.max(firstVisibleIndex - 1, 0)];
+        return rows.findLast((row) => row.getBoundingClientRect().top < listTop - 1) ?? rows[0];
     }
 
     function updateScrollButtonStates() {
