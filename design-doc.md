@@ -4,7 +4,7 @@ Landing page:
     - Includes a button to show all Apple Music playlists
 
 Main page:
-    - Includes a button in the top right for user to sign into Google Firebase; if user is already signed in, should indicate which user
+    - Includes a button in the top left for user to sign into Google Firebase; if user is already signed in, should indicate which user
     - Shows a list of all Apple Music playlists; each item in the list can be selected
         - Could be a column on a left-side pane
         - Each playlist includes its name

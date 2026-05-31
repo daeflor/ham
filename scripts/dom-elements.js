@@ -33,7 +33,6 @@ export function getAppElements() {
         comparisonSummaryEl: document.getElementById('comparisonSummary'),
         ignoreCapitalizationCheckboxEl: document.getElementById('ignoreCapitalizationCheckbox'),
         copyComparisonButtonEl: document.getElementById('copyComparisonButton'),
-        saveComparisonButtonEl: document.getElementById('saveComparisonButton'),
         comparisonStatusEl: document.getElementById('comparisonStatus'),
         removedComparisonCountEl: document.getElementById('removedComparisonCount'),
         removedComparisonListEl: document.getElementById('removedComparisonList'),

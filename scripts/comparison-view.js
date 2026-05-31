@@ -6,7 +6,6 @@ export function createComparisonView(elements) {
         comparisonSummaryEl,
         ignoreCapitalizationCheckboxEl,
         copyComparisonButtonEl,
-        saveComparisonButtonEl,
         comparisonStatusEl,
         removedComparisonCountEl,
         removedComparisonListEl,
@@ -211,10 +210,6 @@ export function createComparisonView(elements) {
         }
     }
 
-    function onSaveCurrentVersion(handler) {
-        saveComparisonButtonEl.addEventListener('click', handler);
-    }
-
     function onIgnoreCapitalizationChanged(handler) {
         ignoreCapitalizationCheckboxEl.addEventListener('change', () => {
             // TODO does this need to be passed as a param; doesn't the checked state of the checkbox get passed in the event?
@@ -331,7 +326,6 @@ export function createComparisonView(elements) {
         renderComparison,
         showStatus,
         shouldIgnoreCapitalization,
-        onIgnoreCapitalizationChanged,
-        onSaveCurrentVersion
+        onIgnoreCapitalizationChanged
     };
 }

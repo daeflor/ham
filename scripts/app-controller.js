@@ -293,10 +293,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         comparisonView.showStatus(`${comparison.matchedTracks.length} tracks matched.`);
     }
 
-    function handleSaveCurrentVersion() {
-        comparisonView.showStatus('Saved this playlist as the latest Apple Music version.');
-    }
-
     function handleMarkPlaylistTransferred() {
         transferredPlaylistIds.add(selectedPlaylist.id);
         playlistsView.setPlaylistTransferred(selectedPlaylist.id, true);
@@ -316,7 +312,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.onComparisonRequested(handleComparisonRequested);
         selectedPlaylistView.onTransferRequested(handleMarkPlaylistTransferred);
         comparisonView.onIgnoreCapitalizationChanged(renderCurrentComparison);
-        comparisonView.onSaveCurrentVersion(handleSaveCurrentVersion);
     }
 
     function start() {
