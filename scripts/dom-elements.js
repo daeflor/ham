@@ -30,7 +30,6 @@ export function getAppElements() {
         nextPageBtn: document.getElementById('nextPage'),
         pageInfoEl: document.getElementById('pageInfo'),
         comparisonViewEl: document.getElementById('comparisonView'),
-        comparisonSummaryEl: document.getElementById('comparisonSummary'),
         ignoreCapitalizationCheckboxEl: document.getElementById('ignoreCapitalizationCheckbox'),
         copyComparisonButtonEl: document.getElementById('copyComparisonButton'),
         comparisonStatusEl: document.getElementById('comparisonStatus'),

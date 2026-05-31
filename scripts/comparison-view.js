@@ -3,7 +3,6 @@ import { copyTextToClipboard, formatComparisonExport, formatTrackMetadataRow } f
 export function createComparisonView(elements) {
     const {
         comparisonViewEl,
-        comparisonSummaryEl,
         ignoreCapitalizationCheckboxEl,
         copyComparisonButtonEl,
         comparisonStatusEl,
@@ -35,8 +34,7 @@ export function createComparisonView(elements) {
         removedTracks = [];
         addedTracks = [];
         checkedTrackKeys = new Set();
-        comparisonStatusEl.textContent = '';
-        comparisonSummaryEl.textContent = '';
+        showStatus('');
         removedComparisonCountEl.textContent = '';
         addedComparisonCountEl.textContent = '';
         removedComparisonListEl.replaceChildren();
@@ -52,22 +50,21 @@ export function createComparisonView(elements) {
     function showLoading() {
         clearComparison();
         comparisonViewEl.hidden = false;
-        comparisonSummaryEl.textContent = 'Loading Apple Music and YouTube Music tracklists...';
+        showStatus('Loading Apple Music and YouTube Music tracklists...');
     }
 
     function showError(message) {
         clearComparison();
         comparisonViewEl.hidden = false;
-        comparisonSummaryEl.textContent = message;
+        showStatus(message);
     }
 
-    function renderComparison({ removedTracks: removed, addedTracks: added }) {
+    function renderComparison({ removedTracks: removed, addedTracks: added, matchedTrackCount = 0 }) {
         removedTracks = removed || [];
         addedTracks = added || [];
         checkedTrackKeys = new Set();
         comparisonViewEl.hidden = false;
-        comparisonStatusEl.textContent = '';
-        comparisonSummaryEl.textContent = `${removedTracks.length} removed, ${addedTracks.length} added.`;
+        showStatus(`${matchedTrackCount} matched, ${removedTracks.length} removed, ${addedTracks.length} added.`);
 
         renderTrackColumn({
             title: 'Removed',

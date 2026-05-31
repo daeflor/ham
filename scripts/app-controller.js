@@ -288,9 +288,9 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         comparisonView.renderComparison({
             removedTracks: comparison.removedTracks,
-            addedTracks: comparison.addedTracks
+            addedTracks: comparison.addedTracks,
+            matchedTrackCount: comparison.matchedTracks.length
         });
-        comparisonView.showStatus(`${comparison.matchedTracks.length} tracks matched.`);
     }
 
     function handleMarkPlaylistTransferred() {

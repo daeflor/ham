@@ -430,11 +430,6 @@ p {
     gap: 10px;
 }
 
-.comparisonSummary {
-    color: var(--muted);
-    font-size: 0.94rem;
-}
-
 .comparisonActions {
     display: flex;
     flex-wrap: wrap;
