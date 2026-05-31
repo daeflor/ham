@@ -16,8 +16,6 @@ export function createComparisonView(elements) {
     } = elements;
 
     const comparisonColumnsEl = comparisonViewEl.querySelector('.comparisonColumns');
-    const comparisonScrollSpacerEl = document.createElement('div');
-    comparisonScrollSpacerEl.className = 'comparisonScrollSpacer';
     const comparisonListEls = [removedComparisonListEl, addedComparisonListEl];
 
     const scrollButtons = {
@@ -33,7 +31,6 @@ export function createComparisonView(elements) {
     let removedTracks = [];
     let addedTracks = [];
     let checkedTrackKeys = new Set();
-    const columnScrollOffsets = new Map();
 
     function clearComparison() {
         removedTracks = [];
@@ -46,7 +43,6 @@ export function createComparisonView(elements) {
         removedComparisonListEl.replaceChildren();
         addedComparisonListEl.replaceChildren();
         resetComparisonScroll();
-        updateComparisonScrollSpacer();
         updateScrollButtonStates();
     }
 
@@ -89,7 +85,6 @@ export function createComparisonView(elements) {
             listEl: addedComparisonListEl
         });
         resetComparisonScroll();
-        updateComparisonScrollSpacer();
         updateScrollButtonStates();
     }
 
@@ -228,40 +223,39 @@ export function createComparisonView(elements) {
     }
 
     function resetComparisonScroll() {
-        comparisonColumnsEl.scrollTop = 0;
-
         for (const listEl of comparisonListEls) {
-            columnScrollOffsets.set(listEl, 0);
             listEl.scrollTop = 0;
         }
     }
 
     function setupSharedComparisonScrolling() {
-        comparisonColumnsEl.append(comparisonScrollSpacerEl);
-        comparisonColumnsEl.addEventListener('scroll', () => {
+        comparisonColumnsEl.addEventListener('wheel', (event) => {
+            if (event.deltaY === 0 || !canAnyListScroll(event.deltaY)) {
+                return;
+            }
+
+            event.preventDefault();
+
             for (const listEl of comparisonListEls) {
-                syncColumnScroll(listEl);
+                listEl.scrollTop = clampScrollTop(listEl, listEl.scrollTop + event.deltaY);
             }
 
             updateScrollButtonStates();
-        });
-    }
-
-    function updateComparisonScrollSpacer() {
-        const maxColumnScrollTop = Math.max(...comparisonListEls.map(getMaxScrollTop));
-
-        comparisonScrollSpacerEl.style.height = `${maxColumnScrollTop}px`;
-    }
-
-    function syncColumnScroll(listEl) {
-        listEl.scrollTop = clampScrollTop(
-            listEl,
-            comparisonColumnsEl.scrollTop + (columnScrollOffsets.get(listEl) ?? 0)
-        );
+        }, { passive: false });
     }
 
     function getMaxScrollTop(listEl) {
         return Math.max(0, listEl.scrollHeight - listEl.clientHeight);
+    }
+
+    function canAnyListScroll(deltaY) {
+        return comparisonListEls.some((listEl) => {
+            if (deltaY > 0) {
+                return listEl.scrollTop < getMaxScrollTop(listEl);
+            }
+
+            return listEl.scrollTop > 0;
+        });
     }
 
     function setupColumnScrollButtons() {
@@ -293,7 +287,6 @@ export function createComparisonView(elements) {
         const rowRect = targetRow.getBoundingClientRect();
         const top = clampScrollTop(listEl, listEl.scrollTop + rowRect.top - listRect.top);
 
-        columnScrollOffsets.set(listEl, top - comparisonColumnsEl.scrollTop);
         listEl.scrollTo({ top, behavior: 'smooth' });
     }
 
