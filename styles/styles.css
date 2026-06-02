@@ -14,7 +14,7 @@
     --shadow: 0 20px 50px rgba(46, 32, 20, 0.1);
     --radius-xl: 20px;
     --radius-lg: 14px;
-    --column-scroll-height: min(68vh, 760px);
+    --column-scroll-height: min(calc(100vh - 178px), 760px);
     --comparison-list-scroll-height: min(56vh, 640px);
 }
 
@@ -47,7 +47,7 @@ textarea {
 .page {
     width: min(1220px, calc(100% - 32px));
     margin: 0 auto;
-    padding: 24px 0 40px;
+    padding: 12px 0 8px;
 }
 
 .hero {
@@ -332,7 +332,7 @@ p {
     display: grid;
     gap: 18px;
     align-content: start;
-    max-height: min(86vh, 1040px);
+    max-height: min(calc(100vh - 40px), 1040px);
     overflow-y: auto;
     padding-right: 16px;
     scrollbar-gutter: stable;
@@ -808,7 +808,7 @@ tbody tr:last-child td {
 @media (max-width: 640px) {
     .page {
         width: min(100% - 20px, 100%);
-        padding-top: 10px;
+        padding: 8px 0 14px;
     }
 
     .hero,
