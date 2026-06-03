@@ -5,6 +5,7 @@ export function createComparisonView(elements) {
         comparisonViewEl,
         ignoreCapitalizationCheckboxEl,
         ignoreAlbumMatchingCheckboxEl,
+        ignoreTitleParentheticalsCheckboxEl,
         copyComparisonButtonEl,
         comparisonStatusEl,
         removedComparisonCountEl,
@@ -195,7 +196,8 @@ export function createComparisonView(elements) {
     function getComparisonOptions() {
         return {
             ignoreCapitalization: ignoreCapitalizationCheckboxEl.checked,
-            ignoreAlbumMatching: ignoreAlbumMatchingCheckboxEl.checked
+            ignoreAlbumMatching: ignoreAlbumMatchingCheckboxEl.checked,
+            ignoreTitleParentheticals: ignoreTitleParentheticalsCheckboxEl.checked
         };
     }
 
@@ -212,7 +214,11 @@ export function createComparisonView(elements) {
     }
 
     function onComparisonOptionsChanged(handler) {
-        const optionEls = [ignoreCapitalizationCheckboxEl, ignoreAlbumMatchingCheckboxEl];
+        const optionEls = [
+            ignoreCapitalizationCheckboxEl,
+            ignoreAlbumMatchingCheckboxEl,
+            ignoreTitleParentheticalsCheckboxEl
+        ];
 
         for (const optionEl of optionEls) {
             optionEl.addEventListener('change', () => {

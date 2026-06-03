@@ -280,14 +280,19 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             return;
         }
 
-        const { ignoreCapitalization, ignoreAlbumMatching } = comparisonView.getComparisonOptions();
+        const {
+            ignoreCapitalization,
+            ignoreAlbumMatching,
+            ignoreTitleParentheticals
+        } = comparisonView.getComparisonOptions();
 
         const comparison = compareTracklists(
             comparisonTracks.youtubeTracks,
             comparisonTracks.appleTracks,
             {
                 matchCapitalization: !ignoreCapitalization,
-                matchAlbums: !ignoreAlbumMatching
+                matchAlbums: !ignoreAlbumMatching,
+                ignoreTitleParentheticals
             }
         );
 
