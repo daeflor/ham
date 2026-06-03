@@ -216,8 +216,7 @@ export function createComparisonView(elements) {
 
         for (const optionEl of optionEls) {
             optionEl.addEventListener('change', () => {
-                // TODO does this need to be passed as a param and also exported?
-                handler(getComparisonOptions());
+                handler();
             });
         }
     }
