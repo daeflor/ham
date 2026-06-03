@@ -31,6 +31,7 @@ export function getAppElements() {
         pageInfoEl: document.getElementById('pageInfo'),
         comparisonViewEl: document.getElementById('comparisonView'),
         ignoreCapitalizationCheckboxEl: document.getElementById('ignoreCapitalizationCheckbox'),
+        ignoreAlbumMatchingCheckboxEl: document.getElementById('ignoreAlbumMatchingCheckbox'),
         copyComparisonButtonEl: document.getElementById('copyComparisonButton'),
         comparisonStatusEl: document.getElementById('comparisonStatus'),
         removedComparisonCountEl: document.getElementById('removedComparisonCount'),

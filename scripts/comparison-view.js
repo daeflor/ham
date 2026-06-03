@@ -4,6 +4,7 @@ export function createComparisonView(elements) {
     const {
         comparisonViewEl,
         ignoreCapitalizationCheckboxEl,
+        ignoreAlbumMatchingCheckboxEl,
         copyComparisonButtonEl,
         comparisonStatusEl,
         removedComparisonCountEl,
@@ -191,8 +192,11 @@ export function createComparisonView(elements) {
         comparisonStatusEl.textContent = message;
     }
 
-    function shouldIgnoreCapitalization() {
-        return ignoreCapitalizationCheckboxEl.checked;
+    function getComparisonOptions() {
+        return {
+            ignoreCapitalization: ignoreCapitalizationCheckboxEl.checked,
+            ignoreAlbumMatching: ignoreAlbumMatchingCheckboxEl.checked
+        };
     }
 
     async function copyComparisonToClipboard() {
@@ -207,11 +211,15 @@ export function createComparisonView(elements) {
         }
     }
 
-    function onIgnoreCapitalizationChanged(handler) {
-        ignoreCapitalizationCheckboxEl.addEventListener('change', () => {
-            // TODO does this need to be passed as a param; doesn't the checked state of the checkbox get passed in the event?
-            handler(shouldIgnoreCapitalization());
-        });
+    function onComparisonOptionsChanged(handler) {
+        const optionEls = [ignoreCapitalizationCheckboxEl, ignoreAlbumMatchingCheckboxEl];
+
+        for (const optionEl of optionEls) {
+            optionEl.addEventListener('change', () => {
+                // TODO does this need to be passed as a param and also exported?
+                handler(getComparisonOptions());
+            });
+        }
     }
 
     function resetComparisonScroll() {
@@ -322,7 +330,7 @@ export function createComparisonView(elements) {
         showError,
         renderComparison,
         showStatus,
-        shouldIgnoreCapitalization,
-        onIgnoreCapitalizationChanged
+        getComparisonOptions,
+        onComparisonOptionsChanged
     };
 }
