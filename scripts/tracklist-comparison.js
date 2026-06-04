@@ -4,7 +4,7 @@ export function compareTracklists(youtubeTracks, appleTracks, options = {}) {
     const durationToleranceMs = options.durationToleranceMs ?? DEFAULT_DURATION_TOLERANCE_MS;
     const matchCapitalization = options.matchCapitalization ?? true;
     const matchAlbums = options.matchAlbums ?? true;
-    const ignoreTitleParentheticals = options.ignoreTitleParentheticals ?? false;
+    const ignoreParentheticals = options.ignoreParentheticals ?? false;
     const availableAppleMatches = [...appleTracks];
     const matchedTracks = [];
     const removedTracks = [];
@@ -15,7 +15,7 @@ export function compareTracklists(youtubeTracks, appleTracks, options = {}) {
                 durationToleranceMs,
                 matchCapitalization,
                 matchAlbums,
-                ignoreTitleParentheticals
+                ignoreParentheticals
             });
         });
 
@@ -44,49 +44,46 @@ export function tracksMatch(firstTrack, secondTrack, options = {}) {
     const durationToleranceMs = options.durationToleranceMs ?? DEFAULT_DURATION_TOLERANCE_MS;
     const matchCapitalization = options.matchCapitalization ?? true;
     const matchAlbums = options.matchAlbums ?? true;
-    const ignoreTitleParentheticals = options.ignoreTitleParentheticals ?? false;
+    const ignoreParentheticals = options.ignoreParentheticals ?? false;
+    const textOptions = { matchCapitalization, ignoreParentheticals };
 
-    return titlesMatch(firstTrack, secondTrack, { matchCapitalization, ignoreTitleParentheticals })
-        && artistsMatch(firstTrack, secondTrack, matchCapitalization)
-        && albumsMatch(firstTrack, secondTrack, { matchCapitalization, matchAlbums })
+    return titlesMatch(firstTrack, secondTrack, textOptions)
+        && artistsMatch(firstTrack, secondTrack, textOptions)
+        && albumsMatch(firstTrack, secondTrack, { ...textOptions, matchAlbums })
         && durationsMatch(firstTrack, secondTrack, durationToleranceMs);
 }
 
-function titlesMatch(firstTrack, secondTrack, { matchCapitalization, ignoreTitleParentheticals }) {
-    return textFieldsMatch(
-        firstTrack?.title,
-        secondTrack?.title,
-        matchCapitalization,
-        ignoreTitleParentheticals ? removeParentheticalText : undefined
-    );
+function titlesMatch(firstTrack, secondTrack, options) {
+    return textFieldsMatch(firstTrack?.title, secondTrack?.title, options);
 }
 
-function artistsMatch(firstTrack, secondTrack, matchCapitalization) {
-    return textFieldsMatch(firstTrack?.artist, secondTrack?.artist, matchCapitalization);
+function artistsMatch(firstTrack, secondTrack, options) {
+    return textFieldsMatch(firstTrack?.artist, secondTrack?.artist, options);
 }
 
-function albumsMatch(firstTrack, secondTrack, { matchCapitalization, matchAlbums }) {
+function albumsMatch(firstTrack, secondTrack, { matchAlbums, ...textOptions }) {
     if (!matchAlbums) {
         return true;
     }
 
-    return textFieldsMatch(firstTrack?.album, secondTrack?.album, matchCapitalization);
+    return textFieldsMatch(firstTrack?.album, secondTrack?.album, textOptions);
 }
 
-function textFieldsMatch(firstValue, secondValue, matchCapitalization, normalizeText) {
-    if (normalizeText && typeof firstValue === 'string' && typeof secondValue === 'string') {
-        return textFieldsMatch(normalizeText(firstValue), normalizeText(secondValue), matchCapitalization);
+function textFieldsMatch(firstValue, secondValue, options) {
+    const normalizedFirstValue = normalizeTextForComparison(firstValue, options);
+    const normalizedSecondValue = normalizeTextForComparison(secondValue, options);
+
+    return normalizedFirstValue === normalizedSecondValue;
+}
+
+function normalizeTextForComparison(value, { matchCapitalization, ignoreParentheticals }) {
+    if (typeof value !== 'string') {
+        return value;
     }
 
-    if (firstValue === secondValue) {
-        return true;
-    }
+    const normalizedValue = ignoreParentheticals ? removeParentheticalText(value) : value;
 
-    if (matchCapitalization || typeof firstValue !== 'string' || typeof secondValue !== 'string') {
-        return false;
-    }
-
-    return firstValue.toLocaleLowerCase() === secondValue.toLocaleLowerCase();
+    return matchCapitalization ? normalizedValue : normalizedValue.toLocaleLowerCase();
 }
 
 function removeParentheticalText(value) {

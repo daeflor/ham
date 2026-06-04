@@ -283,7 +283,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         const {
             ignoreCapitalization,
             ignoreAlbumMatching,
-            ignoreTitleParentheticals
+            ignoreParentheticals
         } = comparisonView.getComparisonOptions();
 
         const comparison = compareTracklists(
@@ -292,7 +292,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             {
                 matchCapitalization: !ignoreCapitalization,
                 matchAlbums: !ignoreAlbumMatching,
-                ignoreTitleParentheticals
+                ignoreParentheticals
             }
         );
 

@@ -32,7 +32,7 @@ export function getAppElements() {
         comparisonViewEl: document.getElementById('comparisonView'),
         ignoreCapitalizationCheckboxEl: document.getElementById('ignoreCapitalizationCheckbox'),
         ignoreAlbumMatchingCheckboxEl: document.getElementById('ignoreAlbumMatchingCheckbox'),
-        ignoreTitleParentheticalsCheckboxEl: document.getElementById('ignoreTitleParentheticalsCheckbox'),
+        ignoreParentheticalsCheckboxEl: document.getElementById('ignoreParentheticalsCheckbox'),
         copyComparisonButtonEl: document.getElementById('copyComparisonButton'),
         comparisonStatusEl: document.getElementById('comparisonStatus'),
         removedComparisonCountEl: document.getElementById('removedComparisonCount'),
