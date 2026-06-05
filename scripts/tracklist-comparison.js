@@ -1,6 +1,6 @@
 const DEFAULT_DURATION_TOLERANCE_MS = 3000;
 
-export function compareTracklists(youtubeTracks, appleTracks, options = {}) {
+export function compareTracklists(youtubeTracks, appleTracks, options) {
     const availableAppleMatches = [...appleTracks];
     const matchedTracks = [];
     const removedTracks = [];
@@ -36,7 +36,7 @@ export function tracksMatch(firstTrack, secondTrack, options = {}) {
 
     return titlesMatch(firstTrack, secondTrack, textOptions)
         && artistsMatch(firstTrack, secondTrack, textOptions)
-        && albumsMatch(firstTrack, secondTrack, { ...textOptions, ignoreAlbumMatching })
+        && (ignoreAlbumMatching || albumsMatch(firstTrack, secondTrack, textOptions))
         && durationsMatch(firstTrack, secondTrack);
 }
 
@@ -48,12 +48,8 @@ function artistsMatch(firstTrack, secondTrack, options) {
     return textFieldsMatch(firstTrack?.artist, secondTrack?.artist, options);
 }
 
-function albumsMatch(firstTrack, secondTrack, { ignoreAlbumMatching, ...textOptions }) {
-    if (ignoreAlbumMatching) {
-        return true;
-    }
-
-    return textFieldsMatch(firstTrack?.album, secondTrack?.album, textOptions);
+function albumsMatch(firstTrack, secondTrack, options) {
+    return textFieldsMatch(firstTrack?.album, secondTrack?.album, options);
 }
 
 function textFieldsMatch(firstValue, secondValue, options) {
