@@ -1,22 +1,14 @@
 const DEFAULT_DURATION_TOLERANCE_MS = 3000;
 
 export function compareTracklists(youtubeTracks, appleTracks, options = {}) {
-    const durationToleranceMs = options.durationToleranceMs ?? DEFAULT_DURATION_TOLERANCE_MS;
-    const matchCapitalization = options.matchCapitalization ?? true;
-    const matchAlbums = options.matchAlbums ?? true;
-    const ignoreParentheticals = options.ignoreParentheticals ?? false;
+    const matchOptions = getMatchOptions(options);
     const availableAppleMatches = [...appleTracks];
     const matchedTracks = [];
     const removedTracks = [];
 
     for (const youtubeTrack of youtubeTracks) {
         const appleMatchIndex = availableAppleMatches.findIndex(appleTrack => {
-            return tracksMatch(youtubeTrack, appleTrack, {
-                durationToleranceMs,
-                matchCapitalization,
-                matchAlbums,
-                ignoreParentheticals
-            });
+            return tracksMatch(youtubeTrack, appleTrack, matchOptions);
         });
 
         if (appleMatchIndex === -1) {
@@ -41,16 +33,20 @@ export function compareTracklists(youtubeTracks, appleTracks, options = {}) {
 }
 
 export function tracksMatch(firstTrack, secondTrack, options = {}) {
-    const durationToleranceMs = options.durationToleranceMs ?? DEFAULT_DURATION_TOLERANCE_MS;
-    const matchCapitalization = options.matchCapitalization ?? true;
-    const matchAlbums = options.matchAlbums ?? true;
-    const ignoreParentheticals = options.ignoreParentheticals ?? false;
-    const textOptions = { matchCapitalization, ignoreParentheticals };
+    const { matchAlbums, ...textOptions } = getMatchOptions(options);
 
     return titlesMatch(firstTrack, secondTrack, textOptions)
         && artistsMatch(firstTrack, secondTrack, textOptions)
         && albumsMatch(firstTrack, secondTrack, { ...textOptions, matchAlbums })
-        && durationsMatch(firstTrack, secondTrack, durationToleranceMs);
+        && durationsMatch(firstTrack, secondTrack);
+}
+
+function getMatchOptions(options) {
+    return {
+        matchCapitalization: options.matchCapitalization ?? true,
+        matchAlbums: options.matchAlbums ?? true,
+        ignoreParentheticals: options.ignoreParentheticals ?? false
+    };
 }
 
 function titlesMatch(firstTrack, secondTrack, options) {
@@ -90,7 +86,7 @@ function removeParentheticalText(value) {
     return value.replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
 }
 
-function durationsMatch(firstTrack, secondTrack, durationToleranceMs) {
+function durationsMatch(firstTrack, secondTrack) {
     const firstDuration = firstTrack?.durationInMillis;
     const secondDuration = secondTrack?.durationInMillis;
 
@@ -98,5 +94,5 @@ function durationsMatch(firstTrack, secondTrack, durationToleranceMs) {
         return false;
     }
 
-    return Math.abs(firstDuration - secondDuration) <= durationToleranceMs;
+    return Math.abs(firstDuration - secondDuration) <= DEFAULT_DURATION_TOLERANCE_MS;
 }
