@@ -1,14 +1,13 @@
 const DEFAULT_DURATION_TOLERANCE_MS = 3000;
 
 export function compareTracklists(youtubeTracks, appleTracks, options = {}) {
-    const matchOptions = getMatchOptions(options);
     const availableAppleMatches = [...appleTracks];
     const matchedTracks = [];
     const removedTracks = [];
 
     for (const youtubeTrack of youtubeTracks) {
         const appleMatchIndex = availableAppleMatches.findIndex(appleTrack => {
-            return tracksMatch(youtubeTrack, appleTrack, matchOptions);
+            return tracksMatch(youtubeTrack, appleTrack, options);
         });
 
         if (appleMatchIndex === -1) {
@@ -33,20 +32,12 @@ export function compareTracklists(youtubeTracks, appleTracks, options = {}) {
 }
 
 export function tracksMatch(firstTrack, secondTrack, options = {}) {
-    const { matchAlbums, ...textOptions } = getMatchOptions(options);
+    const { ignoreAlbumMatching, ...textOptions } = options;
 
     return titlesMatch(firstTrack, secondTrack, textOptions)
         && artistsMatch(firstTrack, secondTrack, textOptions)
-        && albumsMatch(firstTrack, secondTrack, { ...textOptions, matchAlbums })
+        && albumsMatch(firstTrack, secondTrack, { ...textOptions, ignoreAlbumMatching })
         && durationsMatch(firstTrack, secondTrack);
-}
-
-function getMatchOptions(options) {
-    return {
-        matchCapitalization: options.matchCapitalization ?? true,
-        matchAlbums: options.matchAlbums ?? true,
-        ignoreParentheticals: options.ignoreParentheticals ?? false
-    };
 }
 
 function titlesMatch(firstTrack, secondTrack, options) {
@@ -57,8 +48,8 @@ function artistsMatch(firstTrack, secondTrack, options) {
     return textFieldsMatch(firstTrack?.artist, secondTrack?.artist, options);
 }
 
-function albumsMatch(firstTrack, secondTrack, { matchAlbums, ...textOptions }) {
-    if (!matchAlbums) {
+function albumsMatch(firstTrack, secondTrack, { ignoreAlbumMatching, ...textOptions }) {
+    if (ignoreAlbumMatching) {
         return true;
     }
 
@@ -72,14 +63,14 @@ function textFieldsMatch(firstValue, secondValue, options) {
     return normalizedFirstValue === normalizedSecondValue;
 }
 
-function normalizeTextForComparison(value, { matchCapitalization, ignoreParentheticals }) {
+function normalizeTextForComparison(value, { ignoreCapitalization, ignoreParentheticals }) {
     if (typeof value !== 'string') {
         return value;
     }
 
     const normalizedValue = ignoreParentheticals ? removeParentheticalText(value) : value;
 
-    return matchCapitalization ? normalizedValue : normalizedValue.toLocaleLowerCase();
+    return ignoreCapitalization ? normalizedValue.toLocaleLowerCase() : normalizedValue;
 }
 
 function removeParentheticalText(value) {
