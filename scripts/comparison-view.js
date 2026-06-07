@@ -111,6 +111,8 @@ export function createComparisonView(elements) {
         const artistEl = rowEl.querySelector('[data-track-field="artist"]');
         const albumEl = rowEl.querySelector('[data-track-field="album"]');
         const durationEl = rowEl.querySelector('[data-track-field="duration"]');
+        const actionsEl = document.createElement('div');
+        actionsEl.className = 'comparisonTrackActions';
 
         indexEl.textContent = `#${track.playlistIndex}`;
         titleEl.textContent = track.title ?? '-';
@@ -118,10 +120,14 @@ export function createComparisonView(elements) {
         albumEl.textContent = track.album ?? '-';
         durationEl.textContent = track.readableDuration ?? '-';
 
+        actionsEl.append(createTrackScrollToTopButton(rowEl));
+
         if (canCopy) {
             rowEl.classList.add('hasCopyButton');
-            rowEl.append(createTrackCopyButton(track));
+            actionsEl.append(createTrackCopyButton(track));
         }
+
+        rowEl.append(actionsEl);
 
         function toggleCollapsedState() {
             const isCollapsed = collapsedTrackKeys.has(trackKey);
@@ -142,6 +148,26 @@ export function createComparisonView(elements) {
         return rowEl;
     }
 
+    function createTrackScrollToTopButton(rowEl) {
+        const buttonEl = document.createElement('button');
+        buttonEl.className = 'comparisonTrackScrollButton';
+        buttonEl.type = 'button';
+        buttonEl.setAttribute('aria-label', 'Scroll track to top');
+        buttonEl.title = 'Scroll track to top';
+        buttonEl.innerHTML = `
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M11 6.83 6.41 11.41 5 10l7-7 7 7-1.41 1.41L13 6.83V21h-2z" />
+            </svg>
+        `;
+
+        buttonEl.addEventListener('click', (event) => {
+            event.stopPropagation();
+            scrollTrackRowToTop(rowEl);
+        });
+
+        return buttonEl;
+    }
+
     function createTrackCopyButton(track) {
         const buttonEl = document.createElement('button');
         buttonEl.className = 'comparisonTrackCopyButton';
@@ -160,6 +186,20 @@ export function createComparisonView(elements) {
         });
 
         return buttonEl;
+    }
+
+    function scrollTrackRowToTop(rowEl) {
+        const listEl = rowEl.parentElement;
+
+        if (!listEl) {
+            return;
+        }
+
+        const listRect = listEl.getBoundingClientRect();
+        const rowRect = rowEl.getBoundingClientRect();
+        const top = clampScrollTop(listEl, listEl.scrollTop + rowRect.top - listRect.top);
+
+        listEl.scrollTo({ top, behavior: 'smooth' });
     }
 
     async function copyTrackToClipboard(track) {

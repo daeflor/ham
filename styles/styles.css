@@ -586,7 +586,7 @@ p {
 
 .comparisonTrack {
     display: grid;
-    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-columns: 42px minmax(0, 1fr) auto;
     align-items: start;
     gap: 10px;
     padding: 12px;
@@ -598,12 +598,12 @@ p {
 }
 
 .comparisonTrack.hasCopyButton {
-    grid-template-columns: 42px minmax(0, 1fr) 34px;
+    grid-template-columns: 42px minmax(0, 1fr) auto;
 }
 
 .comparisonTrack.collapsed,
 .comparisonTrack.collapsed.hasCopyButton {
-    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-columns: 42px minmax(0, 1fr) auto;
     align-items: center;
     padding-block: 9px;
     border-color: rgba(118, 85, 54, 0.1);
@@ -614,6 +614,14 @@ p {
     display: none;
 }
 
+.comparisonTrackActions {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.comparisonTrackScrollButton,
 .comparisonTrackCopyButton {
     display: inline-flex;
     align-items: center;
@@ -629,11 +637,13 @@ p {
     transition: transform 180ms ease, background-color 180ms ease;
 }
 
+.comparisonTrackScrollButton:hover,
 .comparisonTrackCopyButton:hover {
     transform: translateY(-1px);
     background: var(--surface-muted);
 }
 
+.comparisonTrackScrollButton svg,
 .comparisonTrackCopyButton svg {
     width: 15px;
     height: 15px;
