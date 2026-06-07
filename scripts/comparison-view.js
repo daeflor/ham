@@ -30,12 +30,12 @@ export function createComparisonView(elements) {
     };
     let removedTracks = [];
     let addedTracks = [];
-    let checkedTrackKeys = new Set();
+    let collapsedTrackKeys = new Set();
 
     function clearComparison() {
         removedTracks = [];
         addedTracks = [];
-        checkedTrackKeys = new Set();
+        collapsedTrackKeys = new Set();
         showStatus('');
         removedComparisonCountEl.textContent = '';
         addedComparisonCountEl.textContent = '';
@@ -64,7 +64,7 @@ export function createComparisonView(elements) {
     function renderComparison({ removedTracks: removed, addedTracks: added, matchedTrackCount = 0 }) {
         removedTracks = removed || [];
         addedTracks = added || [];
-        checkedTrackKeys = new Set();
+        collapsedTrackKeys = new Set();
         comparisonViewEl.hidden = false;
         showStatus(`${matchedTrackCount} matched, ${removedTracks.length} removed, ${addedTracks.length} added.`);
 
@@ -106,15 +106,12 @@ export function createComparisonView(elements) {
     function createTrackRow(track, { canCopy }) {
         const trackKey = getTrackKey(track);
         const rowEl = comparisonTrackTemplateEl.content.firstElementChild.cloneNode(true);
-        const checkboxEl = rowEl.querySelector('.comparisonTrackCheck');
         const indexEl = rowEl.querySelector('[data-track-field="playlistIndex"]');
         const titleEl = rowEl.querySelector('[data-track-field="title"]');
         const artistEl = rowEl.querySelector('[data-track-field="artist"]');
         const albumEl = rowEl.querySelector('[data-track-field="album"]');
         const durationEl = rowEl.querySelector('[data-track-field="duration"]');
 
-        checkboxEl.setAttribute('aria-label', `Mark ${track.title ?? 'track'} as reviewed`);
-        checkboxEl.setAttribute('aria-pressed', 'false');
         indexEl.textContent = `#${track.playlistIndex}`;
         titleEl.textContent = track.title ?? '-';
         artistEl.textContent = track.artist ?? '-';
@@ -126,28 +123,20 @@ export function createComparisonView(elements) {
             rowEl.append(createTrackCopyButton(track));
         }
 
-        function toggleCheckedState() {
-            const isChecked = checkedTrackKeys.has(trackKey);
-            if (isChecked) {
-                checkedTrackKeys.delete(trackKey);
+        function toggleCollapsedState() {
+            const isCollapsed = collapsedTrackKeys.has(trackKey);
+            if (isCollapsed) {
+                collapsedTrackKeys.delete(trackKey);
             } else {
-                checkedTrackKeys.add(trackKey);
+                collapsedTrackKeys.add(trackKey);
             }
 
-            rowEl.classList.toggle('checked', !isChecked);
-            checkboxEl.setAttribute('aria-pressed', String(!isChecked));
+            const nextIsCollapsed = !isCollapsed;
+            rowEl.classList.toggle('collapsed', nextIsCollapsed);
         }
 
-        rowEl.addEventListener('click', (event) => {
-            if (event.target === checkboxEl) {
-                return;
-            }
-
-            toggleCheckedState();
-        });
-
-        checkboxEl.addEventListener('click', () => {
-            toggleCheckedState();
+        rowEl.addEventListener('click', () => {
+            toggleCollapsedState();
         });
 
         return rowEl;

@@ -586,7 +586,7 @@ p {
 
 .comparisonTrack {
     display: grid;
-    grid-template-columns: 28px 42px minmax(0, 1fr);
+    grid-template-columns: 42px minmax(0, 1fr);
     align-items: start;
     gap: 10px;
     padding: 12px;
@@ -598,29 +598,20 @@ p {
 }
 
 .comparisonTrack.hasCopyButton {
-    grid-template-columns: 28px 42px minmax(0, 1fr) 34px;
+    grid-template-columns: 42px minmax(0, 1fr) 34px;
 }
 
-.comparisonTrack.checked {
-    border-color: rgba(31, 107, 93, 0.2);
-    background: var(--accent-soft);
+.comparisonTrack.collapsed,
+.comparisonTrack.collapsed.hasCopyButton {
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: center;
+    padding-block: 9px;
+    border-color: rgba(118, 85, 54, 0.1);
+    background: rgba(248, 242, 234, 0.48);
 }
 
-.comparisonTrackCheck {
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: 1px solid var(--surface-border);
-    border-radius: 8px;
-    background: var(--surface-strong);
-    color: transparent;
-    cursor: pointer;
-}
-
-.comparisonTrack.checked .comparisonTrackCheck {
-    border-color: rgba(31, 107, 93, 0.3);
-    background: var(--accent);
-    color: #fff;
+.comparisonTrack.collapsed .comparisonTrackCopyButton {
+    display: none;
 }
 
 .comparisonTrackCopyButton {
@@ -668,6 +659,10 @@ p {
     gap: 4px;
 }
 
+.comparisonTrack.collapsed .comparisonTrackBody {
+    gap: 0;
+}
+
 .comparisonTrackTitle,
 .comparisonTrackMeta {
     display: block;
@@ -678,6 +673,17 @@ p {
 
 .comparisonTrackTitle {
     font-weight: 700;
+}
+
+.comparisonTrack.collapsed .comparisonTrackIndex,
+.comparisonTrack.collapsed .comparisonTrackTitle {
+    color: var(--muted);
+    font-size: 0.86rem;
+    font-weight: 500;
+}
+
+.comparisonTrack.collapsed .comparisonTrackMeta {
+    display: none;
 }
 
 .comparisonTrackMeta,
