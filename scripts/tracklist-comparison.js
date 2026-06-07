@@ -34,39 +34,24 @@ export function compareTracklists(youtubeTracks, appleTracks, options) {
 export function tracksMatch(firstTrack, secondTrack, options = {}) {
     const { ignoreAlbumMatching, ...textOptions } = options;
 
-    return titlesMatch(firstTrack, secondTrack, textOptions)
-        && artistsMatch(firstTrack, secondTrack, textOptions)
-        && (ignoreAlbumMatching || albumsMatch(firstTrack, secondTrack, textOptions))
+    return textFieldsMatch(firstTrack?.title, secondTrack?.title, textOptions)
+        && textFieldsMatch(firstTrack?.artist, secondTrack?.artist, textOptions)
+        && (ignoreAlbumMatching || textFieldsMatch(firstTrack?.album, secondTrack?.album, textOptions))
         && durationsMatch(firstTrack, secondTrack);
 }
 
-function titlesMatch(firstTrack, secondTrack, options) {
-    return textFieldsMatch(firstTrack?.title, secondTrack?.title, options);
-}
-
-function artistsMatch(firstTrack, secondTrack, options) {
-    return textFieldsMatch(firstTrack?.artist, secondTrack?.artist, options);
-}
-
-function albumsMatch(firstTrack, secondTrack, options) {
-    return textFieldsMatch(firstTrack?.album, secondTrack?.album, options);
-}
-
-function textFieldsMatch(firstValue, secondValue, options) {
-    const normalizedFirstValue = normalizeTextForComparison(firstValue, options);
-    const normalizedSecondValue = normalizeTextForComparison(secondValue, options);
-
-    return normalizedFirstValue === normalizedSecondValue;
-}
-
-function normalizeTextForComparison(value, { ignoreCapitalization, ignoreParentheticals }) {
-    if (typeof value !== 'string') {
-        return value;
+function textFieldsMatch(firstValue, secondValue, { ignoreCapitalization, ignoreParentheticals }) {
+    if (typeof firstValue !== 'string' || typeof secondValue !== 'string') {
+        return false;
     }
 
-    const normalizedValue = ignoreParentheticals ? removeParentheticalText(value) : value;
+    firstValue = ignoreParentheticals ? removeParentheticalText(firstValue) : firstValue;
+    secondValue = ignoreParentheticals ? removeParentheticalText(secondValue) : secondValue;
 
-    return ignoreCapitalization ? normalizedValue.toLocaleLowerCase() : normalizedValue;
+    firstValue = ignoreCapitalization ? firstValue?.toLocaleLowerCase() : firstValue;
+    secondValue = ignoreCapitalization ? secondValue?.toLocaleLowerCase() : secondValue;
+
+    return firstValue === secondValue;
 }
 
 function removeParentheticalText(value) {
