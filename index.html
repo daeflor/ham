@@ -80,17 +80,20 @@
                         </div>
                     </div>
 
-                    <div class="actionGrid">
-                        <button id="showAppleTracksButton" class="actionButton" type="button">
-                            <span class="actionButtonTitle">Apple Music track list</span>
+                    <div class="actionTabs" role="tablist" aria-label="Selected playlist views">
+                        <button id="showAppleTracksButton" class="actionTab" type="button" role="tab"
+                            aria-controls="tracksView" aria-selected="false" tabindex="-1">
+                            <span class="actionTabTitle">Apple Music tracks</span>
                         </button>
-                        <button id="showYoutubeTracksButton" class="actionButton" type="button" disabled
+                        <button id="showYoutubeTracksButton" class="actionTab" type="button" role="tab"
+                            aria-controls="tracksView" aria-selected="false" tabindex="-1" disabled
                             title="Requires Google Firebase sign-in">
-                            <span class="actionButtonTitle">YouTube Music equivalent</span>
+                            <span class="actionTabTitle">YouTube Music tracks</span>
                         </button>
-                        <button id="showComparisonButton" class="actionButton" type="button" disabled
+                        <button id="showComparisonButton" class="actionTab" type="button" role="tab"
+                            aria-controls="comparisonView" aria-selected="false" tabindex="-1" disabled
                             title="Requires Google Firebase sign-in">
-                            <span class="actionButtonTitle">Compare track lists</span>
+                            <span class="actionTabTitle">Compare Apple Music & YouTube Music tracks</span>
                         </button>
                     </div>
 

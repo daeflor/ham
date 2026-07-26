@@ -60,7 +60,10 @@ export function createSelectedPlaylistView(elements) {
 
     function setSelectedAction(actionKey) {
         for (const [key, button] of Object.entries(actionButtons)) {
-            button.classList.toggle('selected', key === actionKey);
+            const isSelected = key === actionKey;
+            button.classList.toggle('selected', isSelected);
+            button.setAttribute('aria-selected', String(isSelected));
+            button.tabIndex = isSelected || (!actionKey && key === 'apple-tracks') ? 0 : -1;
         }
     }
 

@@ -134,7 +134,7 @@ p {
 .secondaryButton,
 #pagination button,
 .playlistButton,
-.actionButton {
+.actionTab {
     appearance: none;
     border: 0;
     border-radius: 18px;
@@ -158,7 +158,7 @@ p {
 
 .primaryButton:disabled,
 #pagination button:disabled,
-.actionButton:disabled,
+.actionTab:disabled,
 .secondaryButton:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -393,30 +393,70 @@ p {
     line-height: 1.6;
 }
 
-.actionGrid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+.actionTabs {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--surface-border);
+    border-radius: 14px;
+    background: rgba(248, 242, 234, 0.82);
 }
 
-.actionButton {
-    padding: 14px 16px;
-    background: var(--surface-muted);
-    color: var(--text);
-    border: 1px solid var(--surface-border);
+.actionTab {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 42px;
+    padding: 10px 14px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid transparent;
+    border-radius: 10px;
     cursor: pointer;
-    text-align: left;
+    text-align: center;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
-.actionButton.selected {
-    background: rgba(186, 83, 51, 0.12);
-    border-color: rgba(142, 59, 36, 0.26);
-    box-shadow: inset 0 0 0 1px rgba(151, 58, 33, 0.1);
+.actionTab + .actionTab::before {
+    content: "";
+    position: absolute;
+    left: -3px;
+    top: 9px;
+    bottom: 9px;
+    width: 1px;
+    background: var(--surface-border);
 }
 
-.actionButtonTitle {
+.actionTab.selected::before,
+.actionTab.selected + .actionTab::before {
+    display: none;
+}
+
+.actionTab:hover:not(:disabled) {
+    background: rgba(255, 252, 247, 0.72);
+}
+
+.actionTab.selected {
+    background: var(--surface-strong);
+    border-color: rgba(142, 59, 36, 0.24);
+    color: var(--text);
+    box-shadow: 0 8px 18px rgba(46, 32, 20, 0.08);
+}
+
+.actionTab.selected::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: -5px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--brand);
+}
+
+.actionTabTitle {
     font-weight: 600;
 }
 
@@ -822,8 +862,7 @@ tbody tr:last-child td {
     }
 
     .appHeader,
-    .selectionCard,
-    .actionGrid {
+    .selectionCard {
         grid-template-columns: 1fr;
     }
 
@@ -865,5 +904,19 @@ tbody tr:last-child td {
 
     .selectionBadges {
         justify-content: flex-start;
+    }
+
+    .actionTabs {
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .actionTabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .actionTab {
+        flex: 0 0 auto;
+        min-width: 156px;
     }
 }
