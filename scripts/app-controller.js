@@ -108,7 +108,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             shellView.setLandingStatus('');
             shellView.hideLandingShell();
             shellView.showAppShell();
-            watchFirebaseSignInState();
+            watchFirebaseSessionChanges();
         } catch (error) {
             console.error('Failed to start MusicKit flow', error);
             const message = error instanceof Error ? error.message : 'Unable to connect to Apple Music. Please try again.';
@@ -121,32 +121,9 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
     async function ensureFirebaseSignedIn() {
         const { user } = await signInToFirebase();
-        applyFirebaseUser(user);
-        shellView.renderFirebaseSignedIn(firebaseSession.userName);
-    }
-
-    function watchFirebaseSignInState() {
-        observeFirebaseAuthState(
-            (user) => {
-                if (!user || user.uid !== firebaseSession.userId) {
-                    reloadAppAfterFirebaseSessionChanged();
-                    return;
-                }
-
-                applyFirebaseUser(user);
-                shellView.renderFirebaseSignedIn(firebaseSession.userName);
-            },
-            (error) => {
-                const message = error instanceof Error ? error.message : 'Unable to verify Google Firebase sign-in.';
-                shellView.setStatus(message);
-                console.error('Failed to observe Firebase sign-in state', error);
-            }
-        );
-    }
-
-    function applyFirebaseUser(user) {
         firebaseSession.userId = user?.uid ?? '';
         firebaseSession.userName = user?.email?.split('@')[0] ?? '';
+        shellView.renderFirebaseSignedIn(firebaseSession.userName);
     }
 
     async function handleFirebaseSignOut() {
@@ -157,6 +134,22 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             shellView.setStatus(message);
             console.error('Failed to sign out of Firebase', error);
         }
+    }
+
+    // Watches for unexpected changes to the Firebase session (e.g., user signs out in another tab) and reloads the app if the user has changed or signed out
+    function watchFirebaseSessionChanges() {
+        observeFirebaseAuthState(
+            (user) => {
+                if (!user || user.uid !== firebaseSession.userId) {
+                    reloadAppAfterFirebaseSessionChanged();
+                }
+            },
+            (error) => {
+                const message = error instanceof Error ? error.message : 'Unable to verify Google Firebase sign-in.';
+                shellView.setStatus(message);
+                console.error('Failed to observe Firebase sign-in state', error);
+            }
+        );
     }
 
     function reloadAppAfterFirebaseSessionChanged() {
