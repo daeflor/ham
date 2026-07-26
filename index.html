@@ -27,7 +27,8 @@
                     <h1 id="landingTitle">Hello Apple Music</h1>
                     <div class="landingCtaSlot">
                         <div id="landingActions" class="heroActions">
-                            <button id="connectButton" class="primaryButton" type="button">Show Apple Music
+                            <button id="connectButton" class="primaryButton" type="button">Sign into Firebase & load
+                                Apple Music
                                 playlists</button>
                         </div>
                         <div id="landingStatus" class="landingStatus" aria-live="polite"></div>
@@ -43,10 +44,6 @@
             <div id="layout" class="workspaceShell">
                 <div class="leftRail">
                     <div class="playlistToolbar">
-                        <button id="firebaseButton" class="secondaryButton" type="button" disabled
-                            title="Requires Google Firebase sign-in support">
-                            Sign into Google Firebase
-                        </button>
                         <div id="firebaseSession" class="firebaseSession" hidden>
                             <span id="firebaseUser" class="firebaseUser" aria-live="polite"></span>
                             <button id="firebaseSignOutButton" class="iconButton" type="button" aria-label="Sign out"
@@ -86,13 +83,11 @@
                             <span class="actionTabTitle">Apple Music tracks</span>
                         </button>
                         <button id="showYoutubeTracksButton" class="actionTab" type="button" role="tab"
-                            aria-controls="tracksView" aria-selected="false" tabindex="-1" disabled
-                            title="Requires Google Firebase sign-in">
+                            aria-controls="tracksView" aria-selected="false" tabindex="-1">
                             <span class="actionTabTitle">YouTube Music tracks</span>
                         </button>
                         <button id="showComparisonButton" class="actionTab" type="button" role="tab"
-                            aria-controls="comparisonView" aria-selected="false" tabindex="-1" disabled
-                            title="Requires Google Firebase sign-in">
+                            aria-controls="comparisonView" aria-selected="false" tabindex="-1">
                             <span class="actionTabTitle">Apple Music & YouTube Music comparison</span>
                         </button>
                         <button id="showAppleTrackComparisonButton" class="actionTab" type="button" role="tab"

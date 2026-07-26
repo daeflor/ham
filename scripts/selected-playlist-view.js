@@ -170,11 +170,6 @@ export function createSelectedPlaylistView(elements) {
         selectedTransferredBadgeEl.hidden = !isTransferred;
     }
 
-    function setFirebaseConnectionState(isFirebaseConnected) {
-        showYoutubeTracksButtonEl.disabled = !isFirebaseConnected;
-        showComparisonButtonEl.disabled = !isFirebaseConnected;
-    }
-
     function clearSelectedAction() {
         setSelectedAction();
     }
@@ -223,7 +218,6 @@ export function createSelectedPlaylistView(elements) {
         renderTracks,
         showSelectedPlaylist,
         setTransferredState,
-        setFirebaseConnectionState,
         showComparisonSelected,
         clearSelectedAction,
         onAppleTracksRequested,

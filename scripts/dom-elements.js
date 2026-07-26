@@ -5,7 +5,6 @@ export function getAppElements() {
         landingActionsEl: document.getElementById('landingActions'),
         connectButtonEl: document.getElementById('connectButton'),
         landingStatusEl: document.getElementById('landingStatus'),
-        firebaseButtonEl: document.getElementById('firebaseButton'),
         firebaseSessionEl: document.getElementById('firebaseSession'),
         firebaseUserEl: document.getElementById('firebaseUser'),
         firebaseSignOutButtonEl: document.getElementById('firebaseSignOutButton'),

@@ -9,7 +9,7 @@ import {
     signOutFromFirebase
 } from './firebase-api.js';
 import { compareTracklists } from './tracklist-comparison.js';
-import { clearYoutubeTracklistCache, getYoutubeTracklistByApplePlaylistName } from './youtube-tracklists.js';
+import { getYoutubeTracklistByApplePlaylistName } from './youtube-tracklists.js';
 
 /**
  * @typedef {ReturnType<typeof import('./shell-view.js').createShellView>} ShellView
@@ -34,15 +34,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     let comparisonTracks = null;
     const transferredPlaylistIds = new Set();
 
-    const FirebaseSessionState = Object.freeze({
-        SIGNED_OUT: 'signed-out',
-        SIGNING_IN: 'signing-in',
-        SIGNING_OUT: 'signing-out',
-        SIGNED_IN: 'signed-in'
-    });
-
     const firebaseSession = {
-        state: FirebaseSessionState.SIGNED_OUT,
         userId: '',
         userName: ''
     };
@@ -91,9 +83,12 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         isInitializing = true;
         shellView.setLandingLoadingState(true);
-        shellView.setLandingStatus('Configuring MusicKit…');
+        shellView.setLandingStatus('Signing into Google Firebase…');
 
         try {
+            await ensureFirebaseSignedIn();
+
+            shellView.setLandingStatus('Configuring MusicKit…');
             const music = await ensureMusicKitConfigured();
 
             shellView.setLandingStatus('Requesting access to your Apple Music account…');
@@ -110,94 +105,70 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
                 totalCount: playlistTotalCount
             });
 
-            watchFirebaseSignInState();
-
             shellView.setLandingStatus('');
             shellView.hideLandingShell();
             shellView.showAppShell();
+            watchFirebaseSignInState();
         } catch (error) {
             console.error('Failed to start MusicKit flow', error);
             const message = error instanceof Error ? error.message : 'Unable to connect to Apple Music. Please try again.';
             shellView.setLandingStatus(message);
         } finally {
             isInitializing = false;
+            shellView.setLandingLoadingState(false);
         }
     }
 
     function watchFirebaseSignInState() {
         observeFirebaseAuthState(
             (user) => {
-                applyFirebaseUser(user);
-                syncFirebaseUi();
+                handleObservedFirebaseUser(user);
             },
             (error) => {
-                applyFirebaseUser(null);
-                syncFirebaseUi();
+                const message = error instanceof Error ? error.message : 'Unable to verify Google Firebase sign-in.';
+                shellView.setStatus(message);
                 console.error('Failed to observe Firebase sign-in state', error);
             }
         );
     }
 
-    function applyFirebaseUser(user) {
-        const userId = user?.uid ?? '';
-        if (firebaseSession.userId !== userId) {
-            clearYoutubeTracklistCache();
+    function handleObservedFirebaseUser(user) {
+        if (!user || user.uid !== firebaseSession.userId) {
+            reloadAppAfterFirebaseSessionChanged();
+            return;
         }
 
-        firebaseSession.state = user ? FirebaseSessionState.SIGNED_IN : FirebaseSessionState.SIGNED_OUT;
-        firebaseSession.userId = userId;
+        applyFirebaseUser(user);
+        shellView.renderFirebaseSignedIn(firebaseSession.userName);
+    }
+
+    function applyFirebaseUser(user) {
+        firebaseSession.userId = user?.uid ?? '';
         firebaseSession.userName = user?.email?.split('@')[0] ?? '';
     }
 
-    function syncFirebaseUi() {
-        switch (firebaseSession.state) {
-            case FirebaseSessionState.SIGNING_IN:
-                shellView.renderFirebaseAuthenticating();
-                break;
-            case FirebaseSessionState.SIGNED_IN:
-                shellView.renderFirebaseSignedIn(firebaseSession.userName);
-                selectedPlaylistView.setFirebaseConnectionState(true);
-                break;
-            case FirebaseSessionState.SIGNED_OUT:
-                shellView.renderFirebaseSignedOut();
-                selectedPlaylistView.setFirebaseConnectionState(false);
-                break;
-            default:
-                console.warn('Trying to sync UI based on unsupported Firebase session state:', firebaseSession.state);
-        }
-    }
-
-    async function handleFirebaseSignIn() {
-        if (firebaseSession.state === FirebaseSessionState.SIGNED_OUT) {
-            firebaseSession.state = FirebaseSessionState.SIGNING_IN;
-            syncFirebaseUi();
-
-            try {
-                await signInToFirebase();
-            } catch (error) {
-                firebaseSession.state = FirebaseSessionState.SIGNED_OUT;
-                syncFirebaseUi();
-                const message = error instanceof Error ? error.message : 'Unable to sign into Google Firebase.';
-                shellView.setStatus(message);
-                console.error('Failed to sign into Firebase', error);
-            }
-        }
+    async function ensureFirebaseSignedIn() {
+        const { user } = await signInToFirebase();
+        applyFirebaseUser(user);
+        shellView.renderFirebaseSignedIn(firebaseSession.userName);
     }
 
     async function handleFirebaseSignOut() {
-        if (firebaseSession.state === FirebaseSessionState.SIGNED_IN) {
-            // Don't bother updating the UI while signing out since it should complete (or fail) very quickly, at which point the UI will be updated accordingly.
-            firebaseSession.state = FirebaseSessionState.SIGNING_OUT;
-
-            try {
-                await signOutFromFirebase();
-            } catch (error) {
-                firebaseSession.state = FirebaseSessionState.SIGNED_IN;
-                const message = error instanceof Error ? error.message : 'Unable to sign out of Google Firebase.';
-                shellView.setStatus(message);
-                console.error('Failed to sign out of Firebase', error);
-            }
+        if (!firebaseSession.userId) {
+            return;
         }
+
+        try {
+            await signOutFromFirebase();
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unable to sign out of Google Firebase.';
+            shellView.setStatus(message);
+            console.error('Failed to sign out of Firebase', error);
+        }
+    }
+
+    function reloadAppAfterFirebaseSessionChanged() {
+        window.location.reload();
     }
 
     function handlePlaylistSelected(playlist) {
@@ -305,7 +276,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
     function bindEvents() {
         shellView.onConnect(handleInitializeApp);
-        shellView.onFirebaseSignIn(handleFirebaseSignIn);
         shellView.onFirebaseSignOut(handleFirebaseSignOut);
         selectedPlaylistView.onAppleTracksRequested(handleAppleTracksRequested);
         selectedPlaylistView.onYoutubeTracksRequested(handleYoutubeTracksRequested);

@@ -3,10 +3,6 @@ import { Track } from './track.js';
 
 const youtubeTracklistCache = new Map();
 
-export function clearYoutubeTracklistCache() {
-    youtubeTracklistCache.clear();
-}
-
 export async function getYoutubeTracklistByApplePlaylistName(playlistName) {
     let tracklistData;
     if (youtubeTracklistCache.has(playlistName)) {

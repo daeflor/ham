@@ -5,7 +5,6 @@ export function createShellView(elements) {
         landingActionsEl,
         connectButtonEl,
         landingStatusEl,
-        firebaseButtonEl,
         firebaseSessionEl,
         firebaseUserEl,
         firebaseSignOutButtonEl,
@@ -39,32 +38,13 @@ export function createShellView(elements) {
         statusEl.textContent = text;
     }
 
-    function onFirebaseSignIn(handler) {
-        firebaseButtonEl.addEventListener('click', handler);
-    }
-
     function onFirebaseSignOut(handler) {
         firebaseSignOutButtonEl.addEventListener('click', handler);
     }
 
-    function renderFirebaseAuthenticating() {
-        firebaseButtonEl.textContent = 'Signing into Google Firebase…';
-        firebaseButtonEl.disabled = true;
-    }
-
     function renderFirebaseSignedIn(username) {
-        firebaseButtonEl.hidden = true;
-
         firebaseUserEl.textContent = username;
         firebaseSessionEl.hidden = false;
-    }
-
-    function renderFirebaseSignedOut() {
-        firebaseSessionEl.hidden = true;
-
-        firebaseButtonEl.textContent = 'Sign into Google Firebase';
-        firebaseButtonEl.disabled = false;
-        firebaseButtonEl.hidden = false;
     }
 
     return {
@@ -74,10 +54,7 @@ export function createShellView(elements) {
         showAppShell,
         hideLandingShell,
         onConnect,
-        onFirebaseSignIn,
         onFirebaseSignOut,
-        renderFirebaseAuthenticating,
-        renderFirebaseSignedIn,
-        renderFirebaseSignedOut
+        renderFirebaseSignedIn
     };
 }

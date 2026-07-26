@@ -1,10 +1,10 @@
 Landing page:
     - Simple landing page 
     - Includes a simple title and description/subtitle
-    - Includes a button to show all Apple Music playlists
+    - Includes a button to sign into Google Firebase and then show all Apple Music playlists
 
 Main page:
-    - Includes a button in the top left for user to sign into Google Firebase; if user is already signed in, should indicate which user
+    - Shows the signed-in Google Firebase username and a logout button in the top left
     - Shows a list of all Apple Music playlists; each item in the list can be selected
         - Could be a column on a left-side pane
         - Each playlist includes its name
@@ -14,9 +14,7 @@ Main page:
             - When the button is selected and/or the playlist is marked as "transferred", the button is hidden and a green "transferred" badge appears instead. This also applies the green checkmark in the playlists list.
         - Show list of tracks in Apple Music playlist
         - Show equivalent tracklist from YouTube Music
-            - Disabled unless user has signed into Google Firebase
         - Show comparison between YouTube Music and Apple Music version of playlists 
-            - Disabled unless user has signed into Google Firebase
             - Selecting this button should fetch both the Apple Music and YouTube Music tracklists if they have not been previously cached (i.e. the user should not have to select the other action buttons before this one)
     
 Tracklist view:
@@ -46,3 +44,4 @@ Comparison logic notes:
 General app usage & architecture notes:
     - This app is only going to be used by me / the developer. It doesn't need overly defensive checks for edge cases that are purely hypothetical or exploitable. The UI can be minimal and functional, and doesn't need to be flashy or overly attention-grabbing. Accessibility does not need to be taken into account.
     - The app isn't intended or planned to be used on mobile / small screens.
+    - Changing the authenticated Firebase account mid-session does not need to be supported. After the main page loads, signing out of Google Firebase reloads the app.
