@@ -3,10 +3,10 @@ import { copyTextToClipboard, formatComparisonExport, formatTrackMetadataRow } f
 export function createComparisonView(elements) {
     const {
         comparisonViewEl,
-        comparisonSummaryEl,
         ignoreCapitalizationCheckboxEl,
+        ignoreAlbumMatchingCheckboxEl,
+        ignoreParentheticalsCheckboxEl,
         copyComparisonButtonEl,
-        saveComparisonButtonEl,
         comparisonStatusEl,
         removedComparisonCountEl,
         removedComparisonListEl,
@@ -30,14 +30,13 @@ export function createComparisonView(elements) {
     };
     let removedTracks = [];
     let addedTracks = [];
-    let checkedTrackKeys = new Set();
+    let collapsedTrackKeys = new Set();
 
     function clearComparison() {
         removedTracks = [];
         addedTracks = [];
-        checkedTrackKeys = new Set();
-        comparisonStatusEl.textContent = '';
-        comparisonSummaryEl.textContent = '';
+        collapsedTrackKeys = new Set();
+        showStatus('');
         removedComparisonCountEl.textContent = '';
         addedComparisonCountEl.textContent = '';
         removedComparisonListEl.replaceChildren();
@@ -53,22 +52,21 @@ export function createComparisonView(elements) {
     function showLoading() {
         clearComparison();
         comparisonViewEl.hidden = false;
-        comparisonSummaryEl.textContent = 'Loading Apple Music and YouTube Music tracklists...';
+        showStatus('Loading Apple Music and YouTube Music tracklists...');
     }
 
     function showError(message) {
         clearComparison();
         comparisonViewEl.hidden = false;
-        comparisonSummaryEl.textContent = message;
+        showStatus(message);
     }
 
-    function renderComparison({ removedTracks: removed, addedTracks: added }) {
+    function renderComparison({ removedTracks: removed, addedTracks: added, matchedTrackCount = 0 }) {
         removedTracks = removed || [];
         addedTracks = added || [];
-        checkedTrackKeys = new Set();
+        collapsedTrackKeys = new Set();
         comparisonViewEl.hidden = false;
-        comparisonStatusEl.textContent = '';
-        comparisonSummaryEl.textContent = `${removedTracks.length} removed, ${addedTracks.length} added.`;
+        showStatus(`${matchedTrackCount} matched, ${removedTracks.length} removed, ${addedTracks.length} added.`);
 
         renderTrackColumn({
             title: 'Removed',
@@ -108,51 +106,66 @@ export function createComparisonView(elements) {
     function createTrackRow(track, { canCopy }) {
         const trackKey = getTrackKey(track);
         const rowEl = comparisonTrackTemplateEl.content.firstElementChild.cloneNode(true);
-        const checkboxEl = rowEl.querySelector('.comparisonTrackCheck');
         const indexEl = rowEl.querySelector('[data-track-field="playlistIndex"]');
         const titleEl = rowEl.querySelector('[data-track-field="title"]');
         const artistEl = rowEl.querySelector('[data-track-field="artist"]');
         const albumEl = rowEl.querySelector('[data-track-field="album"]');
         const durationEl = rowEl.querySelector('[data-track-field="duration"]');
+        const actionsEl = document.createElement('div');
+        actionsEl.className = 'comparisonTrackActions';
 
-        checkboxEl.setAttribute('aria-label', `Mark ${track.title ?? 'track'} as reviewed`);
-        checkboxEl.setAttribute('aria-pressed', 'false');
         indexEl.textContent = `#${track.playlistIndex}`;
         titleEl.textContent = track.title ?? '-';
         artistEl.textContent = track.artist ?? '-';
         albumEl.textContent = track.album ?? '-';
         durationEl.textContent = track.readableDuration ?? '-';
 
+        actionsEl.append(createTrackScrollToTopButton(rowEl));
+
         if (canCopy) {
             rowEl.classList.add('hasCopyButton');
-            rowEl.append(createTrackCopyButton(track));
+            actionsEl.append(createTrackCopyButton(track));
         }
 
-        function toggleCheckedState() {
-            const isChecked = checkedTrackKeys.has(trackKey);
-            if (isChecked) {
-                checkedTrackKeys.delete(trackKey);
+        rowEl.append(actionsEl);
+
+        function toggleCollapsedState() {
+            const isCollapsed = collapsedTrackKeys.has(trackKey);
+            if (isCollapsed) {
+                collapsedTrackKeys.delete(trackKey);
             } else {
-                checkedTrackKeys.add(trackKey);
+                collapsedTrackKeys.add(trackKey);
             }
 
-            rowEl.classList.toggle('checked', !isChecked);
-            checkboxEl.setAttribute('aria-pressed', String(!isChecked));
+            const nextIsCollapsed = !isCollapsed;
+            rowEl.classList.toggle('collapsed', nextIsCollapsed);
         }
 
-        rowEl.addEventListener('click', (event) => {
-            if (event.target === checkboxEl) {
-                return;
-            }
-
-            toggleCheckedState();
-        });
-
-        checkboxEl.addEventListener('click', () => {
-            toggleCheckedState();
+        rowEl.addEventListener('click', () => {
+            toggleCollapsedState();
         });
 
         return rowEl;
+    }
+
+    function createTrackScrollToTopButton(rowEl) {
+        const buttonEl = document.createElement('button');
+        buttonEl.className = 'comparisonTrackScrollButton';
+        buttonEl.type = 'button';
+        buttonEl.setAttribute('aria-label', 'Scroll track to top');
+        buttonEl.title = 'Scroll track to top';
+        buttonEl.innerHTML = `
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M11 6.83 6.41 11.41 5 10l7-7 7 7-1.41 1.41L13 6.83V21h-2z" />
+            </svg>
+        `;
+
+        buttonEl.addEventListener('click', (event) => {
+            event.stopPropagation();
+            scrollTrackRowToTop(rowEl);
+        });
+
+        return buttonEl;
     }
 
     function createTrackCopyButton(track) {
@@ -175,6 +188,20 @@ export function createComparisonView(elements) {
         return buttonEl;
     }
 
+    function scrollTrackRowToTop(rowEl) {
+        const listEl = rowEl.parentElement;
+
+        if (!listEl) {
+            return;
+        }
+
+        const listRect = listEl.getBoundingClientRect();
+        const rowRect = rowEl.getBoundingClientRect();
+        const top = clampScrollTop(listEl, listEl.scrollTop + rowRect.top - listRect.top);
+
+        listEl.scrollTo({ top, behavior: 'smooth' });
+    }
+
     async function copyTrackToClipboard(track) {
         const exportText = formatTrackMetadataRow(track);
 
@@ -195,8 +222,12 @@ export function createComparisonView(elements) {
         comparisonStatusEl.textContent = message;
     }
 
-    function shouldIgnoreCapitalization() {
-        return ignoreCapitalizationCheckboxEl.checked;
+    function getComparisonOptions() {
+        return {
+            ignoreCapitalization: ignoreCapitalizationCheckboxEl.checked,
+            ignoreAlbumMatching: ignoreAlbumMatchingCheckboxEl.checked,
+            ignoreParentheticals: ignoreParentheticalsCheckboxEl.checked
+        };
     }
 
     async function copyComparisonToClipboard() {
@@ -211,15 +242,18 @@ export function createComparisonView(elements) {
         }
     }
 
-    function onSaveCurrentVersion(handler) {
-        saveComparisonButtonEl.addEventListener('click', handler);
-    }
+    function onComparisonOptionsChanged(handler) {
+        const optionEls = [
+            ignoreCapitalizationCheckboxEl,
+            ignoreAlbumMatchingCheckboxEl,
+            ignoreParentheticalsCheckboxEl
+        ];
 
-    function onIgnoreCapitalizationChanged(handler) {
-        ignoreCapitalizationCheckboxEl.addEventListener('change', () => {
-            // TODO does this need to be passed as a param; doesn't the checked state of the checkbox get passed in the event?
-            handler(shouldIgnoreCapitalization());
-        });
+        for (const optionEl of optionEls) {
+            optionEl.addEventListener('change', () => {
+                handler();
+            });
+        }
     }
 
     function resetComparisonScroll() {
@@ -330,8 +364,7 @@ export function createComparisonView(elements) {
         showError,
         renderComparison,
         showStatus,
-        shouldIgnoreCapitalization,
-        onIgnoreCapitalizationChanged,
-        onSaveCurrentVersion
+        getComparisonOptions,
+        onComparisonOptionsChanged
     };
 }

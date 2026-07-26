@@ -132,6 +132,14 @@
                                     <input id="ignoreCapitalizationCheckbox" type="checkbox" />
                                     <span>Ignore capitalization</span>
                                 </label>
+                                <label class="comparisonOption">
+                                    <input id="ignoreAlbumMatchingCheckbox" type="checkbox" />
+                                    <span>Ignore album matching</span>
+                                </label>
+                                <label class="comparisonOption">
+                                    <input id="ignoreParentheticalsCheckbox" type="checkbox" />
+                                    <span>Ignore parens</span>
+                                </label>
                                 <button id="copyComparisonButton" class="iconButton" type="button"
                                     aria-label="Copy comparison" title="Copy comparison">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -139,11 +147,8 @@
                                             d="M9 3h6a2 2 0 0 1 2 2v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-1H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 3h6V5H9zm-4 9h1V8a2 2 0 0 1 2-2h7V5H5zm3-7v11h10V8z" />
                                     </svg>
                                 </button>
-                                <button id="saveComparisonButton" class="secondaryButton" type="button">Save latest
-                                    Apple Music version</button>
                                 <div id="comparisonStatus" class="copyFeedback" aria-live="polite"></div>
                             </div>
-                            <p id="comparisonSummary" class="comparisonSummary"></p>
                         </div>
 
                         <div class="comparisonColumns">
@@ -205,7 +210,6 @@
 
     <template id="comparisonTrackTemplate">
         <article class="comparisonTrack">
-            <button class="comparisonTrackCheck" type="button" aria-pressed="false">✓</button>
             <div class="comparisonTrackIndex" data-track-field="playlistIndex" aria-label="Playlist position"></div>
             <div class="comparisonTrackBody">
                 <div class="comparisonTrackTitle" data-track-field="title"></div>

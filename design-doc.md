@@ -4,7 +4,7 @@ Landing page:
     - Includes a button to show all Apple Music playlists
 
 Main page:
-    - Includes a button in the top right for user to sign into Google Firebase; if user is already signed in, should indicate which user
+    - Includes a button in the top left for user to sign into Google Firebase; if user is already signed in, should indicate which user
     - Shows a list of all Apple Music playlists; each item in the list can be selected
         - Could be a column on a left-side pane
         - Each playlist includes its name
@@ -44,5 +44,5 @@ Comparison logic notes:
     - If "ignore capitalization" is enabled, then capitalization is ignored for matching
 
 General app usage & architecture notes:
-    - This app is only going to be used by me / the developer. It doesn't need overly defensive checks for edge cases that are purely hypothetical or exploitable. The UI can be minimal and functional, and doesn't need to be flashy or overly attention-grabbing. 
+    - This app is only going to be used by me / the developer. It doesn't need overly defensive checks for edge cases that are purely hypothetical or exploitable. The UI can be minimal and functional, and doesn't need to be flashy or overly attention-grabbing. Accessibility does not need to be taken into account.
     - The app isn't intended or planned to be used on mobile / small screens.

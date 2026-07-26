@@ -268,14 +268,14 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
                 youtubeTracks: youtubeTracklistData.tracks,
                 appleTracks
             };
-            renderCurrentComparison(comparisonView.shouldIgnoreCapitalization());
+            renderCurrentComparison();
         } catch (error) {
             console.error('Failed to compare tracklists', error);
             comparisonView.showError('Failed to compare the Apple Music and YouTube Music tracklists.');
         }
     }
 
-    function renderCurrentComparison(ignoreCapitalization = comparisonView.shouldIgnoreCapitalization()) {
+    function renderCurrentComparison() {
         if (!comparisonTracks) {
             return;
         }
@@ -283,18 +283,14 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         const comparison = compareTracklists(
             comparisonTracks.youtubeTracks,
             comparisonTracks.appleTracks,
-            { matchCapitalization: !ignoreCapitalization }
+            comparisonView.getComparisonOptions()
         );
 
         comparisonView.renderComparison({
             removedTracks: comparison.removedTracks,
-            addedTracks: comparison.addedTracks
+            addedTracks: comparison.addedTracks,
+            matchedTrackCount: comparison.matchedTracks.length
         });
-        comparisonView.showStatus(`${comparison.matchedTracks.length} tracks matched.`);
-    }
-
-    function handleSaveCurrentVersion() {
-        comparisonView.showStatus('Saved this playlist as the latest Apple Music version.');
     }
 
     function handleMarkPlaylistTransferred() {
@@ -315,8 +311,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.onYoutubeTracksRequested(handleYoutubeTracksRequested);
         selectedPlaylistView.onComparisonRequested(handleComparisonRequested);
         selectedPlaylistView.onTransferRequested(handleMarkPlaylistTransferred);
-        comparisonView.onIgnoreCapitalizationChanged(renderCurrentComparison);
-        comparisonView.onSaveCurrentVersion(handleSaveCurrentVersion);
+        comparisonView.onComparisonOptionsChanged(renderCurrentComparison);
     }
 
     function start() {
