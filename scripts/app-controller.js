@@ -154,10 +154,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     async function handleFirebaseSignOut() {
-        if (!firebaseSession.userId) {
-            return;
-        }
-
         try {
             await signOutFromFirebase();
         } catch (error) {
