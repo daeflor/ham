@@ -4,6 +4,7 @@ import {
     getApplePlaylistTracks
 } from './apple-playlists.js';
 import {
+    getCurrentFirebaseUser,
     observeFirebaseAuthState,
     signInToFirebase,
     signOutFromFirebase
@@ -120,7 +121,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     async function ensureFirebaseSignedIn() {
-        const { user } = await signInToFirebase();
+        const cachedUser = await getCurrentFirebaseUser();
+        const user = cachedUser ?? (await signInToFirebase()).user;
         firebaseSession.userId = user?.uid ?? '';
         firebaseSession.userName = user?.email?.split('@')[0] ?? '';
         shellView.renderFirebaseSignedIn(firebaseSession.userName);

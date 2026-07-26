@@ -17,6 +17,11 @@ export async function signInToFirebase() {
     };
 }
 
+export async function getCurrentFirebaseUser() {
+    await auth.authStateReady();
+    return auth.currentUser;
+}
+
 export function signOutFromFirebase() {
     return signOut(auth);
 }
