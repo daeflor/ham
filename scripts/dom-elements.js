@@ -19,6 +19,7 @@ export function getAppElements() {
         showAppleTracksButtonEl: document.getElementById('showAppleTracksButton'),
         showYoutubeTracksButtonEl: document.getElementById('showYoutubeTracksButton'),
         showComparisonButtonEl: document.getElementById('showComparisonButton'),
+        showAppleTrackComparisonButtonEl: document.getElementById('showAppleTrackComparisonButton'),
         tracksViewEl: document.getElementById('tracksView'),
         trackSummaryEl: document.getElementById('trackSummary'),
         copyTracksButtonEl: document.getElementById('copyTracksButton'),

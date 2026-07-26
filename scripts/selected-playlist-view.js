@@ -9,6 +9,7 @@ export function createSelectedPlaylistView(elements) {
         showAppleTracksButtonEl,
         showYoutubeTracksButtonEl,
         showComparisonButtonEl,
+        showAppleTrackComparisonButtonEl,
         tracksViewEl,
         trackSummaryEl,
         copyTracksButtonEl,
@@ -28,7 +29,8 @@ export function createSelectedPlaylistView(elements) {
     const actionButtons = {
         'apple-tracks': showAppleTracksButtonEl,
         'youtube-tracks': showYoutubeTracksButtonEl,
-        comparison: showComparisonButtonEl
+        comparison: showComparisonButtonEl,
+        'apple-track-comparison': showAppleTrackComparisonButtonEl
     };
 
     function clearTracks() {
