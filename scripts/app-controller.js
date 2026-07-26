@@ -119,10 +119,22 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
     }
 
+    async function ensureFirebaseSignedIn() {
+        const { user } = await signInToFirebase();
+        applyFirebaseUser(user);
+        shellView.renderFirebaseSignedIn(firebaseSession.userName);
+    }
+
     function watchFirebaseSignInState() {
         observeFirebaseAuthState(
             (user) => {
-                handleObservedFirebaseUser(user);
+                if (!user || user.uid !== firebaseSession.userId) {
+                    reloadAppAfterFirebaseSessionChanged();
+                    return;
+                }
+
+                applyFirebaseUser(user);
+                shellView.renderFirebaseSignedIn(firebaseSession.userName);
             },
             (error) => {
                 const message = error instanceof Error ? error.message : 'Unable to verify Google Firebase sign-in.';
@@ -132,25 +144,9 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         );
     }
 
-    function handleObservedFirebaseUser(user) {
-        if (!user || user.uid !== firebaseSession.userId) {
-            reloadAppAfterFirebaseSessionChanged();
-            return;
-        }
-
-        applyFirebaseUser(user);
-        shellView.renderFirebaseSignedIn(firebaseSession.userName);
-    }
-
     function applyFirebaseUser(user) {
         firebaseSession.userId = user?.uid ?? '';
         firebaseSession.userName = user?.email?.split('@')[0] ?? '';
-    }
-
-    async function ensureFirebaseSignedIn() {
-        const { user } = await signInToFirebase();
-        applyFirebaseUser(user);
-        shellView.renderFirebaseSignedIn(firebaseSession.userName);
     }
 
     async function handleFirebaseSignOut() {
