@@ -164,19 +164,12 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     async function loadTransferStatuses(playlists) {
-        transferredPlaylistIds.clear();
-
         await Promise.all(playlists.map(async playlist => {
-            const playlistId = playlist?.id;
-            if (!playlistId) {
-                return;
-            }
-
             const playlistName = getApplePlaylistName(playlist);
             const playlistIsTransferred = await isTransferred(playlistName);
             if (playlistIsTransferred) {
-                transferredPlaylistIds.add(playlistId);
-                playlistsView.setPlaylistTransferred(playlistId, true);
+                transferredPlaylistIds.add(playlist.id);
+                playlistsView.setPlaylistTransferred(playlist.id, true);
             }
         }));
     }
