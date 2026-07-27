@@ -3,7 +3,7 @@ import { Track } from './track.js';
 
 const youtubeTracklistCache = new Map();
 
-async function getStoredTracklistByApplePlaylistName(playlistName) {
+async function getTracklistDataByPlaylistName(playlistName) {
     let tracklistData;
     if (youtubeTracklistCache.has(playlistName)) {
         tracklistData = youtubeTracklistCache.get(playlistName);
@@ -15,25 +15,8 @@ async function getStoredTracklistByApplePlaylistName(playlistName) {
     return tracklistData;
 }
 
-export function setStoredTracklistTransferred(playlistName, appleMusicTracks) {
-    const cachedTracklistData = youtubeTracklistCache.get(playlistName);
-    if (!cachedTracklistData) {
-        return;
-    }
-
-    youtubeTracklistCache.set(playlistName, {
-        ...cachedTracklistData,
-        'apple-music-tracks': appleMusicTracks
-    });
-}
-
-export async function isApplePlaylistTransferred(playlistName) {
-    const tracklistData = await getStoredTracklistByApplePlaylistName(playlistName);
-    return Array.isArray(tracklistData?.['apple-music-tracks']);
-}
-
 export async function getYoutubeTracklistByApplePlaylistName(playlistName) {
-    const tracklistData = await getStoredTracklistByApplePlaylistName(playlistName);
+    const tracklistData = await getTracklistDataByPlaylistName(playlistName);
 
     if (!tracklistData) {
         return null;
@@ -44,4 +27,21 @@ export async function getYoutubeTracklistByApplePlaylistName(playlistName) {
     }
 
     return tracklistData.tracks.map((track, index) => Track.fromStoredYoutubeMusic(track, index + 1));
+}
+
+export async function isTransferred(playlistName) {
+    const tracklistData = await getTracklistDataByPlaylistName(playlistName);
+    return Array.isArray(tracklistData?.['apple-music-tracks']);
+}
+
+export function storeAppleMusicTracks(playlistName, appleMusicTracks) {
+    const cachedTracklistData = youtubeTracklistCache.get(playlistName);
+    if (!cachedTracklistData) {
+        return;
+    }
+
+    youtubeTracklistCache.set(playlistName, {
+        ...cachedTracklistData,
+        'apple-music-tracks': appleMusicTracks
+    });
 }

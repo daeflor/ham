@@ -13,8 +13,8 @@ import {
 import { compareTracklists } from './tracklist-comparison.js';
 import {
     getYoutubeTracklistByApplePlaylistName,
-    isApplePlaylistTransferred,
-    setStoredTracklistTransferred
+    isTransferred,
+    storeAppleMusicTracks
 } from './youtube-tracklists.js';
 
 /**
@@ -108,8 +108,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             playlistsView.renderPlaylists(playlists, handlePlaylistSelected);
 
             shellView.setLandingStatus('Checking transfer status…');
-            await loadTransferredPlaylists(playlists);
-            refreshTransferredPlaylistCount();
+            await loadTransferStatuses(playlists);
+            renderTransferCount();
 
             shellView.setLandingStatus('');
             shellView.hideLandingShell();
@@ -163,7 +163,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         window.location.reload();
     }
 
-    async function loadTransferredPlaylists(playlists) {
+    async function loadTransferStatuses(playlists) {
         transferredPlaylistIds.clear();
 
         await Promise.all(playlists.map(async playlist => {
@@ -173,8 +173,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             }
 
             const playlistName = getApplePlaylistName(playlist);
-            const isTransferred = await isApplePlaylistTransferred(playlistName);
-            if (isTransferred) {
+            const playlistIsTransferred = await isTransferred(playlistName);
+            if (playlistIsTransferred) {
                 transferredPlaylistIds.add(playlistId);
                 playlistsView.setPlaylistTransferred(playlistId, true);
             }
@@ -286,7 +286,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }));
     }
 
-    async function handleMarkPlaylistTransferred() {
+    async function transferPlaylist() {
         if (!selectedPlaylist?.id) {
             return;
         }
@@ -301,11 +301,11 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             const appleMusicTracks = serializeAppleMusicTracksForFirestore(appleTracks);
 
             await saveAppleMusicTracksToFirestoreByTitle(playlistName, appleMusicTracks);
-            setStoredTracklistTransferred(playlistName, appleMusicTracks);
+            storeAppleMusicTracks(playlistName, appleMusicTracks);
 
             transferredPlaylistIds.add(playlist.id);
             playlistsView.setPlaylistTransferred(playlist.id, true);
-            refreshTransferredPlaylistCount();
+            renderTransferCount();
 
             if (selectedPlaylist?.id === playlist.id) {
                 selectedPlaylistView.setTransferredState(true);
@@ -321,7 +321,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
     }
 
-    function refreshTransferredPlaylistCount() {
+    function renderTransferCount() {
         playlistsView.setPlaylistCount({
             transferredCount: transferredPlaylistIds.size,
             totalCount: playlistTotalCount
@@ -334,7 +334,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.onAppleTracksRequested(handleAppleTracksRequested);
         selectedPlaylistView.onYoutubeTracksRequested(handleYoutubeTracksRequested);
         selectedPlaylistView.onComparisonRequested(handleComparisonRequested);
-        selectedPlaylistView.onTransferRequested(handleMarkPlaylistTransferred);
+        selectedPlaylistView.onTransferRequested(transferPlaylist);
         comparisonView.onComparisonOptionsChanged(renderCurrentComparison);
     }
 
