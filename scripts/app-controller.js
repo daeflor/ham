@@ -280,10 +280,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     async function transferPlaylist() {
-        if (!selectedPlaylist?.id) {
-            return;
-        }
-
         const playlist = selectedPlaylist;
         const playlistName = getApplePlaylistName(playlist);
 
