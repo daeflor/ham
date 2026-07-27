@@ -3,7 +3,7 @@ import { Track } from './track.js';
 
 const youtubeTracklistCache = new Map();
 
-export async function getStoredTracklistByApplePlaylistName(playlistName) {
+async function getStoredTracklistByApplePlaylistName(playlistName) {
     let tracklistData;
     if (youtubeTracklistCache.has(playlistName)) {
         tracklistData = youtubeTracklistCache.get(playlistName);
@@ -43,9 +43,5 @@ export async function getYoutubeTracklistByApplePlaylistName(playlistName) {
         throw new TypeError('The matching Firebase tracklist does not include a tracks array.');
     }
 
-    return {
-        title: tracklistData.title ?? playlistName,
-        type: tracklistData.type,
-        tracks: tracklistData.tracks.map((track, index) => Track.fromStoredYoutubeMusic(track, index + 1))
-    };
+    return tracklistData.tracks.map((track, index) => Track.fromStoredYoutubeMusic(track, index + 1));
 }

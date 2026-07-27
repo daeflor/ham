@@ -215,14 +215,14 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         try {
             const playlistName = getApplePlaylistName(selectedPlaylist);
-            const tracklistData = await getYoutubeTracklistByApplePlaylistName(playlistName);
+            const youtubeTracks = await getYoutubeTracklistByApplePlaylistName(playlistName);
 
-            if (!tracklistData) {
+            if (!youtubeTracks) {
                 selectedPlaylistView.showTracksError(`No YouTube Music equivalent playlist found.`);
                 return;
             }
 
-            selectedPlaylistView.renderTracks(tracklistData.tracks);
+            selectedPlaylistView.renderTracks(youtubeTracks);
         } catch (error) {
             console.error('Failed to load YouTube Music tracks from Firebase', error);
             selectedPlaylistView.showTracksError('Failed to load the YouTube Music equivalent for this playlist.');
@@ -236,18 +236,18 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         try {
             const playlistName = getApplePlaylistName(selectedPlaylist);
-            const [appleTracks, youtubeTracklistData] = await Promise.all([
+            const [appleTracks, youtubeTracks] = await Promise.all([
                 getApplePlaylistTracks(musicInstance, selectedPlaylist.id),
                 getYoutubeTracklistByApplePlaylistName(playlistName)
             ]);
 
-            if (!youtubeTracklistData) {
+            if (!youtubeTracks) {
                 comparisonView.showError('No YouTube Music equivalent playlist found.');
                 return;
             }
 
             comparisonTracks = {
-                youtubeTracks: youtubeTracklistData.tracks,
+                youtubeTracks,
                 appleTracks
             };
             renderCurrentComparison();
