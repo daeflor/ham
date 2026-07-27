@@ -170,9 +170,9 @@ export function createSelectedPlaylistView(elements) {
         selectedTransferredBadgeEl.hidden = !isTransferred;
     }
 
-    function setTransferLoadingState(isLoading) {
-        selectedTransferButtonEl.disabled = isLoading;
-        selectedTransferButtonEl.textContent = isLoading ? 'Transferring...' : 'Transfer';
+    function setTransferInProgress(isTransferring) {
+        selectedTransferButtonEl.disabled = isTransferring;
+        selectedTransferButtonEl.textContent = isTransferring ? 'Transferring...' : 'Transfer';
     }
 
     function clearSelectedAction() {
@@ -223,7 +223,7 @@ export function createSelectedPlaylistView(elements) {
         renderTracks,
         showSelectedPlaylist,
         setTransferredState,
-        setTransferLoadingState,
+        setTransferInProgress,
         showComparisonSelected,
         clearSelectedAction,
         onAppleTracksRequested,

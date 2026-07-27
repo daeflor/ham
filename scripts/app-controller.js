@@ -296,7 +296,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         try {
             shellView.setStatus('Saving Apple Music transfer data…');
-            selectedPlaylistView.setTransferLoadingState(true);
+            selectedPlaylistView.setTransferInProgress(true);
             const appleTracks = await getApplePlaylistTracks(musicInstance, playlist.id);
             const appleMusicTracks = serializeAppleMusicTracksForFirestore(appleTracks);
 
@@ -317,7 +317,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             const message = error instanceof Error ? error.message : 'Unable to save Apple Music transfer data.';
             shellView.setStatus(message);
         } finally {
-            selectedPlaylistView.setTransferLoadingState(false);
+            selectedPlaylistView.setTransferInProgress(false);
         }
     }
 
