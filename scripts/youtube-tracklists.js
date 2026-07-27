@@ -3,7 +3,7 @@ import { Track } from './track.js';
 
 const youtubeTracklistCache = new Map();
 
-export async function getYoutubeTracklistByApplePlaylistName(playlistName) {
+export async function getStoredTracklistByApplePlaylistName(playlistName) {
     let tracklistData;
     if (youtubeTracklistCache.has(playlistName)) {
         tracklistData = youtubeTracklistCache.get(playlistName);
@@ -11,6 +11,29 @@ export async function getYoutubeTracklistByApplePlaylistName(playlistName) {
         tracklistData = await retrieveTracklistDataFromFirestoreByTitle(playlistName);
         youtubeTracklistCache.set(playlistName, tracklistData);
     }
+
+    return tracklistData;
+}
+
+export function setStoredTracklistTransferred(playlistName, appleMusicTracks) {
+    const cachedTracklistData = youtubeTracklistCache.get(playlistName);
+    if (!cachedTracklistData) {
+        return;
+    }
+
+    youtubeTracklistCache.set(playlistName, {
+        ...cachedTracklistData,
+        'apple-music-tracks': appleMusicTracks
+    });
+}
+
+export async function isApplePlaylistTransferred(playlistName) {
+    const tracklistData = await getStoredTracklistByApplePlaylistName(playlistName);
+    return Array.isArray(tracklistData?.['apple-music-tracks']);
+}
+
+export async function getYoutubeTracklistByApplePlaylistName(playlistName) {
+    const tracklistData = await getStoredTracklistByApplePlaylistName(playlistName);
 
     if (!tracklistData) {
         return null;
