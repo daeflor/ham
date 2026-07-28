@@ -10,12 +10,13 @@ import {
     signInToFirebase,
     signOutFromFirebase
 } from './firebase-api.js';
+import { toStoredAppleMusicTracks } from './track-storage.js';
 import { compareTracklists } from './tracklist-comparison.js';
 import {
-    getYoutubeTracklistByApplePlaylistName,
     isTransferred,
-    storeAppleMusicTracks
-} from './youtube-tracklists.js';
+    updateCachedAppleMusicTracks
+} from './tracklist-documents.js';
+import { getYoutubeTracksByPlaylistName } from './youtube-tracklists.js';
 
 /**
  * @typedef {ReturnType<typeof import('./shell-view.js').createShellView>} ShellView
@@ -208,7 +209,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         try {
             const playlistName = getApplePlaylistName(selectedPlaylist);
-            const youtubeTracks = await getYoutubeTracklistByApplePlaylistName(playlistName);
+            const youtubeTracks = await getYoutubeTracksByPlaylistName(playlistName);
 
             if (!youtubeTracks) {
                 selectedPlaylistView.showTracksError(`No YouTube Music equivalent playlist found.`);
@@ -231,7 +232,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             const playlistName = getApplePlaylistName(selectedPlaylist);
             const [appleTracks, youtubeTracks] = await Promise.all([
                 getApplePlaylistTracks(musicInstance, selectedPlaylist.id),
-                getYoutubeTracklistByApplePlaylistName(playlistName)
+                getYoutubeTracksByPlaylistName(playlistName)
             ]);
 
             if (!youtubeTracks) {
@@ -268,17 +269,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         });
     }
 
-    function serializeAppleMusicTracksForFirestore(tracks) {
-        return tracks.map(track => ({
-            title: track.title ?? null,
-            artist: track.artist ?? null,
-            album: track.album ?? null,
-            durationInMillis: track.durationInMillis ?? null,
-            readableDuration: track.readableDuration ?? null,
-            playlistIndex: track.playlistIndex ?? null
-        }));
-    }
-
     async function transferPlaylist() {
         const playlist = selectedPlaylist;
         const playlistName = getApplePlaylistName(playlist);
@@ -287,10 +277,10 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             shellView.setStatus('Saving Apple Music transfer data…');
             selectedPlaylistView.setTransferInProgress(true);
             const appleTracks = await getApplePlaylistTracks(musicInstance, playlist.id);
-            const appleMusicTracks = serializeAppleMusicTracksForFirestore(appleTracks);
+            const appleMusicTracks = toStoredAppleMusicTracks(appleTracks);
 
             await saveAppleMusicTracksToFirestoreByTitle(playlistName, appleMusicTracks);
-            storeAppleMusicTracks(playlistName, appleMusicTracks);
+            updateCachedAppleMusicTracks(playlistName, appleMusicTracks);
 
             transferredPlaylistIds.add(playlist.id);
             playlistsView.setPlaylistTransferred(playlist.id, true);

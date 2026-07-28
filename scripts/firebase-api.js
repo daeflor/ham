@@ -63,13 +63,10 @@ function getReferenceToUserTracklistDocument(tracklistTitle) {
 export async function retrieveTracklistDataFromFirestoreByTitle(tracklistTitle) {
     const tracklistSnapshot = await getDoc(getReferenceToUserTracklistDocument(tracklistTitle));
 
-    if (!tracklistSnapshot.exists()) {
-        return null;
-    }
-
-    return tracklistSnapshot.data();
+    return tracklistSnapshot.exists() ? tracklistSnapshot.data() : null;
 }
 
+// TODO Seems like this may be too specific to be in firebase-api.js
 export async function saveAppleMusicTracksToFirestoreByTitle(tracklistTitle, tracks) {
     if (!Array.isArray(tracks)) {
         throw new TypeError('Tried to save Apple Music tracks to Firestore, but a tracks array was not provided.');

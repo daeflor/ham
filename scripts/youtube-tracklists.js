@@ -1,22 +1,10 @@
-import { retrieveTracklistDataFromFirestoreByTitle } from './firebase-api.js';
+import { getTracklistDocumentByPlaylistName } from './tracklist-documents.js';
 import { Track } from './track.js';
 
-const youtubeTracklistCache = new Map();
-
-async function getTracklistDataByPlaylistName(playlistName) {
-    let tracklistData;
-    if (youtubeTracklistCache.has(playlistName)) {
-        tracklistData = youtubeTracklistCache.get(playlistName);
-    } else {
-        tracklistData = await retrieveTracklistDataFromFirestoreByTitle(playlistName);
-        youtubeTracklistCache.set(playlistName, tracklistData);
-    }
-
-    return tracklistData;
-}
-
-export async function getYoutubeTracklistByApplePlaylistName(playlistName) {
-    const tracklistData = await getTracklistDataByPlaylistName(playlistName);
+// TODO can omit "byPlaylistName" from this function name because it's implied. The playlist name is the only way to identify a tracklist document in Firestore
+// Can rename to getYoutubePlaylistTracks to match the one for Apple Music
+export async function getYoutubeTracksByPlaylistName(playlistName) {
+    const tracklistData = await getTracklistDocumentByPlaylistName(playlistName);
 
     if (!tracklistData) {
         return null;
@@ -27,21 +15,4 @@ export async function getYoutubeTracklistByApplePlaylistName(playlistName) {
     }
 
     return tracklistData.tracks.map((track, index) => Track.fromStoredYoutubeMusic(track, index + 1));
-}
-
-export async function isTransferred(playlistName) {
-    const tracklistData = await getTracklistDataByPlaylistName(playlistName);
-    return Array.isArray(tracklistData?.['apple-music-tracks']);
-}
-
-export function storeAppleMusicTracks(playlistName, appleMusicTracks) {
-    const cachedTracklistData = youtubeTracklistCache.get(playlistName);
-    if (!cachedTracklistData) {
-        return;
-    }
-
-    youtubeTracklistCache.set(playlistName, {
-        ...cachedTracklistData,
-        'apple-music-tracks': appleMusicTracks
-    });
 }
