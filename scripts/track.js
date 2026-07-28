@@ -41,6 +41,17 @@ export class Track {
         throw new Error(`Unsupported track source: ${source}`);
     }
 
+    toPlainObject() {
+        return {
+            title: this.title ?? null,
+            artist: this.artist ?? null,
+            album: this.album ?? null,
+            durationInMillis: this.durationInMillis ?? null,
+            readableDuration: this.readableDuration ?? null,
+            playlistIndex: this.playlistIndex ?? null
+        };
+    }
+
     static fromAppleMusic(metadata, playlistIndex) {
         return new Track(metadata, 'apple-music', playlistIndex);
     }

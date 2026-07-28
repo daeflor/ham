@@ -9,7 +9,6 @@ import {
     signInToFirebase,
     signOutFromFirebase
 } from './firebase-api.js';
-import { toStoredAppleMusicTracks } from './track-storage.js';
 import { compareTracklists } from './tracklist-comparison.js';
 import {
     isTransferred,
@@ -276,7 +275,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             shellView.setStatus('Saving Apple Music transfer data…');
             selectedPlaylistView.setTransferInProgress(true);
             const appleTracks = await getApplePlaylistTracks(musicInstance, playlist.id);
-            const appleMusicTracks = toStoredAppleMusicTracks(appleTracks);
+            const appleMusicTracks = appleTracks.map(track => track.toPlainObject());
 
             await saveAppleMusicTracks(playlistName, appleMusicTracks);
 
