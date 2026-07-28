@@ -15,8 +15,7 @@ export function createPlaylistsView(elements) {
         }
 
         for (const playlist of playlists) {
-            const attributes = playlist?.attributes ?? {};
-            const name = attributes.name ?? '(Untitled playlist)';
+            const name = playlist?.name ?? '(Untitled playlist)';
             const playlistId = playlist?.id;
             if (!playlistId) {
                 continue;

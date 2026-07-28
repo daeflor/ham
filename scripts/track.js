@@ -41,6 +41,19 @@ export class Track {
         throw new Error(`Unsupported track source: ${source}`);
     }
 
+    static fromStoredTrack(metadata, source, playlistIndex) {
+        const track = Object.create(Track.prototype);
+        track.title = metadata?.title;
+        track.artist = metadata?.artist;
+        track.album = metadata?.album;
+        track.durationInMillis = metadata?.durationInMillis;
+        track.readableDuration = metadata?.readableDuration;
+        track.source = source;
+        track.playlistIndex = metadata?.playlistIndex ?? playlistIndex;
+
+        return track;
+    }
+
     toPlainObject() {
         return {
             title: this.title ?? null,
@@ -54,6 +67,10 @@ export class Track {
 
     static fromAppleMusic(metadata, playlistIndex) {
         return new Track(metadata, 'apple-music', playlistIndex);
+    }
+
+    static fromStoredAppleMusic(metadata, playlistIndex) {
+        return Track.fromStoredTrack(metadata, 'apple-music', playlistIndex);
     }
 
     static fromStoredYoutubeMusic(metadata, playlistIndex) {
