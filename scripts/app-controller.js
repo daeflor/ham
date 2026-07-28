@@ -275,9 +275,9 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             shellView.setStatus('Saving Apple Music transfer data…');
             selectedPlaylistView.setTransferInProgress(true);
             const appleTracks = await getApplePlaylistTracks(musicInstance, playlist.id);
-            const appleMusicTracks = appleTracks.map(track => track.toPlainObject());
+            const appleTrackObjects = appleTracks.map(track => track.toPlainObject());
 
-            await saveAppleMusicTracks(playlistName, appleMusicTracks);
+            await saveAppleMusicTracks(playlistName, appleTrackObjects);
 
             transferredPlaylistIds.add(playlist.id);
             playlistsView.setPlaylistTransferred(playlist.id, true);
