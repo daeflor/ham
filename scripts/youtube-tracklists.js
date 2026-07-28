@@ -1,10 +1,8 @@
-import { getTracklistDocumentByPlaylistName } from './tracklist-documents.js';
+import { getTracklistData } from './tracklist-documents.js';
 import { Track } from './track.js';
 
-// TODO can omit "byPlaylistName" from this function name because it's implied. The playlist name is the only way to identify a tracklist document in Firestore
-// Can rename to getYoutubePlaylistTracks to match the one for Apple Music
-export async function getYoutubeTracksByPlaylistName(playlistName) {
-    const tracklistData = await getTracklistDocumentByPlaylistName(playlistName);
+export async function getYoutubePlaylistTracks(playlistName) {
+    const tracklistData = await getTracklistData(playlistName);
 
     if (!tracklistData) {
         return null;

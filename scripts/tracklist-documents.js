@@ -1,32 +1,46 @@
-import { retrieveTracklistDataFromFirestoreByTitle } from './firebase-api.js';
+import {
+    retrieveTracklistDataFromFirestoreByTitle,
+    updateTracklistDataInFirestore
+} from './firebase-api.js';
 
-const tracklistDocumentCache = new Map();
+const tracklistDataCache = new Map();
 
-// TODO The function is called getTracklistDocumentByPlaylistName() but it actually returns the tracklist data, not the actual document reference, right?
-export async function getTracklistDocumentByPlaylistName(playlistName) {
+export async function getTracklistData(playlistName) {
     let tracklistData;
-    if (tracklistDocumentCache.has(playlistName)) {
-        tracklistData = tracklistDocumentCache.get(playlistName);
+    if (tracklistDataCache.has(playlistName)) {
+        tracklistData = tracklistDataCache.get(playlistName);
     } else {
         tracklistData = await retrieveTracklistDataFromFirestoreByTitle(playlistName);
-        tracklistDocumentCache.set(playlistName, tracklistData);
+        tracklistDataCache.set(playlistName, tracklistData);
     }
 
     return tracklistData;
 }
 
 export async function isTransferred(playlistName) {
-    const tracklistData = await getTracklistDocumentByPlaylistName(playlistName);
+    const tracklistData = await getTracklistData(playlistName);
     return Array.isArray(tracklistData?.['apple-music-tracks']);
 }
 
-export function updateCachedAppleMusicTracks(playlistName, appleMusicTracks) {
-    const cachedTracklistData = tracklistDocumentCache.get(playlistName);
+export async function saveAppleMusicTracks(playlistName, appleMusicTracks) {
+    if (!Array.isArray(appleMusicTracks)) {
+        throw new TypeError('Tried to save Apple Music tracks, but a tracks array was not provided.');
+    }
+
+    await updateTracklistDataInFirestore(playlistName, {
+        'apple-music-tracks': appleMusicTracks
+    });
+
+    updateCachedAppleMusicTracks(playlistName, appleMusicTracks);
+}
+
+function updateCachedAppleMusicTracks(playlistName, appleMusicTracks) {
+    const cachedTracklistData = tracklistDataCache.get(playlistName);
     if (!cachedTracklistData) {
         return;
     }
 
-    tracklistDocumentCache.set(playlistName, {
+    tracklistDataCache.set(playlistName, {
         ...cachedTracklistData,
         'apple-music-tracks': appleMusicTracks
     });

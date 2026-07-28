@@ -55,6 +55,7 @@ function getReferenceToUserTracklistDocument(tracklistTitle) {
     return doc(db, 'users', userId, 'tracklists', documentTitle);
 }
 
+// TODO could omit "ByTitle" from the function name, since it is already implied by the parameter name
 /**
  * Retrieves the tracklist data object stored in Firestore matching the provided tracklist title, if it exists
  * @param {string} tracklistTitle The title of the tracklist to retrieve
@@ -66,13 +67,6 @@ export async function retrieveTracklistDataFromFirestoreByTitle(tracklistTitle) 
     return tracklistSnapshot.exists() ? tracklistSnapshot.data() : null;
 }
 
-// TODO Seems like this may be too specific to be in firebase-api.js
-export async function saveAppleMusicTracksToFirestoreByTitle(tracklistTitle, tracks) {
-    if (!Array.isArray(tracks)) {
-        throw new TypeError('Tried to save Apple Music tracks to Firestore, but a tracks array was not provided.');
-    }
-
-    await updateDoc(getReferenceToUserTracklistDocument(tracklistTitle), {
-        'apple-music-tracks': tracks
-    });
+export async function updateTracklistDataInFirestore(tracklistTitle, data) {
+    await updateDoc(getReferenceToUserTracklistDocument(tracklistTitle), data);
 }

@@ -1,26 +1,14 @@
 import { fetchLibraryPlaylists, fetchPlaylistTracks } from './musickit-api.js';
 import { Track } from './track.js';
 
-let libraryPlaylistsCache;
 const playlistTracksCache = new Map();
-
-// TODO I don't think this is ever used
-export function clearApplePlaylistCache() {
-    libraryPlaylistsCache = undefined;
-    playlistTracksCache.clear();
-}
 
 export function getApplePlaylistName(playlist) {
     return playlist?.attributes?.name ?? 'Untitled playlist';
 }
 
-// TODO is this extra wrapper really necessary? getAppleLibraryPlaylists() is only called once on startup, so do we even need the cache?
 export async function getAppleLibraryPlaylists(music) {
-    if (!libraryPlaylistsCache) {
-        libraryPlaylistsCache = await fetchLibraryPlaylists(music);
-    }
-
-    return libraryPlaylistsCache;
+    return fetchLibraryPlaylists(music);
 }
 
 export async function getApplePlaylistTracks(music, playlistId) {

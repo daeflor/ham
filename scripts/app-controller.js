@@ -6,7 +6,6 @@ import {
 import {
     getCurrentFirebaseUser,
     observeFirebaseAuthState,
-    saveAppleMusicTracksToFirestoreByTitle,
     signInToFirebase,
     signOutFromFirebase
 } from './firebase-api.js';
@@ -14,9 +13,9 @@ import { toStoredAppleMusicTracks } from './track-storage.js';
 import { compareTracklists } from './tracklist-comparison.js';
 import {
     isTransferred,
-    updateCachedAppleMusicTracks
+    saveAppleMusicTracks
 } from './tracklist-documents.js';
-import { getYoutubeTracksByPlaylistName } from './youtube-tracklists.js';
+import { getYoutubePlaylistTracks } from './youtube-tracklists.js';
 
 /**
  * @typedef {ReturnType<typeof import('./shell-view.js').createShellView>} ShellView
@@ -209,7 +208,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         try {
             const playlistName = getApplePlaylistName(selectedPlaylist);
-            const youtubeTracks = await getYoutubeTracksByPlaylistName(playlistName);
+            const youtubeTracks = await getYoutubePlaylistTracks(playlistName);
 
             if (!youtubeTracks) {
                 selectedPlaylistView.showTracksError(`No YouTube Music equivalent playlist found.`);
@@ -232,7 +231,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             const playlistName = getApplePlaylistName(selectedPlaylist);
             const [appleTracks, youtubeTracks] = await Promise.all([
                 getApplePlaylistTracks(musicInstance, selectedPlaylist.id),
-                getYoutubeTracksByPlaylistName(playlistName)
+                getYoutubePlaylistTracks(playlistName)
             ]);
 
             if (!youtubeTracks) {
@@ -279,8 +278,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             const appleTracks = await getApplePlaylistTracks(musicInstance, playlist.id);
             const appleMusicTracks = toStoredAppleMusicTracks(appleTracks);
 
-            await saveAppleMusicTracksToFirestoreByTitle(playlistName, appleMusicTracks);
-            updateCachedAppleMusicTracks(playlistName, appleMusicTracks);
+            await saveAppleMusicTracks(playlistName, appleMusicTracks);
 
             transferredPlaylistIds.add(playlist.id);
             playlistsView.setPlaylistTransferred(playlist.id, true);
