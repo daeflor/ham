@@ -6,11 +6,16 @@ import {
 import {
     getCurrentFirebaseUser,
     observeFirebaseAuthState,
+    saveAppleMusicTracksToFirestoreByTitle,
     signInToFirebase,
     signOutFromFirebase
 } from './firebase-api.js';
 import { compareTracklists } from './tracklist-comparison.js';
-import { getYoutubeTracklistByApplePlaylistName } from './youtube-tracklists.js';
+import {
+    getYoutubeTracklistByApplePlaylistName,
+    isTransferred,
+    storeAppleMusicTracks
+} from './youtube-tracklists.js';
 
 /**
  * @typedef {ReturnType<typeof import('./shell-view.js').createShellView>} ShellView
@@ -101,10 +106,10 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             const playlists = await getAppleLibraryPlaylists(music);
             playlistTotalCount = playlists.length;
             playlistsView.renderPlaylists(playlists, handlePlaylistSelected);
-            playlistsView.setPlaylistCount({
-                transferredCount: transferredPlaylistIds.size,
-                totalCount: playlistTotalCount
-            });
+
+            shellView.setLandingStatus('Checking transfer status…');
+            await loadTransferStatuses(playlists);
+            renderTransferCount();
 
             shellView.setLandingStatus('');
             shellView.hideLandingShell();
@@ -158,8 +163,20 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         window.location.reload();
     }
 
+    async function loadTransferStatuses(playlists) {
+        await Promise.all(playlists.map(async playlist => {
+            const playlistName = getApplePlaylistName(playlist);
+            const playlistIsTransferred = await isTransferred(playlistName);
+            if (playlistIsTransferred) {
+                transferredPlaylistIds.add(playlist.id);
+                playlistsView.setPlaylistTransferred(playlist.id, true);
+            }
+        }));
+    }
+
     function handlePlaylistSelected(playlist) {
         selectedPlaylist = playlist;
+        shellView.setStatus('');
         selectedPlaylistView.clearSelectedAction();
         selectedPlaylistView.showSelectedPlaylist({
             name: getApplePlaylistName(playlist),
@@ -191,14 +208,14 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         try {
             const playlistName = getApplePlaylistName(selectedPlaylist);
-            const tracklistData = await getYoutubeTracklistByApplePlaylistName(playlistName);
+            const youtubeTracks = await getYoutubeTracklistByApplePlaylistName(playlistName);
 
-            if (!tracklistData) {
+            if (!youtubeTracks) {
                 selectedPlaylistView.showTracksError(`No YouTube Music equivalent playlist found.`);
                 return;
             }
 
-            selectedPlaylistView.renderTracks(tracklistData.tracks);
+            selectedPlaylistView.renderTracks(youtubeTracks);
         } catch (error) {
             console.error('Failed to load YouTube Music tracks from Firebase', error);
             selectedPlaylistView.showTracksError('Failed to load the YouTube Music equivalent for this playlist.');
@@ -212,18 +229,18 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         try {
             const playlistName = getApplePlaylistName(selectedPlaylist);
-            const [appleTracks, youtubeTracklistData] = await Promise.all([
+            const [appleTracks, youtubeTracks] = await Promise.all([
                 getApplePlaylistTracks(musicInstance, selectedPlaylist.id),
                 getYoutubeTracklistByApplePlaylistName(playlistName)
             ]);
 
-            if (!youtubeTracklistData) {
+            if (!youtubeTracks) {
                 comparisonView.showError('No YouTube Music equivalent playlist found.');
                 return;
             }
 
             comparisonTracks = {
-                youtubeTracks: youtubeTracklistData.tracks,
+                youtubeTracks,
                 appleTracks
             };
             renderCurrentComparison();
@@ -251,14 +268,53 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         });
     }
 
-    function handleMarkPlaylistTransferred() {
-        transferredPlaylistIds.add(selectedPlaylist.id);
-        playlistsView.setPlaylistTransferred(selectedPlaylist.id, true);
+    function serializeAppleMusicTracksForFirestore(tracks) {
+        return tracks.map(track => ({
+            title: track.title ?? null,
+            artist: track.artist ?? null,
+            album: track.album ?? null,
+            durationInMillis: track.durationInMillis ?? null,
+            readableDuration: track.readableDuration ?? null,
+            playlistIndex: track.playlistIndex ?? null
+        }));
+    }
+
+    async function transferPlaylist() {
+        const playlist = selectedPlaylist;
+        const playlistName = getApplePlaylistName(playlist);
+
+        try {
+            shellView.setStatus('Saving Apple Music transfer data…');
+            selectedPlaylistView.setTransferInProgress(true);
+            const appleTracks = await getApplePlaylistTracks(musicInstance, playlist.id);
+            const appleMusicTracks = serializeAppleMusicTracksForFirestore(appleTracks);
+
+            await saveAppleMusicTracksToFirestoreByTitle(playlistName, appleMusicTracks);
+            storeAppleMusicTracks(playlistName, appleMusicTracks);
+
+            transferredPlaylistIds.add(playlist.id);
+            playlistsView.setPlaylistTransferred(playlist.id, true);
+            renderTransferCount();
+
+            if (selectedPlaylist?.id === playlist.id) {
+                selectedPlaylistView.setTransferredState(true);
+            }
+
+            shellView.setStatus('');
+        } catch (error) {
+            console.error('Failed to save Apple Music transfer data', error);
+            const message = error instanceof Error ? error.message : 'Unable to save Apple Music transfer data.';
+            shellView.setStatus(message);
+        } finally {
+            selectedPlaylistView.setTransferInProgress(false);
+        }
+    }
+
+    function renderTransferCount() {
         playlistsView.setPlaylistCount({
             transferredCount: transferredPlaylistIds.size,
             totalCount: playlistTotalCount
         });
-        selectedPlaylistView.setTransferredState(true);
     }
 
     function bindEvents() {
@@ -267,7 +323,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.onAppleTracksRequested(handleAppleTracksRequested);
         selectedPlaylistView.onYoutubeTracksRequested(handleYoutubeTracksRequested);
         selectedPlaylistView.onComparisonRequested(handleComparisonRequested);
-        selectedPlaylistView.onTransferRequested(handleMarkPlaylistTransferred);
+        selectedPlaylistView.onTransferRequested(transferPlaylist);
         comparisonView.onComparisonOptionsChanged(renderCurrentComparison);
     }
 
