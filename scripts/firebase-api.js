@@ -55,13 +55,12 @@ function getReferenceToUserTracklistDocument(tracklistTitle) {
     return doc(db, 'users', userId, 'tracklists', documentTitle);
 }
 
-// TODO could omit "ByTitle" from the function name, since it is already implied by the parameter name
 /**
  * Retrieves the tracklist data object stored in Firestore matching the provided tracklist title, if it exists
  * @param {string} tracklistTitle The title of the tracklist to retrieve
  * @returns {Promise<Object|null>} A promise with the tracklist data object matching the provided tracklist title, or null if none exists
  */
-export async function retrieveTracklistDataFromFirestoreByTitle(tracklistTitle) {
+export async function retrieveTracklistDataFromFirestore(tracklistTitle) {
     const tracklistSnapshot = await getDoc(getReferenceToUserTracklistDocument(tracklistTitle));
 
     return tracklistSnapshot.exists() ? tracklistSnapshot.data() : null;

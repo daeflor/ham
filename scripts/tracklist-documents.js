@@ -1,5 +1,5 @@
 import {
-    retrieveTracklistDataFromFirestoreByTitle,
+    retrieveTracklistDataFromFirestore,
     updateTracklistDataInFirestore
 } from './firebase-api.js';
 
@@ -10,7 +10,7 @@ export async function getTracklistData(playlistName) {
     if (tracklistDataCache.has(playlistName)) {
         tracklistData = tracklistDataCache.get(playlistName);
     } else {
-        tracklistData = await retrieveTracklistDataFromFirestoreByTitle(playlistName);
+        tracklistData = await retrieveTracklistDataFromFirestore(playlistName);
         tracklistDataCache.set(playlistName, tracklistData);
     }
 
@@ -34,6 +34,11 @@ export async function saveAppleMusicTracks(playlistName, appleMusicTracks) {
     updateCachedAppleMusicTracks(playlistName, appleMusicTracks);
 }
 
+// TODO could rename this to cacheAppleMusicTracks
+// But could also consider not doing this at all, since right now the Firestore Apple tracks array is only queried on initialization, at which point:
+// - If the Apple tracks array is already present in Firestore, then it will get cached as part of the getTracklistData() call
+// - If the Apple tracks array is not present in Firestore, then it will not be in the cache. But adding it to the cache later here (via updateCachedAppleMusicTracks), serves no actual purpose at this time.
+// But in the future, we we support comparing live Apple Music playlist to stored Apple Music playlist, then we'll want this cache, so better leave it as-is for now.
 function updateCachedAppleMusicTracks(playlistName, appleMusicTracks) {
     const cachedTracklistData = tracklistDataCache.get(playlistName);
     if (!cachedTracklistData) {
