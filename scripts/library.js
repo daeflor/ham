@@ -79,7 +79,7 @@ export function createLibrary(musicKit) {
         }
 
         if (!Array.isArray(tracklistData['apple-music-tracks'])) {
-            throw new TypeError('The matching Firebase tracklist does not include an Apple Music tracks array.');
+            throw new TypeError(`The Firebase tracklist has an 'apple-music-tracks' field which is not an array.`);
         }
 
         const tracks = tracklistData['apple-music-tracks'].map((track, index) => {
