@@ -10,7 +10,6 @@ export function createLibrary(musicKit) {
     const liveAppleMusicTracksByPlaylistId = new Map();
     const storedAppleMusicTracksByPlaylistId = new Map();
     const storedYoutubeMusicTracksByPlaylistId = new Map();
-    const firestoreTracklistDataByPlaylistName = new Map();
 
     async function initialize() {
         const appleMusicPlaylists = await fetchLibraryPlaylists(musicKit);
@@ -26,6 +25,8 @@ export function createLibrary(musicKit) {
                 isTransferred: false
             });
         }
+
+        await Promise.all(getPlaylists().map(loadStoredTracklist));
     }
 
     function getPlaylists() {
@@ -41,19 +42,6 @@ export function createLibrary(musicKit) {
         return playlist;
     }
 
-    async function preloadTransferStatuses() {
-        await Promise.all(getPlaylists().map(playlist => refreshTransferStatus(playlist.id)));
-        return getPlaylists();
-    }
-
-    async function refreshTransferStatus(playlistId) {
-        const playlist = getPlaylist(playlistId);
-        const tracklistData = await getFirestoreTracklistData(playlist.name);
-        playlist.isTransferred = Array.isArray(tracklistData?.['apple-music-tracks']);
-
-        return playlist.isTransferred;
-    }
-
     async function getLiveAppleMusicTracks(playlistId) {
         if (liveAppleMusicTracksByPlaylistId.has(playlistId)) {
             return liveAppleMusicTracksByPlaylistId.get(playlistId);
@@ -66,52 +54,12 @@ export function createLibrary(musicKit) {
         return tracks;
     }
 
-    async function getStoredAppleMusicTracks(playlistId) {
-        if (storedAppleMusicTracksByPlaylistId.has(playlistId)) {
-            return storedAppleMusicTracksByPlaylistId.get(playlistId);
-        }
-
-        const playlist = getPlaylist(playlistId);
-        const tracklistData = await getFirestoreTracklistData(playlist.name);
-        if (!tracklistData || tracklistData['apple-music-tracks'] === undefined) {
-            storedAppleMusicTracksByPlaylistId.set(playlistId, null);
-            return null;
-        }
-
-        if (!Array.isArray(tracklistData['apple-music-tracks'])) {
-            throw new TypeError(`The Firebase tracklist has an 'apple-music-tracks' field which is not an array.`);
-        }
-
-        const tracks = tracklistData['apple-music-tracks'].map((track, index) => {
-            return Track.fromStoredAppleMusic(track, index + 1);
-        });
-        storedAppleMusicTracksByPlaylistId.set(playlistId, tracks);
-
-        return tracks;
+    function getStoredAppleMusicTracks(playlistId) {
+        return storedAppleMusicTracksByPlaylistId.get(playlistId) ?? null;
     }
 
-    async function getStoredYoutubeMusicTracks(playlistId) {
-        if (storedYoutubeMusicTracksByPlaylistId.has(playlistId)) {
-            return storedYoutubeMusicTracksByPlaylistId.get(playlistId);
-        }
-
-        const playlist = getPlaylist(playlistId);
-        const tracklistData = await getFirestoreTracklistData(playlist.name);
-        if (!tracklistData || tracklistData['tracks'] === undefined) {
-            storedYoutubeMusicTracksByPlaylistId.set(playlistId, null);
-            return null;
-        }
-
-        if (!Array.isArray(tracklistData.tracks)) {
-            throw new TypeError('The matching Firebase tracklist does not include a tracks array.');
-        }
-
-        const tracks = tracklistData.tracks.map((track, index) => {
-            return Track.fromStoredYoutubeMusic(track, index + 1);
-        });
-        storedYoutubeMusicTracksByPlaylistId.set(playlistId, tracks);
-
-        return tracks;
+    function getStoredYoutubeMusicTracks(playlistId) {
+        return storedYoutubeMusicTracksByPlaylistId.get(playlistId) ?? null;
     }
 
     async function saveAppleMusicTransfer(playlistId) {
@@ -123,29 +71,45 @@ export function createLibrary(musicKit) {
             'apple-music-tracks': storedTrackData
         });
 
-        updateCachedAppleMusicTracks(playlist.name, storedTrackData);
         storedAppleMusicTracksByPlaylistId.set(playlistId, appleMusicTracks);
         playlist.isTransferred = true;
     }
 
-    async function getFirestoreTracklistData(playlistName) {
-        if (!firestoreTracklistDataByPlaylistName.has(playlistName)) {
-            const tracklistData = await retrieveTracklistDataFromFirestore(playlistName);
-            firestoreTracklistDataByPlaylistName.set(playlistName, tracklistData);
-        }
+    async function loadStoredTracklist(playlist) {
+        const tracklistData = await retrieveTracklistDataFromFirestore(playlist.name);
+        const appleMusicTracks = createStoredAppleMusicTracks(tracklistData);
+        const youtubeMusicTracks = createStoredYoutubeMusicTracks(tracklistData);
 
-        return firestoreTracklistDataByPlaylistName.get(playlistName);
+        storedAppleMusicTracksByPlaylistId.set(playlist.id, appleMusicTracks);
+        storedYoutubeMusicTracksByPlaylistId.set(playlist.id, youtubeMusicTracks);
+        playlist.isTransferred = Array.isArray(appleMusicTracks);
     }
 
-    function updateCachedAppleMusicTracks(playlistName, appleMusicTracks) {
-        const cachedTracklistData = firestoreTracklistDataByPlaylistName.get(playlistName);
-        if (!cachedTracklistData) {
-            return;
+    function createStoredAppleMusicTracks(tracklistData) {
+        if (!tracklistData || tracklistData['apple-music-tracks'] === undefined) {
+            return null;
         }
 
-        firestoreTracklistDataByPlaylistName.set(playlistName, {
-            ...cachedTracklistData,
-            'apple-music-tracks': appleMusicTracks
+        if (!Array.isArray(tracklistData['apple-music-tracks'])) {
+            throw new TypeError(`The Firestore tracklist has an 'apple-music-tracks' field which is not an array.`);
+        }
+
+        return tracklistData['apple-music-tracks'].map((track, index) => {
+            return Track.fromStoredAppleMusic(track, index + 1);
+        });
+    }
+
+    function createStoredYoutubeMusicTracks(tracklistData) {
+        if (!tracklistData || tracklistData['tracks'] === undefined) {
+            return null;
+        }
+
+        if (!Array.isArray(tracklistData.tracks)) {
+            throw new TypeError(`The Firestore tracklist has a 'tracks' field which is not an array.`);
+        }
+
+        return tracklistData.tracks.map((track, index) => {
+            return Track.fromStoredYoutubeMusic(track, index + 1);
         });
     }
 
@@ -153,8 +117,6 @@ export function createLibrary(musicKit) {
         initialize,
         getPlaylists,
         getPlaylist,
-        preloadTransferStatuses,
-        refreshTransferStatus,
         getLiveAppleMusicTracks,
         getStoredAppleMusicTracks,
         getStoredYoutubeMusicTracks,

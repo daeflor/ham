@@ -91,14 +91,11 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
                 await musicKit.authorize();
             }
 
-            shellView.setLandingStatus('Loading your library playlists…');
+            shellView.setLandingStatus('Loading your library…');
             library = createLibrary(musicKit);
             await library.initialize();
             const playlists = library.getPlaylists();
             playlistsView.renderPlaylists(playlists, handlePlaylistSelected);
-
-            shellView.setLandingStatus('Checking transfer status…');
-            await loadTransferStatuses();
             renderTransferCount();
 
             shellView.setLandingStatus('');
@@ -151,15 +148,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
     function reloadAppAfterFirebaseSessionChanged() {
         window.location.reload();
-    }
-
-    async function loadTransferStatuses() {
-        await library.preloadTransferStatuses();
-        for (const playlist of library.getPlaylists()) {
-            if (playlist.isTransferred) {
-                playlistsView.setPlaylistTransferred(playlist.id, true);
-            }
-        }
     }
 
     function handlePlaylistSelected(playlist) {

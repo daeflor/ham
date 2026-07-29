@@ -36,7 +36,7 @@ export function createPlaylistsView(elements) {
             transferredBadge.textContent = '✓';
             transferredBadge.setAttribute('aria-label', 'Transferred');
             transferredBadge.title = 'Transferred';
-            transferredBadge.hidden = true;
+            transferredBadge.hidden = !playlist.isTransferred;
 
             button.append(title, transferredBadge);
             button.addEventListener('click', () => {
