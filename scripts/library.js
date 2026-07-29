@@ -126,13 +126,8 @@ export function createLibrary(music) {
         });
 
         updateCachedAppleMusicTracks(playlist.name, storedTrackData);
-        storedAppleMusicTracksByPlaylistId.set(
-            playlistId,
-            storedTrackData.map((track, index) => Track.fromStoredAppleMusic(track, index + 1))
-        );
+        storedAppleMusicTracksByPlaylistId.set(playlistId, appleMusicTracks);
         playlist.isTransferred = true;
-
-        return storedAppleMusicTracksByPlaylistId.get(playlistId);
     }
 
     async function getTracklistData(playlistName) {
