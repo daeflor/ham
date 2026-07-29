@@ -27,7 +27,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     let library;
     let isInitializing = false;
     let selectedPlaylistId = null;
-    let playlists = [];
     let comparisonTracks = null;
 
     const firebaseSession = {
@@ -94,7 +93,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
             shellView.setLandingStatus('Loading your library playlists…');
             library = createLibrary(music);
-            playlists = await library.initialize();
+            const playlists = await library.initialize();
             playlistsView.renderPlaylists(playlists, handlePlaylistSelected);
 
             shellView.setLandingStatus('Checking transfer status…');
@@ -280,8 +279,9 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     function renderTransferCount() {
+        const playlists = library.getPlaylists();
         playlistsView.setPlaylistCount({
-            transferredCount: library.getPlaylists().filter(playlist => playlist.isTransferred).length,
+            transferredCount: playlists.filter(playlist => playlist.isTransferred).length,
             totalCount: playlists.length
         });
     }
