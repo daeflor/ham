@@ -13,8 +13,6 @@ export function createLibrary(music) {
     const tracklistDataByPlaylistName = new Map();
 
     async function initialize() {
-        clear();
-
         const appleMusicPlaylists = await fetchLibraryPlaylists(music);
         for (const appleMusicPlaylist of appleMusicPlaylists) {
             const playlistId = appleMusicPlaylist?.id;
@@ -137,14 +135,6 @@ export function createLibrary(music) {
         return storedAppleMusicTracksByPlaylistId.get(playlistId);
     }
 
-    function clear() {
-        playlistsById.clear();
-        liveAppleMusicTracksByPlaylistId.clear();
-        storedAppleMusicTracksByPlaylistId.clear();
-        storedYoutubeMusicTracksByPlaylistId.clear();
-        tracklistDataByPlaylistName.clear();
-    }
-
     async function getTracklistData(playlistName) {
         if (!tracklistDataByPlaylistName.has(playlistName)) {
             const tracklistData = await retrieveTracklistDataFromFirestore(playlistName);
@@ -175,8 +165,7 @@ export function createLibrary(music) {
         getLiveAppleMusicTracks,
         getStoredAppleMusicTracks,
         getStoredYoutubeMusicTracks,
-        saveAppleMusicTransfer,
-        clear
+        saveAppleMusicTransfer
     };
 }
 
