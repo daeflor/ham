@@ -62,7 +62,7 @@ export function createLibrary(musicKit) {
         return storedYoutubeMusicTracksByPlaylistId.get(playlistId) ?? null;
     }
 
-    async function saveAppleMusicTransfer(playlistId) {
+    async function storeAppleMusicTracks(playlistId) {
         const playlist = getPlaylist(playlistId);
         const appleMusicTracks = await getLiveAppleMusicTracks(playlistId);
         const storedTrackData = appleMusicTracks.map(track => track.toPlainObject());
@@ -120,6 +120,6 @@ export function createLibrary(musicKit) {
         getLiveAppleMusicTracks,
         getStoredAppleMusicTracks,
         getStoredYoutubeMusicTracks,
-        saveAppleMusicTransfer
+        storeAppleMusicTracks
     };
 }
