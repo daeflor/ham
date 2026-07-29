@@ -156,8 +156,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     async function loadTransferStatuses() {
         await library.preloadTransferStatuses();
         for (const playlist of library.getPlaylists()) {
-            const playlistIsTransferred = playlist.isTransferred;
-            if (playlistIsTransferred) {
+            if (playlist.isTransferred) {
                 playlistsView.setPlaylistTransferred(playlist.id, true);
             }
         }

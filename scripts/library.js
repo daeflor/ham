@@ -63,7 +63,6 @@ export function createLibrary(music) {
             return liveAppleMusicTracksByPlaylistId.get(playlistId);
         }
 
-        getPlaylist(playlistId);
         const appleMusicTracks = await fetchPlaylistTracks(music, playlistId);
         const tracks = appleMusicTracks.map((track, index) => Track.fromAppleMusic(track, index + 1));
         liveAppleMusicTracksByPlaylistId.set(playlistId, tracks);
