@@ -23,7 +23,7 @@ import { compareTracklists } from './tracklist-comparison.js';
  * }} views
  */
 export function createAppController({ shellView, playlistsView, selectedPlaylistView, comparisonView }) {
-    let musicInstance;
+    let musicKitInstance;
     let library;
     let isInitializing = false;
     let selectedPlaylistId = null;
@@ -56,8 +56,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     async function ensureMusicKitConfigured() {
-        if (musicInstance) {
-            return musicInstance;
+        if (musicKitInstance) {
+            return musicKitInstance;
         }
 
         const config = await loadAppConfig();
@@ -67,8 +67,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             app: config.app,
         });
 
-        musicInstance = MusicKit.getInstance();
-        return musicInstance;
+        musicKitInstance = MusicKit.getInstance();
+        return musicKitInstance;
     }
 
     async function handleInitializeApp() {
@@ -84,15 +84,15 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             await ensureFirebaseSignedIn();
 
             shellView.setLandingStatus('Configuring MusicKit…');
-            const music = await ensureMusicKitConfigured();
+            const musicKit = await ensureMusicKitConfigured();
 
             shellView.setLandingStatus('Requesting access to your Apple Music account…');
-            if (!music.isAuthorized) {
-                await music.authorize();
+            if (!musicKit.isAuthorized) {
+                await musicKit.authorize();
             }
 
             shellView.setLandingStatus('Loading your library playlists…');
-            library = createLibrary(music);
+            library = createLibrary(musicKit);
             await library.initialize();
             const playlists = library.getPlaylists();
             playlistsView.renderPlaylists(playlists, handlePlaylistSelected);

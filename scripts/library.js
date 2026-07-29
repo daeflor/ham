@@ -5,15 +5,15 @@ import {
 import { fetchLibraryPlaylists, fetchPlaylistTracks } from './musickit-api.js';
 import { Track } from './track.js';
 
-export function createLibrary(music) {
+export function createLibrary(musicKit) {
     const playlistsById = new Map();
     const liveAppleMusicTracksByPlaylistId = new Map();
     const storedAppleMusicTracksByPlaylistId = new Map();
     const storedYoutubeMusicTracksByPlaylistId = new Map();
-    const tracklistDataByPlaylistName = new Map();
+    const firestoreTracklistDataByPlaylistName = new Map();
 
     async function initialize() {
-        const appleMusicPlaylists = await fetchLibraryPlaylists(music);
+        const appleMusicPlaylists = await fetchLibraryPlaylists(musicKit);
         for (const appleMusicPlaylist of appleMusicPlaylists) {
             const playlistId = appleMusicPlaylist?.id;
             if (!playlistId) {
@@ -48,7 +48,7 @@ export function createLibrary(music) {
 
     async function refreshTransferStatus(playlistId) {
         const playlist = getPlaylist(playlistId);
-        const tracklistData = await getTracklistData(playlist.name);
+        const tracklistData = await getFirestoreTracklistData(playlist.name);
         playlist.isTransferred = Array.isArray(tracklistData?.['apple-music-tracks']);
 
         return playlist.isTransferred;
@@ -59,7 +59,7 @@ export function createLibrary(music) {
             return liveAppleMusicTracksByPlaylistId.get(playlistId);
         }
 
-        const appleMusicTracks = await fetchPlaylistTracks(music, playlistId);
+        const appleMusicTracks = await fetchPlaylistTracks(musicKit, playlistId);
         const tracks = appleMusicTracks.map((track, index) => Track.fromAppleMusic(track, index + 1));
         liveAppleMusicTracksByPlaylistId.set(playlistId, tracks);
 
@@ -72,7 +72,7 @@ export function createLibrary(music) {
         }
 
         const playlist = getPlaylist(playlistId);
-        const tracklistData = await getTracklistData(playlist.name);
+        const tracklistData = await getFirestoreTracklistData(playlist.name);
         if (!tracklistData || tracklistData['apple-music-tracks'] === undefined) {
             storedAppleMusicTracksByPlaylistId.set(playlistId, null);
             return null;
@@ -96,7 +96,7 @@ export function createLibrary(music) {
         }
 
         const playlist = getPlaylist(playlistId);
-        const tracklistData = await getTracklistData(playlist.name);
+        const tracklistData = await getFirestoreTracklistData(playlist.name);
         if (!tracklistData) {
             storedYoutubeMusicTracksByPlaylistId.set(playlistId, null);
             return null;
@@ -128,22 +128,22 @@ export function createLibrary(music) {
         playlist.isTransferred = true;
     }
 
-    async function getTracklistData(playlistName) {
-        if (!tracklistDataByPlaylistName.has(playlistName)) {
+    async function getFirestoreTracklistData(playlistName) {
+        if (!firestoreTracklistDataByPlaylistName.has(playlistName)) {
             const tracklistData = await retrieveTracklistDataFromFirestore(playlistName);
-            tracklistDataByPlaylistName.set(playlistName, tracklistData);
+            firestoreTracklistDataByPlaylistName.set(playlistName, tracklistData);
         }
 
-        return tracklistDataByPlaylistName.get(playlistName);
+        return firestoreTracklistDataByPlaylistName.get(playlistName);
     }
 
     function updateCachedAppleMusicTracks(playlistName, appleMusicTracks) {
-        const cachedTracklistData = tracklistDataByPlaylistName.get(playlistName);
+        const cachedTracklistData = firestoreTracklistDataByPlaylistName.get(playlistName);
         if (!cachedTracklistData) {
             return;
         }
 
-        tracklistDataByPlaylistName.set(playlistName, {
+        firestoreTracklistDataByPlaylistName.set(playlistName, {
             ...cachedTracklistData,
             'apple-music-tracks': appleMusicTracks
         });
