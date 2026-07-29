@@ -248,12 +248,11 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
         try {
             shellView.setStatus('Saving Apple Music transfer data…');
+
             selectedPlaylistView.setTransferInProgress(true);
             await library.storeAppleMusicTracks(transferringPlaylistId);
-
             playlistsView.setPlaylistTransferred(transferringPlaylistId, true);
             renderTransferCount();
-
             if (selectedPlaylistId === transferringPlaylistId) {
                 selectedPlaylistView.setTransferredState(true);
             }
@@ -268,6 +267,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
     }
 
+    // TODO could consider moving the logic to calculate/return the transferredCount & totalCount to library.js
     function renderTransferCount() {
         const playlists = library.getPlaylists();
         playlistsView.setPlaylistCount({

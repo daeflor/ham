@@ -6,7 +6,7 @@ import { fetchLibraryPlaylists, fetchPlaylistTracks } from './musickit-api.js';
 import { Track } from './track.js';
 
 export function createLibrary(musicKit) {
-    const playlistsById = new Map();
+    const playlistsById = new Map(); // A map of all current playlists by their Apple Music ID
     const liveAppleMusicTracksByPlaylistId = new Map();
     const storedAppleMusicTracksByPlaylistId = new Map();
     const storedYoutubeMusicTracksByPlaylistId = new Map();
@@ -16,13 +16,8 @@ export function createLibrary(musicKit) {
         // playlist name, Apple Music ID, and default transferred status
         const appleMusicPlaylists = await fetchLibraryPlaylists(musicKit);
         for (const appleMusicPlaylist of appleMusicPlaylists) {
-            const playlistId = appleMusicPlaylist?.id;
-            if (!playlistId) {
-                continue;
-            }
-
-            playlistsById.set(playlistId, {
-                id: playlistId,
+            playlistsById.set(appleMusicPlaylist?.id, {
+                id: appleMusicPlaylist?.id,
                 name: appleMusicPlaylist?.attributes?.name ?? 'Untitled playlist',
                 isTransferred: false
             });
