@@ -15,16 +15,17 @@ export class Track {
 
     static normalizeMetadata(metadata, source) {
         if (source === 'apple-music') {
-            const attributes = metadata?.attributes;
-            const durationInMillis = attributes?.durationInMillis ?? metadata?.durationInMillis;
-
             return {
-                title: attributes?.name ?? metadata?.title,
-                artist: attributes?.artistName ?? metadata?.artist,
-                album: attributes?.albumName ?? metadata?.album,
-                durationInMillis,
-                readableDuration: metadata?.readableDuration ?? formatDuration(durationInMillis)
+                title: metadata?.attributes?.name,
+                artist: metadata?.attributes?.artistName,
+                album: metadata?.attributes?.albumName,
+                durationInMillis: metadata?.attributes?.durationInMillis,
+                readableDuration: formatDuration(metadata?.attributes?.durationInMillis)
             };
+        }
+
+        if (source === 'apple-music-firestore') {
+            return metadata;
         }
 
         if (source === 'youtube-music') {
@@ -58,7 +59,7 @@ export class Track {
     }
 
     static fromStoredAppleMusic(metadata, playlistIndex) {
-        return new Track(metadata, 'apple-music', metadata?.playlistIndex ?? playlistIndex);
+        return new Track(metadata, 'apple-music-firestore', metadata?.playlistIndex ?? playlistIndex);
     }
 
     static fromStoredYoutubeMusic(metadata, playlistIndex) {
