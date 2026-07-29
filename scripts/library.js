@@ -37,7 +37,7 @@ export function createLibrary(music) {
     function getPlaylist(playlistId) {
         const playlist = playlistsById.get(playlistId);
         if (!playlist) {
-            throw new Error('Tried to access a playlist that has not been loaded.');
+            throw new Error('No playlist found with the provided ID: ' + playlistId);
         }
 
         return playlist;
