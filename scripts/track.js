@@ -15,14 +15,15 @@ export class Track {
 
     static normalizeMetadata(metadata, source) {
         if (source === 'apple-music') {
-            const durationInMillis = metadata?.attributes?.durationInMillis;
+            const attributes = metadata?.attributes;
+            const durationInMillis = attributes?.durationInMillis ?? metadata?.durationInMillis;
 
             return {
-                title: metadata?.attributes?.name,
-                artist: metadata?.attributes?.artistName,
-                album: metadata?.attributes?.albumName,
+                title: attributes?.name ?? metadata?.title,
+                artist: attributes?.artistName ?? metadata?.artist,
+                album: attributes?.albumName ?? metadata?.album,
                 durationInMillis,
-                readableDuration: formatDuration(durationInMillis)
+                readableDuration: metadata?.readableDuration ?? formatDuration(durationInMillis)
             };
         }
 
@@ -41,19 +42,6 @@ export class Track {
         throw new Error(`Unsupported track source: ${source}`);
     }
 
-    static fromStoredTrack(metadata, source, playlistIndex) {
-        const track = Object.create(Track.prototype);
-        track.title = metadata?.title;
-        track.artist = metadata?.artist;
-        track.album = metadata?.album;
-        track.durationInMillis = metadata?.durationInMillis;
-        track.readableDuration = metadata?.readableDuration;
-        track.source = source;
-        track.playlistIndex = metadata?.playlistIndex ?? playlistIndex;
-
-        return track;
-    }
-
     toPlainObject() {
         return {
             title: this.title ?? null,
@@ -70,7 +58,7 @@ export class Track {
     }
 
     static fromStoredAppleMusic(metadata, playlistIndex) {
-        return Track.fromStoredTrack(metadata, 'apple-music', playlistIndex);
+        return new Track(metadata, 'apple-music', metadata?.playlistIndex ?? playlistIndex);
     }
 
     static fromStoredYoutubeMusic(metadata, playlistIndex) {
