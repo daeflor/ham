@@ -97,7 +97,7 @@ export function createLibrary(musicKit) {
 
         const playlist = getPlaylist(playlistId);
         const tracklistData = await getFirestoreTracklistData(playlist.name);
-        if (!tracklistData) {
+        if (!tracklistData || tracklistData['tracks'] === undefined) {
             storedYoutubeMusicTracksByPlaylistId.set(playlistId, null);
             return null;
         }
