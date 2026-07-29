@@ -243,18 +243,18 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     async function transferPlaylist() {
-        // TODO this seems unnecessary
-        const playlistId = selectedPlaylistId;
+        // Keep track of the playlist ID being transferred in case the user selects a different playlist while the transfer is in progress
+        const transferringPlaylistId = selectedPlaylistId;
 
         try {
             shellView.setStatus('Saving Apple Music transfer data…');
             selectedPlaylistView.setTransferInProgress(true);
-            await library.storeAppleMusicTracks(playlistId);
+            await library.storeAppleMusicTracks(transferringPlaylistId);
 
-            playlistsView.setPlaylistTransferred(playlistId, true);
+            playlistsView.setPlaylistTransferred(transferringPlaylistId, true);
             renderTransferCount();
 
-            if (selectedPlaylistId === playlistId) {
+            if (selectedPlaylistId === transferringPlaylistId) {
                 selectedPlaylistView.setTransferredState(true);
             }
 

@@ -12,6 +12,8 @@ export function createLibrary(musicKit) {
     const storedYoutubeMusicTracksByPlaylistId = new Map();
 
     async function initialize() {
+        // Fetch the user's Apple Music playlists and store them in the playlistsById map with the
+        // playlist name, Apple Music ID, and default transferred status
         const appleMusicPlaylists = await fetchLibraryPlaylists(musicKit);
         for (const appleMusicPlaylist of appleMusicPlaylists) {
             const playlistId = appleMusicPlaylist?.id;
@@ -26,6 +28,8 @@ export function createLibrary(musicKit) {
             });
         }
 
+        // For each playlist in the Apple Music library, load the corresponding tracklist data in
+        // Firestore and cache the Apple Music and YouTube Music tracks in their respective maps
         await Promise.all(getPlaylists().map(loadStoredTracklist));
     }
 
@@ -65,10 +69,10 @@ export function createLibrary(musicKit) {
     async function storeAppleMusicTracks(playlistId) {
         const playlist = getPlaylist(playlistId);
         const appleMusicTracks = await getLiveAppleMusicTracks(playlistId);
-        const storedTrackData = appleMusicTracks.map(track => track.toPlainObject());
+        const trackDataToStore = appleMusicTracks.map(track => track.toPlainObject());
 
         await updateTracklistDataInFirestore(playlist.name, {
-            'apple-music-tracks': storedTrackData
+            'apple-music-tracks': trackDataToStore
         });
 
         storedAppleMusicTracksByPlaylistId.set(playlistId, appleMusicTracks);
