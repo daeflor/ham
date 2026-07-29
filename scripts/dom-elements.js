@@ -17,7 +17,7 @@ export function getAppElements() {
         selectedTransferredBadgeEl: document.getElementById('selectedTransferredBadge'),
         showAppleTracksButtonEl: document.getElementById('showAppleTracksButton'),
         showYoutubeTracksButtonEl: document.getElementById('showYoutubeTracksButton'),
-        showComparisonButtonEl: document.getElementById('showComparisonButton'),
+        showYoutubeComparisonButtonEl: document.getElementById('showYoutubeComparisonButton'),
         showAppleTrackComparisonButtonEl: document.getElementById('showAppleTrackComparisonButton'),
         tracksViewEl: document.getElementById('tracksView'),
         trackSummaryEl: document.getElementById('trackSummary'),

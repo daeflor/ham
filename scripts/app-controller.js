@@ -196,8 +196,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         }
     }
 
-    async function handleComparisonRequested() {
-        selectedPlaylistView.showComparisonSelected();
+    async function handleYoutubeComparisonRequested() {
+        selectedPlaylistView.showYoutubeComparisonSelected();
         comparisonTracks = null;
         comparisonView.showLoading();
 
@@ -271,7 +271,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         shellView.onFirebaseSignOut(handleFirebaseSignOut);
         selectedPlaylistView.onAppleTracksRequested(handleAppleTracksRequested);
         selectedPlaylistView.onYoutubeTracksRequested(handleYoutubeTracksRequested);
-        selectedPlaylistView.onComparisonRequested(handleComparisonRequested);
+        selectedPlaylistView.onYoutubeComparisonRequested(handleYoutubeComparisonRequested);
         selectedPlaylistView.onTransferRequested(transferPlaylist);
         comparisonView.onComparisonOptionsChanged(renderCurrentComparison);
     }
