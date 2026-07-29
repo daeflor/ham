@@ -22,7 +22,7 @@ export function createLibrary(music) {
 
             playlistsById.set(playlistId, {
                 id: playlistId,
-                name: getApplePlaylistName(appleMusicPlaylist),
+                name: appleMusicPlaylist?.attributes?.name ?? 'Untitled playlist',
                 isTransferred: false
             });
         }
@@ -167,8 +167,4 @@ export function createLibrary(music) {
         getStoredYoutubeMusicTracks,
         saveAppleMusicTransfer
     };
-}
-
-function getApplePlaylistName(playlist) {
-    return playlist?.attributes?.name ?? 'Untitled playlist';
 }
