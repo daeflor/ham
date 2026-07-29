@@ -93,7 +93,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
             shellView.setLandingStatus('Loading your library playlists…');
             library = createLibrary(music);
-            const playlists = await library.initialize();
+            await library.initialize();
+            const playlists = library.getPlaylists();
             playlistsView.renderPlaylists(playlists, handlePlaylistSelected);
 
             shellView.setLandingStatus('Checking transfer status…');

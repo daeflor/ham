@@ -26,8 +26,6 @@ export function createLibrary(music) {
                 isTransferred: false
             });
         }
-
-        return getPlaylists();
     }
 
     function getPlaylists() {
