@@ -15,8 +15,7 @@ export function createPlaylistsView(elements) {
         }
 
         for (const playlist of playlists) {
-            const attributes = playlist?.attributes ?? {};
-            const name = attributes.name ?? '(Untitled playlist)';
+            const name = playlist?.name ?? '(Untitled playlist)';
             const playlistId = playlist?.id;
             if (!playlistId) {
                 continue;
@@ -37,7 +36,7 @@ export function createPlaylistsView(elements) {
             transferredBadge.textContent = '✓';
             transferredBadge.setAttribute('aria-label', 'Transferred');
             transferredBadge.title = 'Transferred';
-            transferredBadge.hidden = true;
+            transferredBadge.hidden = !playlist.isTransferred;
 
             button.append(title, transferredBadge);
             button.addEventListener('click', () => {

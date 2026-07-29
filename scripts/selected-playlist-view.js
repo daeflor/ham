@@ -8,7 +8,7 @@ export function createSelectedPlaylistView(elements) {
         selectedTransferredBadgeEl,
         showAppleTracksButtonEl,
         showYoutubeTracksButtonEl,
-        showComparisonButtonEl,
+        showYoutubeComparisonButtonEl,
         showAppleTrackComparisonButtonEl,
         tracksViewEl,
         trackSummaryEl,
@@ -29,7 +29,7 @@ export function createSelectedPlaylistView(elements) {
     const actionButtons = {
         'apple-tracks': showAppleTracksButtonEl,
         'youtube-tracks': showYoutubeTracksButtonEl,
-        comparison: showComparisonButtonEl,
+        'youtube-comparison': showYoutubeComparisonButtonEl,
         'apple-track-comparison': showAppleTrackComparisonButtonEl
     };
 
@@ -55,9 +55,9 @@ export function createSelectedPlaylistView(elements) {
         trackSummaryEl.textContent = `Loading tracks...`;
     }
 
-    function showComparisonSelected() {
+    function showYoutubeComparisonSelected() {
         hideTracks();
-        setSelectedAction('comparison');
+        setSelectedAction('youtube-comparison');
     }
 
     function setSelectedAction(actionKey) {
@@ -203,8 +203,8 @@ export function createSelectedPlaylistView(elements) {
         showYoutubeTracksButtonEl.addEventListener('click', handler);
     }
 
-    function onComparisonRequested(handler) {
-        showComparisonButtonEl.addEventListener('click', handler);
+    function onYoutubeComparisonRequested(handler) {
+        showYoutubeComparisonButtonEl.addEventListener('click', handler);
     }
 
     function onTransferRequested(handler) {
@@ -224,11 +224,11 @@ export function createSelectedPlaylistView(elements) {
         showSelectedPlaylist,
         setTransferredState,
         setTransferInProgress,
-        showComparisonSelected,
+        showYoutubeComparisonSelected,
         clearSelectedAction,
         onAppleTracksRequested,
         onYoutubeTracksRequested,
-        onComparisonRequested,
+        onYoutubeComparisonRequested,
         onTransferRequested
     };
 }

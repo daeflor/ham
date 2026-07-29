@@ -60,22 +60,12 @@ function getReferenceToUserTracklistDocument(tracklistTitle) {
  * @param {string} tracklistTitle The title of the tracklist to retrieve
  * @returns {Promise<Object|null>} A promise with the tracklist data object matching the provided tracklist title, or null if none exists
  */
-export async function retrieveTracklistDataFromFirestoreByTitle(tracklistTitle) {
+export async function retrieveTracklistDataFromFirestore(tracklistTitle) {
     const tracklistSnapshot = await getDoc(getReferenceToUserTracklistDocument(tracklistTitle));
 
-    if (!tracklistSnapshot.exists()) {
-        return null;
-    }
-
-    return tracklistSnapshot.data();
+    return tracklistSnapshot.exists() ? tracklistSnapshot.data() : null;
 }
 
-export async function saveAppleMusicTracksToFirestoreByTitle(tracklistTitle, tracks) {
-    if (!Array.isArray(tracks)) {
-        throw new TypeError('Tried to save Apple Music tracks to Firestore, but a tracks array was not provided.');
-    }
-
-    await updateDoc(getReferenceToUserTracklistDocument(tracklistTitle), {
-        'apple-music-tracks': tracks
-    });
+export async function updateTracklistDataInFirestore(tracklistTitle, data) {
+    await updateDoc(getReferenceToUserTracklistDocument(tracklistTitle), data);
 }
