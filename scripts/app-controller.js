@@ -94,9 +94,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             shellView.setLandingStatus('Loading your library…');
             library = createLibrary(musicKit);
             await library.initialize();
-            const playlists = library.getPlaylists();
-            playlistsView.renderPlaylists(playlists, handlePlaylistSelected);
-            renderTransferCount();
+            playlistsView.renderPlaylists(library.getPlaylists(), handlePlaylistSelected);
+            playlistsView.setPlaylistCount(library.getPlaylistTransferCounts());
 
             shellView.setLandingStatus('');
             shellView.hideLandingShell();
@@ -252,7 +251,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             selectedPlaylistView.setTransferInProgress(true);
             await library.storeAppleMusicTracks(transferringPlaylistId);
             playlistsView.setPlaylistTransferred(transferringPlaylistId, true);
-            renderTransferCount();
+            playlistsView.setPlaylistCount(library.getPlaylistTransferCounts());
             if (selectedPlaylistId === transferringPlaylistId) {
                 selectedPlaylistView.setTransferredState(true);
             }
@@ -265,15 +264,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         } finally {
             selectedPlaylistView.setTransferInProgress(false);
         }
-    }
-
-    // TODO could consider moving the logic to calculate/return the transferredCount & totalCount to library.js
-    function renderTransferCount() {
-        const playlists = library.getPlaylists();
-        playlistsView.setPlaylistCount({
-            transferredCount: playlists.filter(playlist => playlist.isTransferred).length,
-            totalCount: playlists.length
-        });
     }
 
     function bindEvents() {

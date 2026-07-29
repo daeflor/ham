@@ -41,6 +41,14 @@ export function createLibrary(musicKit) {
         return playlist;
     }
 
+    function getPlaylistTransferCounts() {
+        const playlists = getPlaylists();
+        return {
+            transferredCount: playlists.filter(playlist => playlist.isTransferred).length,
+            totalCount: playlists.length
+        };
+    }
+
     async function getLiveAppleMusicTracks(playlistId) {
         if (liveAppleMusicTracksByPlaylistId.has(playlistId)) {
             return liveAppleMusicTracksByPlaylistId.get(playlistId);
@@ -116,6 +124,7 @@ export function createLibrary(musicKit) {
         initialize,
         getPlaylists,
         getPlaylist,
+        getPlaylistTransferCounts,
         getLiveAppleMusicTracks,
         getStoredAppleMusicTracks,
         getStoredYoutubeMusicTracks,
