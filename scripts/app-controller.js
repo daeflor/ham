@@ -246,8 +246,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         const transferringPlaylistId = selectedPlaylistId;
 
         try {
-            shellView.setStatus('Saving Apple Music transfer data…');
-
             selectedPlaylistView.setTransferInProgress(true);
             await library.storeAppleMusicTracks(transferringPlaylistId);
             playlistsView.setPlaylistTransferred(transferringPlaylistId, true);
@@ -255,8 +253,6 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             if (selectedPlaylistId === transferringPlaylistId) {
                 selectedPlaylistView.setTransferredState(true);
             }
-
-            shellView.setStatus('');
         } catch (error) {
             console.error('Failed to save Apple Music transfer data', error);
             const message = error instanceof Error ? error.message : 'Unable to save Apple Music transfer data.';
