@@ -76,6 +76,15 @@ export function createSelectedPlaylistView(elements) {
         trackSummaryEl.textContent = message;
     }
 
+    function setMetadataCellText(cellEl, value) {
+        const text = value ?? '—';
+        cellEl.textContent = text;
+
+        if (text !== '—') {
+            cellEl.title = text;
+        }
+    }
+
     function renderCurrentPage() {
         tracksBodyEl.replaceChildren();
 
@@ -91,13 +100,13 @@ export function createSelectedPlaylistView(elements) {
             indexEl.textContent = track.playlistIndex;
 
             const nameEl = document.createElement('td');
-            nameEl.textContent = track.title ?? '—';
+            setMetadataCellText(nameEl, track.title);
 
             const artistEl = document.createElement('td');
-            artistEl.textContent = track.artist ?? '—';
+            setMetadataCellText(artistEl, track.artist);
 
             const albumEl = document.createElement('td');
-            albumEl.textContent = track.album ?? '—';
+            setMetadataCellText(albumEl, track.album);
 
             const lenEl = document.createElement('td');
             lenEl.className = 'len';

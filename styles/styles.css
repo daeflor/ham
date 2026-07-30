@@ -822,6 +822,10 @@ table {
     border: 1px solid var(--surface-border);
 }
 
+#tracksTable {
+    table-layout: fixed;
+}
+
 th,
 td {
     border-bottom: 1px solid var(--surface-border);
@@ -843,6 +847,33 @@ td.trackIndex {
     width: 44px;
     color: var(--muted);
     text-align: right;
+    white-space: nowrap;
+}
+
+#tracksTable th:nth-child(2),
+#tracksTable td:nth-child(2) {
+    width: 36%;
+}
+
+#tracksTable th:nth-child(3),
+#tracksTable td:nth-child(3) {
+    width: 22%;
+}
+
+#tracksTable th:nth-child(4),
+#tracksTable td:nth-child(4) {
+    width: 28%;
+}
+
+#tracksTable th:nth-child(5),
+#tracksTable td:nth-child(5) {
+    width: 80px;
+}
+
+#tracksTable th:nth-child(n + 2),
+#tracksTable td:nth-child(n + 2) {
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
