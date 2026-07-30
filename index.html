@@ -54,8 +54,15 @@
                                 </svg>
                             </button>
                         </div>
+                        <button id="togglePlaylistsButton" class="iconButton playlistCollapseButton" type="button"
+                            aria-label="Collapse playlists" aria-expanded="true" aria-controls="playlistPanel"
+                            title="Collapse playlists">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="m15 18-6-6 6-6 1.4 1.4-4.6 4.6 4.6 4.6z" />
+                            </svg>
+                        </button>
                     </div>
-                    <section class="panel playlistPanel">
+                    <section id="playlistPanel" class="panel playlistPanel">
                         <div class="panelHeading">
                             <h2>Playlists</h2>
                             <p id="playlistCount">Load your Apple Music library</p>

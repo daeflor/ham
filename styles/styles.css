@@ -260,12 +260,18 @@ p {
     grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
     gap: 20px;
     align-items: start;
+    transition: grid-template-columns 180ms ease;
+}
+
+.workspaceShell.playlistsCollapsed {
+    grid-template-columns: 54px minmax(0, 1fr);
 }
 
 .leftRail {
     display: grid;
     gap: 10px;
     align-self: start;
+    min-width: 0;
 }
 
 .playlistPanel {
@@ -274,7 +280,26 @@ p {
 
 .playlistToolbar {
     display: flex;
-    justify-content: flex-start;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.playlistCollapseButton {
+    flex: 0 0 auto;
+}
+
+.workspaceShell.playlistsCollapsed .playlistToolbar {
+    justify-content: center;
+}
+
+.workspaceShell.playlistsCollapsed .firebaseSession,
+.workspaceShell.playlistsCollapsed .playlistPanel {
+    display: none;
+}
+
+.workspaceShell.playlistsCollapsed .playlistCollapseButton svg {
+    transform: rotate(180deg);
 }
 
 .firebaseSession {
@@ -419,7 +444,7 @@ p {
     justify-content: center;
 }
 
-.actionTab + .actionTab::before {
+.actionTab+.actionTab::before {
     content: "";
     position: absolute;
     left: -3px;
@@ -430,7 +455,7 @@ p {
 }
 
 .actionTab.selected::before,
-.actionTab.selected + .actionTab::before {
+.actionTab.selected+.actionTab::before {
     display: none;
 }
 
@@ -878,6 +903,18 @@ tbody tr:last-child td {
 @media (max-width: 740px) {
     .workspaceShell {
         grid-template-columns: 1fr;
+    }
+
+    .workspaceShell.playlistsCollapsed {
+        grid-template-columns: 1fr;
+    }
+
+    .workspaceShell.playlistsCollapsed .playlistToolbar {
+        justify-content: space-between;
+    }
+
+    .workspaceShell.playlistsCollapsed .firebaseSession {
+        display: inline-flex;
     }
 }
 

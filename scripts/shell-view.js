@@ -5,11 +5,15 @@ export function createShellView(elements) {
         landingActionsEl,
         connectButtonEl,
         landingStatusEl,
+        layoutEl,
         firebaseSessionEl,
         firebaseUserEl,
         firebaseSignOutButtonEl,
+        togglePlaylistsButtonEl,
+        playlistPanelEl,
         statusEl
     } = elements;
+    let arePlaylistsCollapsed = false;
 
     function onConnect(handler) {
         connectButtonEl.addEventListener('click', handler);
@@ -38,6 +42,16 @@ export function createShellView(elements) {
         statusEl.textContent = text;
     }
 
+    function togglePlaylistsCollapsed() {
+        arePlaylistsCollapsed = !arePlaylistsCollapsed;
+        layoutEl.classList.toggle('playlistsCollapsed', arePlaylistsCollapsed);
+        togglePlaylistsButtonEl.setAttribute('aria-expanded', String(!arePlaylistsCollapsed));
+        playlistPanelEl.setAttribute('aria-hidden', String(arePlaylistsCollapsed));
+        const label = arePlaylistsCollapsed ? 'Expand playlists' : 'Collapse playlists';
+        togglePlaylistsButtonEl.setAttribute('aria-label', label);
+        togglePlaylistsButtonEl.title = label;
+    }
+
     function onFirebaseSignOut(handler) {
         firebaseSignOutButtonEl.addEventListener('click', handler);
     }
@@ -46,6 +60,14 @@ export function createShellView(elements) {
         firebaseUserEl.textContent = username;
         firebaseSessionEl.hidden = false;
     }
+
+    function bindLayoutEvents() {
+        togglePlaylistsButtonEl.addEventListener('click', () => {
+            togglePlaylistsCollapsed();
+        });
+    }
+
+    bindLayoutEvents();
 
     return {
         setStatus,
