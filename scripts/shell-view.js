@@ -45,10 +45,7 @@ export function createShellView(elements) {
     function togglePlaylistsCollapsed() {
         arePlaylistsCollapsed = !arePlaylistsCollapsed;
         layoutEl.classList.toggle('playlistsCollapsed', arePlaylistsCollapsed);
-        togglePlaylistsButtonEl.setAttribute('aria-expanded', String(!arePlaylistsCollapsed));
-        playlistPanelEl.setAttribute('aria-hidden', String(arePlaylistsCollapsed));
         const label = arePlaylistsCollapsed ? 'Expand playlists' : 'Collapse playlists';
-        togglePlaylistsButtonEl.setAttribute('aria-label', label);
         togglePlaylistsButtonEl.title = label;
     }
 

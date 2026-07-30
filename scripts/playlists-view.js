@@ -34,7 +34,6 @@ export function createPlaylistsView(elements) {
             const transferredBadge = document.createElement('span');
             transferredBadge.className = 'playlistTransferredBadge';
             transferredBadge.textContent = '✓';
-            transferredBadge.setAttribute('aria-label', 'Transferred');
             transferredBadge.title = 'Transferred';
             transferredBadge.hidden = !playlist.isTransferred;
 

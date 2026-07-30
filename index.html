@@ -31,7 +31,7 @@
                                 Apple Music
                                 playlists</button>
                         </div>
-                        <div id="landingStatus" class="landingStatus" aria-live="polite"></div>
+                        <div id="landingStatus" class="landingStatus"></div>
                     </div>
                 </div>
 
@@ -45,19 +45,17 @@
                 <div class="leftRail">
                     <div class="playlistToolbar">
                         <div id="firebaseSession" class="firebaseSession" hidden>
-                            <span id="firebaseUser" class="firebaseUser" aria-live="polite"></span>
-                            <button id="firebaseSignOutButton" class="iconButton" type="button" aria-label="Sign out"
-                                title="Sign out">
-                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <span id="firebaseUser" class="firebaseUser"></span>
+                            <button id="firebaseSignOutButton" class="iconButton" type="button" title="Sign out">
+                                <svg viewBox="0 0 24 24">
                                     <path
                                         d="M15 3h-4a3 3 0 0 0-3 3v2h2V6a1 1 0 0 1 1-1h4zm-1 6 1.41 1.41-1.58 1.59H21v2h-7.17l1.58 1.59L14 17l-4-4zm-6 1H3v8a3 3 0 0 0 3 3h9a3 3 0 0 0 3-3v-2h-2v2a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8h3z" />
                                 </svg>
                             </button>
                         </div>
                         <button id="togglePlaylistsButton" class="iconButton playlistCollapseButton" type="button"
-                            aria-label="Collapse playlists" aria-expanded="true" aria-controls="playlistPanel"
                             title="Collapse playlists">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <svg viewBox="0 0 24 24">
                                 <path d="m15 18-6-6 6-6 1.4 1.4-4.6 4.6 4.6 4.6z" />
                             </svg>
                         </button>
@@ -84,21 +82,18 @@
                         </div>
                     </div>
 
-                    <div class="actionTabs" role="tablist" aria-label="Selected playlist views">
-                        <button id="showAppleTracksButton" class="actionTab" type="button" role="tab"
-                            aria-controls="tracksView" aria-selected="false" tabindex="-1">
+                    <div class="actionTabs">
+                        <button id="showAppleTracksButton" class="actionTab" type="button">
                             <span class="actionTabTitle">Apple Music tracks</span>
                         </button>
-                        <button id="showYoutubeTracksButton" class="actionTab" type="button" role="tab"
-                            aria-controls="tracksView" aria-selected="false" tabindex="-1">
+                        <button id="showYoutubeTracksButton" class="actionTab" type="button">
                             <span class="actionTabTitle">YouTube Music tracks</span>
                         </button>
-                        <button id="showYoutubeComparisonButton" class="actionTab" type="button" role="tab"
-                            aria-controls="comparisonView" aria-selected="false" tabindex="-1">
+                        <button id="showYoutubeComparisonButton" class="actionTab" type="button">
                             <span class="actionTabTitle">Apple Music & YouTube Music comparison</span>
                         </button>
-                        <button id="showAppleTrackComparisonButton" class="actionTab" type="button" role="tab"
-                            aria-selected="false" aria-disabled="true" tabindex="-1" disabled title="Coming soon">
+                        <button id="showAppleTrackComparisonButton" class="actionTab" type="button" disabled
+                            title="Coming soon">
                             <span class="actionTabTitle">Apple Music comparison</span>
                         </button>
                     </div>
@@ -111,7 +106,7 @@
                             <div class="contentActions">
                                 <button id="copyTracksButton" class="secondaryButton" type="button" disabled>Copy full
                                     tracklist</button>
-                                <div id="copyFeedback" class="copyFeedback" aria-live="polite"></div>
+                                <div id="copyFeedback" class="copyFeedback"></div>
                             </div>
                         </div>
 
@@ -150,34 +145,34 @@
                                     <span>Ignore parens</span>
                                 </label>
                                 <button id="copyComparisonButton" class="iconButton" type="button"
-                                    aria-label="Copy comparison" title="Copy comparison">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    title="Copy comparison">
+                                    <svg viewBox="0 0 24 24">
                                         <path
                                             d="M9 3h6a2 2 0 0 1 2 2v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-1H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 3h6V5H9zm-4 9h1V8a2 2 0 0 1 2-2h7V5H5zm3-7v11h10V8z" />
                                     </svg>
                                 </button>
-                                <div id="comparisonStatus" class="copyFeedback" aria-live="polite"></div>
+                                <div id="comparisonStatus" class="copyFeedback"></div>
                             </div>
                         </div>
 
                         <div class="comparisonColumns">
                             <section class="comparisonColumn removed">
                                 <div class="comparisonColumnHeading">
-                                    <span class="comparisonColumnIcon" aria-hidden="true">-</span>
+                                    <span class="comparisonColumnIcon">-</span>
                                     <h3>Removed</h3>
                                     <span id="removedComparisonCount" class="comparisonCount"></span>
-                                    <div class="comparisonScrollControls" aria-label="Scroll Removed tracks">
+                                    <div class="comparisonScrollControls">
                                         <button class="comparisonScrollButton" type="button"
                                             data-comparison-scroll="removed" data-scroll-direction="-1"
-                                            aria-label="Scroll Removed tracks up" title="Scroll up one track">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            title="Scroll up one track">
+                                            <svg viewBox="0 0 24 24">
                                                 <path d="m7 14 5-5 5 5z" />
                                             </svg>
                                         </button>
                                         <button class="comparisonScrollButton" type="button"
                                             data-comparison-scroll="removed" data-scroll-direction="1"
-                                            aria-label="Scroll Removed tracks down" title="Scroll down one track">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            title="Scroll down one track">
+                                            <svg viewBox="0 0 24 24">
                                                 <path d="m7 10 5 5 5-5z" />
                                             </svg>
                                         </button>
@@ -188,21 +183,21 @@
 
                             <section class="comparisonColumn added">
                                 <div class="comparisonColumnHeading">
-                                    <span class="comparisonColumnIcon" aria-hidden="true">+</span>
+                                    <span class="comparisonColumnIcon">+</span>
                                     <h3>Added</h3>
                                     <span id="addedComparisonCount" class="comparisonCount"></span>
-                                    <div class="comparisonScrollControls" aria-label="Scroll Added tracks">
+                                    <div class="comparisonScrollControls">
                                         <button class="comparisonScrollButton" type="button"
                                             data-comparison-scroll="added" data-scroll-direction="-1"
-                                            aria-label="Scroll Added tracks up" title="Scroll up one track">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            title="Scroll up one track">
+                                            <svg viewBox="0 0 24 24">
                                                 <path d="m7 14 5-5 5 5z" />
                                             </svg>
                                         </button>
                                         <button class="comparisonScrollButton" type="button"
                                             data-comparison-scroll="added" data-scroll-direction="1"
-                                            aria-label="Scroll Added tracks down" title="Scroll down one track">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            title="Scroll down one track">
+                                            <svg viewBox="0 0 24 24">
                                                 <path d="m7 10 5 5 5-5z" />
                                             </svg>
                                         </button>
@@ -219,7 +214,7 @@
 
     <template id="comparisonTrackTemplate">
         <article class="comparisonTrack">
-            <div class="comparisonTrackIndex" data-track-field="playlistIndex" aria-label="Playlist position"></div>
+            <div class="comparisonTrackIndex" data-track-field="playlistIndex"></div>
             <div class="comparisonTrackBody">
                 <div class="comparisonTrackTitle" data-track-field="title"></div>
                 <div class="comparisonTrackMeta" data-track-field="artist"></div>

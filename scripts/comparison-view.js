@@ -152,10 +152,9 @@ export function createComparisonView(elements) {
         const buttonEl = document.createElement('button');
         buttonEl.className = 'comparisonTrackScrollButton';
         buttonEl.type = 'button';
-        buttonEl.setAttribute('aria-label', 'Scroll track to top');
         buttonEl.title = 'Scroll track to top';
         buttonEl.innerHTML = `
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <svg viewBox="0 0 24 24">
                 <path d="M11 6.83 6.41 11.41 5 10l7-7 7 7-1.41 1.41L13 6.83V21h-2z" />
             </svg>
         `;
@@ -172,10 +171,9 @@ export function createComparisonView(elements) {
         const buttonEl = document.createElement('button');
         buttonEl.className = 'comparisonTrackCopyButton';
         buttonEl.type = 'button';
-        buttonEl.setAttribute('aria-label', `Copy metadata for ${track.title ?? 'removed track'}`);
         buttonEl.title = 'Copy track metadata';
         buttonEl.innerHTML = `
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <svg viewBox="0 0 24 24">
                 <path d="M9 3h6a2 2 0 0 1 2 2v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-1H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 3h6V5H9zm-4 9h1V8a2 2 0 0 1 2-2h7V5H5zm3-7v11h10V8z" />
             </svg>
         `;

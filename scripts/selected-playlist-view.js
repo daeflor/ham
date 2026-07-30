@@ -64,8 +64,6 @@ export function createSelectedPlaylistView(elements) {
         for (const [key, button] of Object.entries(actionButtons)) {
             const isSelected = key === actionKey;
             button.classList.toggle('selected', isSelected);
-            button.setAttribute('aria-selected', String(isSelected));
-            button.tabIndex = isSelected || (!actionKey && key === 'apple-tracks') ? 0 : -1;
         }
     }
 
