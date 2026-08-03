@@ -79,10 +79,7 @@ export function createSelectedPlaylistView(elements) {
     function setMetadataCellText(cellEl, value) {
         const text = value ?? '—';
         cellEl.textContent = text;
-
-        if (text !== '—') {
-            cellEl.title = text;
-        }
+        cellEl.title = text;
     }
 
     function renderCurrentPage() {

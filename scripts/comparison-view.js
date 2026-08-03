@@ -106,10 +106,7 @@ export function createComparisonView(elements) {
     function setMetadataText(element, value) {
         const text = value ?? '-';
         element.textContent = text;
-
-        if (text !== '-') {
-            element.title = text;
-        }
+        element.title = text;
     }
 
     function createTrackRow(track, { canCopy }) {
