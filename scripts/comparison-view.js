@@ -103,6 +103,15 @@ export function createComparisonView(elements) {
         }
     }
 
+    function setMetadataText(element, value) {
+        const text = value ?? '-';
+        element.textContent = text;
+
+        if (text !== '-') {
+            element.title = text;
+        }
+    }
+
     function createTrackRow(track, { canCopy }) {
         const trackKey = getTrackKey(track);
         const rowEl = comparisonTrackTemplateEl.content.firstElementChild.cloneNode(true);
@@ -115,10 +124,10 @@ export function createComparisonView(elements) {
         actionsEl.className = 'comparisonTrackActions';
 
         indexEl.textContent = `#${track.playlistIndex}`;
-        titleEl.textContent = track.title ?? '-';
-        artistEl.textContent = track.artist ?? '-';
-        albumEl.textContent = track.album ?? '-';
-        durationEl.textContent = track.readableDuration ?? '-';
+        setMetadataText(titleEl, track.title);
+        setMetadataText(artistEl, track.artist);
+        setMetadataText(albumEl, track.album);
+        setMetadataText(durationEl, track.readableDuration);
 
         actionsEl.append(createTrackScrollToTopButton(rowEl));
 
