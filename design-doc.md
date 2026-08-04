@@ -20,8 +20,8 @@ Main page:
 Tracklist view:
     - Probably not a separate page
     - Include track title, artist, album, length
-    - Show 50 tracks at a time; include "next"/"previous" buttons to show more
-    - Include a copy to clipboard button, which will copy the full tracklist (not just 50 tracks)
+    - Show 75 tracks at a time; include "next"/"previous" buttons to show more
+    - Include a copy to clipboard button, which will copy the full tracklist (not just 75 tracks)
 
 Comparison view: 
     - Probably not a separate page
