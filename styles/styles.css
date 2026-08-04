@@ -385,8 +385,8 @@ p {
 
 .selectionCard {
     display: grid;
-    gap: 10px;
-    padding: 12px 16px;
+    gap: 8px;
+    padding: 9px 14px;
     border-radius: 18px;
     background: linear-gradient(135deg, rgba(255, 252, 247, 0.96), rgba(248, 242, 234, 0.94));
     border: 1px solid var(--surface-border);
@@ -411,7 +411,7 @@ p {
 }
 
 .selectionCard p {
-    margin-top: 4px;
+    margin-top: 2px;
     color: var(--muted);
     line-height: 1.6;
 }
@@ -420,7 +420,7 @@ p {
     display: flex;
     align-items: stretch;
     gap: 4px;
-    padding: 4px;
+    padding: 3px;
     border: 1px solid var(--surface-border);
     border-radius: 14px;
     background: rgba(248, 242, 234, 0.82);
@@ -429,8 +429,8 @@ p {
 .actionTab {
     position: relative;
     flex: 1 1 0;
-    min-height: 42px;
-    padding: 10px 14px;
+    min-height: 38px;
+    padding: 8px 12px;
     background: transparent;
     color: var(--muted);
     border: 1px solid transparent;
@@ -485,7 +485,7 @@ p {
 
 #tracksView {
     display: grid;
-    gap: 16px;
+    gap: 12px;
 }
 
 .comparisonView {
