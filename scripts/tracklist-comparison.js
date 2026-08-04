@@ -1,4 +1,4 @@
-const DEFAULT_DURATION_TOLERANCE_MS = 3000;
+const DEFAULT_DURATION_TOLERANCE_MS = 4000;
 
 export function compareTracklists(youtubeTracks, appleTracks, options) {
     const availableAppleMatches = [...appleTracks];
