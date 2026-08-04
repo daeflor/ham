@@ -55,7 +55,8 @@ function textFieldsMatch(firstValue, secondValue, { ignoreCapitalization, ignore
 }
 
 function removeParentheticalText(value) {
-    return value.replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+    // Remove text in parentheses or brackets, and trim whitespace. For example, "Song Title (feat. Artist) [Remix]" becomes "Song Title".
+    return value.replace(/\s*(?:\([^)]*\)|\[[^\]]*\])/g, '').replace(/\s+/g, ' ').trim();
 }
 
 function durationsMatch(firstTrack, secondTrack) {
