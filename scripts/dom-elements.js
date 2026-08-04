@@ -36,6 +36,7 @@ export function getAppElements() {
         ignoreCapitalizationCheckboxEl: document.getElementById('ignoreCapitalizationCheckbox'),
         ignoreAlbumMatchingCheckboxEl: document.getElementById('ignoreAlbumMatchingCheckbox'),
         ignoreParentheticalsCheckboxEl: document.getElementById('ignoreParentheticalsCheckbox'),
+        ignoreSpecialCharactersCheckboxEl: document.getElementById('ignoreSpecialCharactersCheckbox'),
         copyComparisonButtonEl: document.getElementById('copyComparisonButton'),
         comparisonStatusEl: document.getElementById('comparisonStatus'),
         removedComparisonCountEl: document.getElementById('removedComparisonCount'),
