@@ -22,7 +22,7 @@ export function createSelectedPlaylistView(elements) {
         pageInfoEl
     } = elements;
 
-    const TRACKS_PER_PAGE = 50;
+    const TRACKS_PER_PAGE = 75;
     let allTracks = [];
     let currentPage = 0;
 
