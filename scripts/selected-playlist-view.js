@@ -15,16 +15,10 @@ export function createSelectedPlaylistView(elements) {
         copyTracksButtonEl,
         copyFeedbackEl,
         tracksTableEl,
-        tracksBodyEl,
-        paginationEl,
-        prevPageBtn,
-        nextPageBtn,
-        pageInfoEl
+        tracksBodyEl
     } = elements;
 
-    const TRACKS_PER_PAGE = 75;
     let allTracks = [];
-    let currentPage = 0;
 
     const actionButtons = {
         'apple-tracks': showAppleTracksButtonEl,
@@ -35,10 +29,8 @@ export function createSelectedPlaylistView(elements) {
 
     function clearTracks() {
         allTracks = [];
-        currentPage = 0;
         tracksBodyEl.replaceChildren();
         tracksTableEl.hidden = true;
-        paginationEl.hidden = true;
         copyTracksButtonEl.disabled = true;
         copyFeedbackEl.textContent = '';
         trackSummaryEl.textContent = 'Track data will appear here.';
@@ -70,7 +62,6 @@ export function createSelectedPlaylistView(elements) {
     function showTracksError(message) {
         tracksViewEl.hidden = false;
         tracksTableEl.hidden = true;
-        paginationEl.hidden = true;
         copyTracksButtonEl.disabled = true;
         copyFeedbackEl.textContent = '';
         trackSummaryEl.textContent = message;
@@ -82,14 +73,10 @@ export function createSelectedPlaylistView(elements) {
         cellEl.title = text;
     }
 
-    function renderCurrentPage() {
+    function renderTrackRows() {
         tracksBodyEl.replaceChildren();
 
-        const startIdx = currentPage * TRACKS_PER_PAGE;
-        const endIdx = Math.min(startIdx + TRACKS_PER_PAGE, allTracks.length);
-        const pageTracksToShow = allTracks.slice(startIdx, endIdx);
-
-        for (const [pageIndex, track] of pageTracksToShow.entries()) {
+        for (const track of allTracks) {
             const rowEl = document.createElement('tr');
 
             const indexEl = document.createElement('td');
@@ -112,56 +99,26 @@ export function createSelectedPlaylistView(elements) {
             rowEl.append(indexEl, nameEl, artistEl, albumEl, lenEl);
             tracksBodyEl.append(rowEl);
         }
-
-        updatePaginationControls();
-    }
-
-    function updatePaginationControls() {
-        const totalPages = Math.ceil(allTracks.length / TRACKS_PER_PAGE);
-        const startIdx = currentPage * TRACKS_PER_PAGE + 1;
-        const endIdx = Math.min((currentPage + 1) * TRACKS_PER_PAGE, allTracks.length);
-
-        prevPageBtn.disabled = currentPage === 0;
-        nextPageBtn.disabled = currentPage >= totalPages - 1;
-        pageInfoEl.textContent = `${startIdx}-${endIdx} of ${allTracks.length}`;
     }
 
     function renderTracks(tracks) {
         allTracks = tracks || [];
-        currentPage = 0;
         tracksViewEl.hidden = false;
         copyFeedbackEl.textContent = '';
 
         if (allTracks.length === 0) {
             tracksTableEl.hidden = true;
-            paginationEl.hidden = true;
             copyTracksButtonEl.disabled = true;
             trackSummaryEl.textContent = 'No tracks found in this playlist.';
             return;
         }
 
         tracksTableEl.hidden = false;
-        paginationEl.hidden = allTracks.length <= TRACKS_PER_PAGE;
         copyTracksButtonEl.disabled = false;
-        trackSummaryEl.textContent = `${allTracks.length} tracks loaded. Showing ${TRACKS_PER_PAGE} at a time.`;
+        trackSummaryEl.textContent = `${allTracks.length} tracks loaded.`;
 
-        renderCurrentPage();
+        renderTrackRows();
     }
-
-    prevPageBtn.addEventListener('click', () => {
-        if (currentPage > 0) {
-            currentPage--;
-            renderCurrentPage();
-        }
-    });
-
-    nextPageBtn.addEventListener('click', () => {
-        const totalPages = Math.ceil(allTracks.length / TRACKS_PER_PAGE);
-        if (currentPage < totalPages - 1) {
-            currentPage++;
-            renderCurrentPage();
-        }
-    });
 
     function showSelectedPlaylist({ name, isTransferred }) {
         detailPanelEl.hidden = false;
