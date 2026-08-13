@@ -104,6 +104,11 @@
                                 <p id="trackSummary">Track data will appear here.</p>
                             </div>
                             <div class="contentActions">
+                                <div id="pagination" hidden>
+                                    <button id="prevPage" type="button">Previous</button>
+                                    <span id="pageInfo"></span>
+                                    <button id="nextPage" type="button">Next</button>
+                                </div>
                                 <button id="copyTracksButton" class="secondaryButton" type="button" disabled>Copy full
                                     tracklist</button>
                                 <div id="copyFeedback" class="copyFeedback"></div>
@@ -123,11 +128,6 @@
                                 </thead>
                                 <tbody id="tracksBody"></tbody>
                             </table>
-                        </div>
-                        <div id="pagination" hidden>
-                            <button id="prevPage" type="button">Previous</button>
-                            <span id="pageInfo"></span>
-                            <button id="nextPage" type="button">Next</button>
                         </div>
                     </section>
 
