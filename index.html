@@ -98,7 +98,7 @@
                         </button>
                     </div>
 
-                    <section id="tracksView" hidden>
+                    <section id="tracksView" class="detailScrollView" hidden>
                         <div class="contentHeader">
                             <div>
                                 <p id="trackSummary">Track data will appear here.</p>
@@ -110,18 +110,20 @@
                             </div>
                         </div>
 
-                        <table id="tracksTable" hidden>
-                            <thead>
-                                <tr>
-                                    <th class="trackIndexHeader">#</th>
-                                    <th>Track</th>
-                                    <th>Artist</th>
-                                    <th>Album</th>
-                                    <th>Length</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tracksBody"></tbody>
-                        </table>
+                        <div class="detailScrollRegion tracksTableScroll">
+                            <table id="tracksTable" hidden>
+                                <thead>
+                                    <tr>
+                                        <th class="trackIndexHeader">#</th>
+                                        <th>Track</th>
+                                        <th>Artist</th>
+                                        <th>Album</th>
+                                        <th>Length</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tracksBody"></tbody>
+                            </table>
+                        </div>
                         <div id="pagination" hidden>
                             <button id="prevPage" type="button">Previous</button>
                             <span id="pageInfo"></span>
@@ -129,7 +131,7 @@
                         </div>
                     </section>
 
-                    <section id="comparisonView" class="comparisonView" hidden>
+                    <section id="comparisonView" class="detailScrollView comparisonView" hidden>
                         <div class="comparisonHeader">
                             <div class="comparisonActions">
                                 <label class="comparisonOption">
@@ -182,7 +184,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div id="removedComparisonList" class="comparisonTrackList"></div>
+                                <div id="removedComparisonList" class="detailScrollRegion comparisonTrackList"></div>
                             </section>
 
                             <section class="comparisonColumn added">
@@ -207,7 +209,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div id="addedComparisonList" class="comparisonTrackList"></div>
+                                <div id="addedComparisonList" class="detailScrollRegion comparisonTrackList"></div>
                             </section>
                         </div>
                     </section>
