@@ -34,6 +34,7 @@ export function getAppElements() {
         ignoreParentheticalsCheckboxEl: document.getElementById('ignoreParentheticalsCheckbox'),
         ignoreSpecialCharactersCheckboxEl: document.getElementById('ignoreSpecialCharactersCheckbox'),
         copyComparisonButtonEl: document.getElementById('copyComparisonButton'),
+        copyVisibleComparisonButtonEl: document.getElementById('copyVisibleComparisonButton'),
         comparisonStatusEl: document.getElementById('comparisonStatus'),
         removedComparisonCountEl: document.getElementById('removedComparisonCount'),
         removedComparisonListEl: document.getElementById('removedComparisonList'),

@@ -8,6 +8,7 @@ export function createComparisonView(elements) {
         ignoreParentheticalsCheckboxEl,
         ignoreSpecialCharactersCheckboxEl,
         copyComparisonButtonEl,
+        copyVisibleComparisonButtonEl,
         comparisonStatusEl,
         removedComparisonCountEl,
         removedComparisonListEl,
@@ -32,6 +33,7 @@ export function createComparisonView(elements) {
     let removedTracks = [];
     let addedTracks = [];
     let collapsedTrackKeys = new Set();
+    const collapsedStateChangeHandlers = new Set();
 
     function clearComparison() {
         removedTracks = [];
@@ -44,6 +46,7 @@ export function createComparisonView(elements) {
         addedComparisonListEl.replaceChildren();
         resetComparisonScroll();
         updateScrollButtonStates();
+        notifyCollapsedStateChanged();
     }
 
     function hideComparison() {
@@ -65,7 +68,7 @@ export function createComparisonView(elements) {
     function renderComparison({ removedTracks: removed, addedTracks: added, matchedTrackCount = 0 }) {
         removedTracks = removed || [];
         addedTracks = added || [];
-        collapsedTrackKeys = new Set();
+        pruneCollapsedTrackKeys();
         comparisonViewEl.hidden = false;
         showStatus(`${matchedTrackCount} matched, ${removedTracks.length} removed, ${addedTracks.length} added.`);
 
@@ -85,11 +88,11 @@ export function createComparisonView(elements) {
         });
         resetComparisonScroll();
         updateScrollButtonStates();
+        updateComparisonCounts();
     }
 
     function renderTrackColumn({ title, tone, tracks, countEl, listEl }) {
         listEl.replaceChildren();
-        countEl.textContent = `${tracks.length} ${tracks.length === 1 ? 'track' : 'tracks'}`;
 
         if (tracks.length === 0) {
             const emptyEl = document.createElement('p');
@@ -120,6 +123,7 @@ export function createComparisonView(elements) {
         const durationEl = rowEl.querySelector('[data-track-field="duration"]');
         const actionsEl = document.createElement('div');
         actionsEl.className = 'comparisonTrackActions';
+        rowEl.dataset.trackKey = trackKey;
 
         indexEl.textContent = `#${track.playlistIndex}`;
         setMetadataText(titleEl, track.title);
@@ -135,6 +139,7 @@ export function createComparisonView(elements) {
         }
 
         rowEl.append(actionsEl);
+        rowEl.classList.toggle('collapsed', collapsedTrackKeys.has(trackKey));
 
         function toggleCollapsedState() {
             const isCollapsed = collapsedTrackKeys.has(trackKey);
@@ -146,6 +151,8 @@ export function createComparisonView(elements) {
 
             const nextIsCollapsed = !isCollapsed;
             rowEl.classList.toggle('collapsed', nextIsCollapsed);
+            updateComparisonCounts();
+            notifyCollapsedStateChanged();
         }
 
         rowEl.addEventListener('click', () => {
@@ -223,6 +230,61 @@ export function createComparisonView(elements) {
         return `${track.source}-${track.playlistIndex}`;
     }
 
+    function hasCollapsedRows() {
+        return collapsedTrackKeys.size > 0;
+    }
+
+    // Option changes can recompute the comparison and remove rows that used to exist.
+    // Keep collapse state only for rows still present in the latest comparison result.
+    function pruneCollapsedTrackKeys() {
+        if (!hasCollapsedRows()) {
+            return;
+        }
+
+        const currentTrackKeys = new Set([
+            ...removedTracks.map(getTrackKey),
+            ...addedTracks.map(getTrackKey)
+        ]);
+        const nextCollapsedTrackKeys = new Set(
+            [...collapsedTrackKeys].filter((trackKey) => currentTrackKeys.has(trackKey))
+        );
+        const didPrune = nextCollapsedTrackKeys.size !== collapsedTrackKeys.size;
+
+        collapsedTrackKeys = nextCollapsedTrackKeys;
+
+        if (didPrune) {
+            notifyCollapsedStateChanged();
+        }
+    }
+
+    function getVisibleComparisonTracks() {
+        return {
+            removedTracks: removedTracks.filter((track) => !collapsedTrackKeys.has(getTrackKey(track))),
+            addedTracks: addedTracks.filter((track) => !collapsedTrackKeys.has(getTrackKey(track)))
+        };
+    }
+
+    function updateComparisonCounts() {
+        updateComparisonCount(removedComparisonCountEl, removedTracks);
+        updateComparisonCount(addedComparisonCountEl, addedTracks);
+    }
+
+    function updateComparisonCount(countEl, tracks) {
+        const visibleCount = tracks.filter((track) => !collapsedTrackKeys.has(getTrackKey(track))).length;
+        const hiddenCount = tracks.length - visibleCount;
+        const trackLabel = tracks.length === 1 ? 'track' : 'tracks';
+
+        countEl.textContent = hiddenCount > 0
+            ? `${visibleCount} visible / ${tracks.length} ${trackLabel}`
+            : `${tracks.length} ${trackLabel}`;
+    }
+
+    function notifyCollapsedStateChanged() {
+        for (const handler of collapsedStateChangeHandlers) {
+            handler(hasCollapsedRows());
+        }
+    }
+
     function showStatus(message) {
         comparisonStatusEl.textContent = message;
     }
@@ -248,6 +310,26 @@ export function createComparisonView(elements) {
         }
     }
 
+    async function copyVisibleComparisonToClipboard() {
+        const visibleComparisonTracks = getVisibleComparisonTracks();
+        const visibleTrackCount = visibleComparisonTracks.removedTracks.length + visibleComparisonTracks.addedTracks.length;
+
+        if (visibleTrackCount === 0) {
+            showStatus('No uncollapsed comparison tracks to copy.');
+            return;
+        }
+
+        const exportText = formatComparisonExport(visibleComparisonTracks);
+
+        try {
+            await copyTextToClipboard(exportText);
+            showStatus(`Copied ${visibleTrackCount} uncollapsed comparison ${visibleTrackCount === 1 ? 'track' : 'tracks'}.`);
+        } catch (error) {
+            console.error('Unable to copy uncollapsed comparison', error);
+            showStatus('Clipboard copy failed.');
+        }
+    }
+
     function onComparisonOptionsChanged(handler) {
         const optionEls = [
             ignoreCapitalizationCheckboxEl,
@@ -261,6 +343,10 @@ export function createComparisonView(elements) {
                 handler();
             });
         }
+    }
+
+    function onCollapsedStateChanged(handler) {
+        collapsedStateChangeHandlers.add(handler);
     }
 
     function resetComparisonScroll() {
@@ -364,6 +450,10 @@ export function createComparisonView(elements) {
         void copyComparisonToClipboard();
     });
 
+    copyVisibleComparisonButtonEl.addEventListener('click', () => {
+        void copyVisibleComparisonToClipboard();
+    });
+
     return {
         clearComparison,
         hideComparison,
@@ -372,6 +462,8 @@ export function createComparisonView(elements) {
         renderComparison,
         showStatus,
         getComparisonOptions,
-        onComparisonOptionsChanged
+        hasCollapsedRows,
+        onComparisonOptionsChanged,
+        onCollapsedStateChanged
     };
 }

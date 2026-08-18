@@ -21,6 +21,11 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    overscroll-behavior-x: none;
+}
+
 [hidden] {
     display: none !important;
 }
@@ -314,6 +319,7 @@ p {
     overflow-y: auto;
     padding-right: 6px;
     scrollbar-gutter: stable;
+    overscroll-behavior: contain;
 }
 
 .playlistButton {
@@ -355,6 +361,7 @@ p {
     overflow-y: auto;
     padding-right: 16px;
     scrollbar-gutter: stable;
+    overscroll-behavior: contain;
 }
 
 .detailPanel:has(.detailScrollView:not([hidden])) {
@@ -817,6 +824,7 @@ table {
     min-height: 0;
     overflow-y: auto;
     scrollbar-gutter: stable;
+    overscroll-behavior: contain;
 }
 
 .tracksTableScroll {

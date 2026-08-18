@@ -38,9 +38,13 @@ export function createPlaylistsView(elements) {
             transferredBadge.hidden = !playlist.isTransferred;
 
             button.append(title, transferredBadge);
-            button.addEventListener('click', () => {
+            button.addEventListener('click', async () => {
+                const didSelect = await onSelect(playlist);
+                if (didSelect === false) {
+                    return;
+                }
+
                 setSelectedPlaylist(playlistId);
-                onSelect(playlist);
             });
             li.append(button);
             playlistListEl.append(li);

@@ -5,7 +5,10 @@ import {
     signOutFromFirebase
 } from './firebase-api.js';
 import { createLibrary } from './library.js';
+import { initializeNavigationGuard } from './navigation-guard.js';
 import { compareTracklists } from './tracklist-comparison.js';
+
+const ABANDON_COLLAPSED_COMPARISON_MESSAGE = 'Abandon collapsed comparison rows?';
 
 /**
  * @typedef {ReturnType<typeof import('./shell-view.js').createShellView>} ShellView
@@ -28,6 +31,7 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     let isInitializing = false;
     let selectedPlaylistId = null;
     let comparisonTracks = null;
+    let navigationGuard = null;
 
     const firebaseSession = {
         userId: '',
@@ -150,6 +154,10 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
     }
 
     function handlePlaylistSelected(playlist) {
+        if (!confirmAbandonCollapsedComparisonIfNeeded()) {
+            return false;
+        }
+
         selectedPlaylistId = playlist.id;
         shellView.setStatus('');
         selectedPlaylistView.clearSelectedAction();
@@ -162,6 +170,8 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         comparisonTracks = null;
         comparisonView.clearComparison();
         comparisonView.hideComparison();
+        updateNavigationGuard();
+        return true;
     }
 
     async function handleAppleTracksRequested() {
@@ -198,29 +208,33 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
 
     async function handleYoutubeComparisonRequested() {
         selectedPlaylistView.showYoutubeComparisonSelected();
-        comparisonTracks = null;
-        comparisonView.showLoading();
 
-        try {
-            const [appleTracks, youtubeTracks] = await Promise.all([
-                library.getLiveAppleMusicTracks(selectedPlaylistId),
-                library.getStoredYoutubeMusicTracks(selectedPlaylistId)
-            ]);
+        if (!comparisonTracks) {
+            comparisonView.showLoading();
 
-            if (!youtubeTracks) {
-                comparisonView.showError('No YouTube Music equivalent playlist found.');
+            try {
+                const [appleTracks, youtubeTracks] = await Promise.all([
+                    library.getLiveAppleMusicTracks(selectedPlaylistId),
+                    library.getStoredYoutubeMusicTracks(selectedPlaylistId)
+                ]);
+
+                if (!youtubeTracks) {
+                    comparisonView.showError('No YouTube Music equivalent playlist found.');
+                    return;
+                }
+
+                comparisonTracks = {
+                    youtubeTracks,
+                    appleTracks
+                };
+            } catch (error) {
+                console.error('Failed to compare tracklists', error);
+                comparisonView.showError('Failed to compare the Apple Music and YouTube Music tracklists.');
                 return;
             }
-
-            comparisonTracks = {
-                youtubeTracks,
-                appleTracks
-            };
-            renderCurrentComparison();
-        } catch (error) {
-            console.error('Failed to compare tracklists', error);
-            comparisonView.showError('Failed to compare the Apple Music and YouTube Music tracklists.');
         }
+
+        renderCurrentComparison();
     }
 
     function renderCurrentComparison() {
@@ -239,6 +253,19 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
             addedTracks: comparison.addedTracks,
             matchedTrackCount: comparison.matchedTracks.length
         });
+        updateNavigationGuard();
+    }
+
+    function confirmAbandonCollapsedComparisonIfNeeded() {
+        if (!comparisonView.hasCollapsedRows()) {
+            return true;
+        }
+
+        return window.confirm(ABANDON_COLLAPSED_COMPARISON_MESSAGE);
+    }
+
+    function updateNavigationGuard() {
+        navigationGuard?.update();
     }
 
     async function transferPlaylist() {
@@ -270,6 +297,11 @@ export function createAppController({ shellView, playlistsView, selectedPlaylist
         selectedPlaylistView.onYoutubeComparisonRequested(handleYoutubeComparisonRequested);
         selectedPlaylistView.onTransferRequested(transferPlaylist);
         comparisonView.onComparisonOptionsChanged(renderCurrentComparison);
+        comparisonView.onCollapsedStateChanged(updateNavigationGuard);
+        navigationGuard = initializeNavigationGuard({
+            shouldBlockNavigation: comparisonView.hasCollapsedRows,
+            getMessage: () => ABANDON_COLLAPSED_COMPARISON_MESSAGE
+        });
     }
 
     function start() {
