@@ -27,6 +27,7 @@ Comparison view:
     - Probably not a separate page
     - An "ignore capitalization" checkbox
     - An "ignore question marks (?)" checkbox, disabled by default, removes all "?" characters when comparing titles, artists, and albums
+    - An "ignore periods (.)" checkbox, disabled by default, removes all "." characters when comparing titles, artists, and albums
     - "Removed" tracks on the left; "Added" tracks on the right
     - "Removed" and "Added" tracks are determined based on a metadata comparison check. 
         - A track in the YouTube Music playlist which doesn't have a match in Apple Music will be in the "Removed" section
@@ -39,9 +40,14 @@ Comparison view:
     - Scroll behavior: trackpad scrolling affects both Added & Removed columns together. But each column has up and down arrow buttons to scroll that column individually by one track element/row.
 
 Comparison logic notes:
-    - By defualt, in order to consider two tracks as matching, their titles, artists, and albums must match exactly. The duration can vary by up to 3 seconds and still be considered a match.
-    - If "ignore capitalization" is enabled, then capitalization is ignored for matching
-    - If "ignore question marks (?)" is enabled, question marks are ignored from any strings being compared. 
+    - By defualt, in order to consider two tracks as matching, their titles, artists, and albums must match exactly. The duration can vary by up to 6 seconds and still be considered a match.
+    - There are various filters to allow for more lenient comparison matching, including:
+      - Ignore album matching (i.e. album field is ignored when considering if songs match)
+      - Ignore capitalization
+      - Ignore question marks
+      - Ignore periods
+      - Ignore parentheses
+      - Ignore accents & apostrophes
 
 General app usage & architecture notes:
     - This app is only going to be used by me / the developer. It doesn't need overly defensive checks for edge cases that are purely hypothetical or exploitable. The UI can be minimal and functional, and doesn't need to be flashy or overly attention-grabbing. Accessibility does not need to be taken into account and aria-related logic can be omitted.
