@@ -10,6 +10,7 @@ export function createComparisonView(elements) {
         ignoreAlbumMatchingCheckboxEl,
         ignoreParentheticalsCheckboxEl,
         ignoreSpecialCharactersCheckboxEl,
+        ignoreQuestionMarksCheckboxEl,
         copyComparisonButtonEl,
         copyVisibleComparisonButtonEl,
         comparisonStatusEl,
@@ -26,7 +27,8 @@ export function createComparisonView(elements) {
         ignoreCapitalizationCheckboxEl,
         ignoreAlbumMatchingCheckboxEl,
         ignoreParentheticalsCheckboxEl,
-        ignoreSpecialCharactersCheckboxEl
+        ignoreSpecialCharactersCheckboxEl,
+        ignoreQuestionMarksCheckboxEl
     ];
 
     const scrollButtons = {
@@ -303,7 +305,8 @@ export function createComparisonView(elements) {
             ignoreCapitalization: ignoreCapitalizationCheckboxEl.checked,
             ignoreAlbumMatching: ignoreAlbumMatchingCheckboxEl.checked,
             ignoreParentheticals: ignoreParentheticalsCheckboxEl.checked,
-            ignoreSpecialCharacters: ignoreSpecialCharactersCheckboxEl.checked
+            ignoreSpecialCharacters: ignoreSpecialCharactersCheckboxEl.checked,
+            ignoreQuestionMarks: ignoreQuestionMarksCheckboxEl.checked
         };
     }
 
