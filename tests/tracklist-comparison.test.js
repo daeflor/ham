@@ -199,6 +199,9 @@ test('ampersand filtering only replaces whole-word "and" and preserves other dif
         ['Sand', 'S&'],
         ['Candy', 'C&y'],
         ['Band', 'B&'],
+        ['SAND', 'S&'],
+        ['CANDY', 'C&Y'],
+        ['BAND', 'B&'],
         ['Rock and Roll', 'Rock & Roll!'],
         ['Rock and Roll', 'rock & roll'],
         ['Rock and Roll', 'Rock and Roll '],
@@ -209,17 +212,24 @@ test('ampersand filtering only replaces whole-word "and" and preserves other dif
     assert.equal(tracksMatch(track, { ...track, artist: null }, options), false);
 });
 
-test('ampersand filtering respects the capitalization option', () => {
-    const first = { ...track, title: 'Rock & Roll' };
+test('ampersand filtering ignores conjunction capitalization independently of the capitalization option', () => {
+    for (const field of ['title', 'artist', 'album']) {
+        const first = { ...track, [field]: 'Rock & Roll' };
+        const lowercase = { ...track, [field]: 'Rock and Roll' };
 
-    for (const conjunction of ['And', 'AND']) {
-        const second = { ...track, title: `Rock ${conjunction} Roll` };
+        for (const conjunction of ['and', 'And', 'AND', 'aNd']) {
+            const second = { ...track, [field]: `Rock ${conjunction} Roll` };
 
-        assert.equal(tracksMatch(first, second, { ignoreAmpersands: true }), false);
-        assert.equal(tracksMatch(first, second, {
-            ignoreAmpersands: true,
-            ignoreCapitalization: true
-        }), true);
+            for (const options of [{}, { ignoreCapitalization: false }, { ignoreCapitalization: true }]) {
+                const enabledOptions = { ...options, ignoreAmpersands: true };
+
+                assert.equal(tracksMatch(first, second, enabledOptions), true);
+                assert.equal(tracksMatch(second, first, enabledOptions), true);
+                assert.equal(tracksMatch(lowercase, second, enabledOptions), true);
+                assert.equal(tracksMatch(first, second, options), false);
+                assert.equal(tracksMatch(first, second, { ...options, ignoreAmpersands: false }), false);
+            }
+        }
     }
 });
 

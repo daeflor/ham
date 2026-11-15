@@ -57,7 +57,7 @@ function normalizeTextForComparison(value, { ignoreCapitalization, ignoreParenth
     value = ignoreQuestionMarks ? value.replace(/\?/g, '') : value;
     value = ignorePeriods ? value.replace(/\./g, '') : value;
     value = ignoreCapitalization ? value.toLocaleLowerCase() : value;
-    value = ignoreAmpersands ? value.replace(/\band\b/g, '&').replace(/\s*&\s*/g, '&') : value;
+    value = ignoreAmpersands ? value.replace(/\band\b/gi, '&').replace(/\s*&\s*/g, '&') : value;
 
     return value;
 }
