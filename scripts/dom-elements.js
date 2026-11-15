@@ -38,6 +38,7 @@ export function getAppElements() {
         ignoreSpecialCharactersCheckboxEl: document.getElementById('ignoreSpecialCharactersCheckbox'),
         ignoreQuestionMarksCheckboxEl: document.getElementById('ignoreQuestionMarksCheckbox'),
         ignorePeriodsCheckboxEl: document.getElementById('ignorePeriodsCheckbox'),
+        ignoreAmpersandsCheckboxEl: document.getElementById('ignoreAmpersandsCheckbox'),
         copyComparisonButtonEl: document.getElementById('copyComparisonButton'),
         copyVisibleComparisonButtonEl: document.getElementById('copyVisibleComparisonButton'),
         comparisonStatusEl: document.getElementById('comparisonStatus'),

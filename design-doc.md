@@ -28,6 +28,7 @@ Comparison view:
     - An "ignore capitalization" checkbox
     - An "ignore question marks (?)" checkbox, disabled by default, removes all "?" characters when comparing titles, artists, and albums
     - An "ignore periods (.)" checkbox, disabled by default, removes all "." characters when comparing titles, artists, and albums
+    - A 'Treat "&" and "and" as matching' checkbox, disabled by default, matches ampersands with whole-word "and" in titles, artists, and albums, ignoring whitespace around ampersands (e.g. "R&B" matches "R and B"). Enable "Ignore capitalization" to also match "And" or "AND".
     - "Removed" tracks on the left; "Added" tracks on the right
     - "Removed" and "Added" tracks are determined based on a metadata comparison check. 
         - A track in the YouTube Music playlist which doesn't have a match in Apple Music will be in the "Removed" section
@@ -46,6 +47,7 @@ Comparison logic notes:
       - Ignore capitalization
       - Ignore question marks
       - Ignore periods
+      - Treat "&" and "and" as matching
       - Ignore parentheses
       - Ignore accents & apostrophes
 

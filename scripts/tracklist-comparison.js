@@ -51,12 +51,13 @@ function textFieldsMatch(firstValue, secondValue, textOptions) {
     return firstValue === secondValue;
 }
 
-function normalizeTextForComparison(value, { ignoreCapitalization, ignoreParentheticals, ignoreSpecialCharacters, ignoreQuestionMarks, ignorePeriods }) {
+function normalizeTextForComparison(value, { ignoreCapitalization, ignoreParentheticals, ignoreSpecialCharacters, ignoreQuestionMarks, ignorePeriods, ignoreAmpersands }) {
     value = ignoreParentheticals ? removeParentheticalText(value) : value;
     value = ignoreSpecialCharacters ? normalizeSpecialCharacters(value) : value;
     value = ignoreQuestionMarks ? value.replace(/\?/g, '') : value;
     value = ignorePeriods ? value.replace(/\./g, '') : value;
     value = ignoreCapitalization ? value.toLocaleLowerCase() : value;
+    value = ignoreAmpersands ? value.replace(/\band\b/g, '&').replace(/\s*&\s*/g, '&') : value;
 
     return value;
 }

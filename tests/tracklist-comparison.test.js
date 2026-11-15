@@ -158,3 +158,127 @@ test('toggling period filtering updates comparison results without changing the 
         assert.equal(youtubeTracks[0].title, 'S.O.S');
     }
 });
+
+test('ampersands and "and" remain distinct by default and when explicitly disabled', () => {
+    const first = { ...track, title: 'Rock & Roll' };
+    const second = { ...track, title: 'Rock and Roll' };
+
+    assert.equal(tracksMatch(first, second), false);
+    assert.equal(tracksMatch(first, second, { ignoreAmpersands: false }), false);
+    assert.equal(tracksMatch(first, first), true);
+});
+
+for (const field of ['title', 'artist', 'album']) {
+    test(`ampersand filtering applies to ${field} in either track`, () => {
+        const first = { ...track, [field]: 'Earth, Wind & Fire' };
+        const second = { ...track, [field]: 'Earth, Wind and Fire' };
+        const options = { ignoreAmpersands: true };
+
+        assert.equal(tracksMatch(first, second, options), true);
+        assert.equal(tracksMatch(second, first, options), true);
+    });
+}
+
+test('ampersand filtering handles spacing and multiple conjunctions', () => {
+    const options = { ignoreAmpersands: true };
+    const first = { ...track, title: 'R and B and Soul' };
+
+    for (const title of ['R&B&Soul', 'R & B & Soul', 'R& B and Soul', 'R and B\t&\tSoul']) {
+        const second = { ...track, title };
+        assert.equal(tracksMatch(first, second, options), true);
+        assert.equal(tracksMatch(second, first, options), true);
+    }
+
+    assert.equal(tracksMatch({ ...track, title: '&' }, { ...track, title: 'and' }, options), true);
+});
+
+test('ampersand filtering only replaces whole-word "and" and preserves other differences', () => {
+    const options = { ignoreAmpersands: true };
+
+    for (const [first, second] of [
+        ['Sand', 'S&'],
+        ['Candy', 'C&y'],
+        ['Band', 'B&'],
+        ['Rock and Roll', 'Rock & Roll!'],
+        ['Rock and Roll', 'rock & roll'],
+        ['Rock and Roll', 'Rock and Roll '],
+        ['Rock and Roll', 'Rock Roll']
+    ]) {
+        assert.equal(tracksMatch({ ...track, title: first }, { ...track, title: second }, options), false);
+    }
+    assert.equal(tracksMatch(track, { ...track, artist: null }, options), false);
+});
+
+test('ampersand filtering respects the capitalization option', () => {
+    const first = { ...track, title: 'Rock & Roll' };
+
+    for (const conjunction of ['And', 'AND']) {
+        const second = { ...track, title: `Rock ${conjunction} Roll` };
+
+        assert.equal(tracksMatch(first, second, { ignoreAmpersands: true }), false);
+        assert.equal(tracksMatch(first, second, {
+            ignoreAmpersands: true,
+            ignoreCapitalization: true
+        }), true);
+    }
+});
+
+test('ampersand filtering composes with existing filters', () => {
+    const first = { ...track, title: 'Rock & Roll' };
+    const second = {
+        ...track,
+        title: 'ROCK. AND ROLL? (Live)',
+        artist: '\u00c1rtist',
+        album: 'Different album'
+    };
+    const options = {
+        ignoreCapitalization: true,
+        ignoreParentheticals: true,
+        ignoreSpecialCharacters: true,
+        ignoreQuestionMarks: true,
+        ignorePeriods: true,
+        ignoreAlbumMatching: true
+    };
+
+    assert.equal(tracksMatch(first, second, options), false);
+    assert.equal(tracksMatch(first, second, { ...options, ignoreAmpersands: true }), true);
+});
+
+test('ampersand filtering preserves the duration tolerance', () => {
+    const first = { ...track, title: 'Rock & Roll' };
+    const second = { ...track, title: 'Rock and Roll', durationInMillis: 186000 };
+    const options = { ignoreAmpersands: true };
+
+    assert.equal(tracksMatch(first, second, options), true);
+    assert.equal(tracksMatch(first, { ...second, durationInMillis: 186001 }, options), false);
+    assert.equal(tracksMatch(first, { ...second, durationInMillis: null }, options), false);
+});
+
+test('toggling ampersand filtering updates results without mutating metadata or reusing matches', () => {
+    const youtubeTracks = Object.freeze([
+        Object.freeze({ ...track, title: 'Rock & Roll' }),
+        Object.freeze({ ...track, title: 'Rock & Roll', playlistIndex: 2 })
+    ]);
+    const appleTracks = Object.freeze([Object.freeze({ ...track, title: 'Rock and Roll' })]);
+
+    for (const ignoreAmpersands of [false, true, false]) {
+        const result = compareTracklists(youtubeTracks, appleTracks, { ignoreAmpersands });
+
+        assert.deepEqual(result, ignoreAmpersands ? {
+            matchedTracks: [{
+                youtubeTrack: youtubeTracks[0],
+                appleTrack: appleTracks[0],
+                youtubePlaylistIndex: 1,
+                applePlaylistIndex: 1
+            }],
+            removedTracks: [youtubeTracks[1]],
+            addedTracks: []
+        } : {
+            matchedTracks: [],
+            removedTracks: youtubeTracks,
+            addedTracks: appleTracks
+        });
+        assert.equal(youtubeTracks[0].title, 'Rock & Roll');
+        assert.equal(appleTracks[0].title, 'Rock and Roll');
+    }
+});
