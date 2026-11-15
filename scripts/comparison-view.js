@@ -3,6 +3,9 @@ import { copyTextToClipboard, formatComparisonExport, formatTrackMetadataRow } f
 export function createComparisonView(elements) {
     const {
         comparisonViewEl,
+        toggleComparisonFiltersButtonEl,
+        comparisonFiltersEl,
+        comparisonFilterCountEl,
         ignoreCapitalizationCheckboxEl,
         ignoreAlbumMatchingCheckboxEl,
         ignoreParentheticalsCheckboxEl,
@@ -19,6 +22,12 @@ export function createComparisonView(elements) {
 
     const comparisonColumnsEl = comparisonViewEl.querySelector('.comparisonColumns');
     const comparisonListEls = [removedComparisonListEl, addedComparisonListEl];
+    const optionEls = [
+        ignoreCapitalizationCheckboxEl,
+        ignoreAlbumMatchingCheckboxEl,
+        ignoreParentheticalsCheckboxEl,
+        ignoreSpecialCharactersCheckboxEl
+    ];
 
     const scrollButtons = {
         removed: {
@@ -330,18 +339,27 @@ export function createComparisonView(elements) {
         }
     }
 
-    function onComparisonOptionsChanged(handler) {
-        const optionEls = [
-            ignoreCapitalizationCheckboxEl,
-            ignoreAlbumMatchingCheckboxEl,
-            ignoreParentheticalsCheckboxEl,
-            ignoreSpecialCharactersCheckboxEl
-        ];
+    function setupComparisonFilters() {
+        toggleComparisonFiltersButtonEl.addEventListener('click', () => {
+            comparisonFiltersEl.hidden = !comparisonFiltersEl.hidden;
+            toggleComparisonFiltersButtonEl.setAttribute('aria-expanded', String(!comparisonFiltersEl.hidden));
+        });
 
         for (const optionEl of optionEls) {
-            optionEl.addEventListener('change', () => {
-                handler();
-            });
+            optionEl.addEventListener('change', updateComparisonFilterCount);
+        }
+
+        updateComparisonFilterCount();
+    }
+
+    function updateComparisonFilterCount() {
+        const activeCount = optionEls.filter((optionEl) => optionEl.checked).length;
+        comparisonFilterCountEl.textContent = `${activeCount} active`;
+    }
+
+    function onComparisonOptionsChanged(handler) {
+        for (const optionEl of optionEls) {
+            optionEl.addEventListener('change', () => handler());
         }
     }
 
@@ -391,8 +409,12 @@ export function createComparisonView(elements) {
         setupColumnScrollButton(scrollButtons.added.up, addedComparisonListEl, -1);
         setupColumnScrollButton(scrollButtons.added.down, addedComparisonListEl, 1);
 
+        // Filters and responsive layouts can resize the lists without scrolling them.
+        const resizeObserver = new ResizeObserver(updateScrollButtonStates);
+
         for (const listEl of comparisonListEls) {
             listEl.addEventListener('scroll', updateScrollButtonStates);
+            resizeObserver.observe(listEl);
         }
     }
 
@@ -442,6 +464,7 @@ export function createComparisonView(elements) {
         return Math.min(Math.max(0, top), getMaxScrollTop(listEl));
     }
 
+    setupComparisonFilters();
     setupSharedComparisonScrolling();
     setupColumnScrollButtons();
     updateScrollButtonStates();
