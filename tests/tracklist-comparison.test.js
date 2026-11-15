@@ -88,3 +88,73 @@ test('toggling the filter updates comparison results without mutating track meta
         });
     }
 });
+
+test('S.O.S matches SOS only when period filtering is enabled', () => {
+    const first = { ...track, title: 'S.O.S' };
+    const second = { ...track, title: 'SOS' };
+
+    assert.equal(tracksMatch(first, second), false);
+    assert.equal(tracksMatch(first, second, { ignorePeriods: false }), false);
+    assert.equal(tracksMatch(first, second, { ignorePeriods: true }), true);
+});
+
+for (const field of ['title', 'artist', 'album']) {
+    test(`ignoring periods applies to ${field} in either track`, () => {
+        const withPeriods = { ...track, [field]: `.${track[field]}..` };
+        const options = { ignorePeriods: true };
+
+        assert.equal(tracksMatch(track, withPeriods, options), true);
+        assert.equal(tracksMatch(withPeriods, track, options), true);
+        assert.equal(tracksMatch(track, withPeriods, { ignorePeriods: false }), false);
+    });
+}
+
+test('period filtering does not ignore other punctuation or metadata differences', () => {
+    const first = { ...track, title: 'SOS' };
+    const options = { ignorePeriods: true };
+
+    for (const title of ['SOS?', 'SOS!', 'S O S', 'sos', 'SO']) {
+        assert.equal(tracksMatch(first, { ...first, title }, options), false);
+    }
+    assert.equal(tracksMatch(first, { ...first, artist: null }, options), false);
+    assert.equal(tracksMatch(first, { ...first, durationInMillis: 186000 }, options), true);
+    assert.equal(tracksMatch(first, { ...first, durationInMillis: 186001 }, options), false);
+});
+
+test('period filtering composes with existing filters and remains independent of question marks', () => {
+    const first = { ...track, title: 'SOS' };
+    const second = {
+        ...track,
+        title: 's.o.s? (Live)',
+        artist: '\u00c1rtist',
+        album: 'Different album'
+    };
+    const options = {
+        ignoreCapitalization: true,
+        ignoreParentheticals: true,
+        ignoreSpecialCharacters: true,
+        ignoreAlbumMatching: true
+    };
+
+    assert.equal(tracksMatch(first, second, { ...options, ignorePeriods: true }), false);
+    assert.equal(tracksMatch(first, second, { ...options, ignoreQuestionMarks: true }), false);
+    assert.equal(tracksMatch(first, second, {
+        ...options,
+        ignorePeriods: true,
+        ignoreQuestionMarks: true
+    }), true);
+});
+
+test('toggling period filtering updates comparison results without changing the source title', () => {
+    const youtubeTracks = [Object.freeze({ ...track, title: 'S.O.S' })];
+    const appleTracks = [Object.freeze({ ...track, title: 'SOS' })];
+
+    for (const ignorePeriods of [false, true, false]) {
+        const result = compareTracklists(youtubeTracks, appleTracks, { ignorePeriods });
+
+        assert.equal(result.matchedTracks.length, ignorePeriods ? 1 : 0);
+        assert.deepEqual(result.removedTracks, ignorePeriods ? [] : youtubeTracks);
+        assert.deepEqual(result.addedTracks, ignorePeriods ? [] : appleTracks);
+        assert.equal(youtubeTracks[0].title, 'S.O.S');
+    }
+});
