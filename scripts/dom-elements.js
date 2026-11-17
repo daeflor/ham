@@ -40,6 +40,7 @@ export function getAppElements() {
         ignorePeriodsCheckboxEl: document.getElementById('ignorePeriodsCheckbox'),
         ignoreAmpersandsCheckboxEl: document.getElementById('ignoreAmpersandsCheckbox'),
         ignoreSymbolSubstitutionsCheckboxEl: document.getElementById('ignoreSymbolSubstitutionsCheckbox'),
+        ignoreFeaturedArtistsCheckboxEl: document.getElementById('ignoreFeaturedArtistsCheckbox'),
         copyComparisonButtonEl: document.getElementById('copyComparisonButton'),
         copyVisibleComparisonButtonEl: document.getElementById('copyVisibleComparisonButton'),
         comparisonStatusEl: document.getElementById('comparisonStatus'),

@@ -30,6 +30,7 @@ Comparison view:
     - An "ignore periods (.)" checkbox, disabled by default, removes all "." characters when comparing titles, artists, and albums
     - A 'Treat "&" and "and" as matching' checkbox, disabled by default, matches ampersands with whole-word "and" in titles, artists, and albums, ignoring whitespace around ampersands (e.g. "R&B" matches "R and B"). Matching "and" is case-insensitive (including "And", "AND", and mixed-case variants), regardless of "Ignore capitalization"; other text remains case-sensitive unless that option is enabled.
     - A filter to ignore symbol substitutions, disabled by default. Normalizes "$", "s", and "S" to "s", and "!", "i", and "I" to "i" in titles, artists, and albums, independent of "Ignore capitalization".
+    - An "Ignore featured artists (feat.) in artist/title" checkbox, disabled by default. Ignores the first whole-word "feat." marker and everything after it in artists and titles, including preceding whitespace and an optional opening parenthesis or bracket (e.g. "Artist A feat. Artist B" matches "Artist A", and "Song (feat. Artist B)" matches "Song"). The marker is case-insensitive, independent of "Ignore capitalization"; remaining text stays case-sensitive. Albums are unaffected. This runs before other text filters so ignoring periods does not prevent detection. Original metadata remains unchanged for display and copying.
     - "Removed" tracks on the left; "Added" tracks on the right
     - "Removed" and "Added" tracks are determined based on a metadata comparison check. 
         - A track in the YouTube Music playlist which doesn't have a match in Apple Music will be in the "Removed" section
@@ -50,6 +51,7 @@ Comparison logic notes:
       - Ignore periods
       - Treat "&" and "and" as matching
       - Ignore symbol substitutions (i.e. Treat "$" as "s/S" and "!" as "i/I")
+      - Ignore featured artists ("feat." and everything after it in artist and title)
       - Ignore parentheses
       - Ignore accents & apostrophes
 

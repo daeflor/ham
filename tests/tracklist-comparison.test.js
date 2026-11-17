@@ -389,3 +389,113 @@ test('toggling symbol substitutions updates results without mutating metadata or
         assert.equal(appleTracks[0].title, 'RiSe');
     }
 });
+
+for (const field of ['title', 'artist']) {
+    test(`featured artist filtering applies to ${field} in either track only when enabled`, () => {
+        const first = { ...track, [field]: 'Artist A' };
+        const second = { ...track, [field]: 'Artist A feat. Artist B' };
+
+        assert.equal(tracksMatch(first, second), false);
+        assert.equal(tracksMatch(first, second, { ignoreFeaturedArtists: false }), false);
+        assert.equal(tracksMatch(first, second, { ignoreFeaturedArtists: true }), true);
+        assert.equal(tracksMatch(second, first, { ignoreFeaturedArtists: true }), true);
+    });
+
+    test(`featured artist filtering handles credit casing, whitespace, and wrappers in ${field}`, () => {
+        const options = { ignoreFeaturedArtists: true };
+
+        for (const suffix of [
+            ' feat. Artist B feat. Artist C',
+            '\tFEAT. Artist B',
+            ' FeAt. Artist B',
+            ' (feat. Artist B)',
+            ' [FEAT. Artist B]',
+            ' feat.\nArtist B',
+            ' feat.'
+        ]) {
+            const second = { ...track, [field]: `${track[field]}${suffix}` };
+
+            assert.equal(tracksMatch(track, second, options), true);
+            assert.equal(tracksMatch(second, track, options), true);
+        }
+    });
+}
+
+test('featured artist filtering preserves albums and unrelated differences', () => {
+    const options = { ignoreFeaturedArtists: true };
+
+    assert.equal(tracksMatch(track, track, options), true);
+    assert.equal(tracksMatch(track, { ...track, album: `${track.album} feat. Artist B` }, options), false);
+    assert.equal(tracksMatch(track, { ...track, album: `${track.album} feat. Artist B` }, {
+        ...options,
+        ignoreAlbumMatching: true
+    }), true);
+    for (const suffix of [' featuring Artist B', ' ft. Artist B', ' feat Artist B', ' defeat. Artist B', '? feat. Artist B', ' ']) {
+        assert.equal(tracksMatch(track, { ...track, title: `${track.title}${suffix}` }, options), false);
+    }
+    assert.equal(tracksMatch(track, { ...track, artist: 'artist feat. Artist B' }, options), false);
+    for (const [field, value] of [['title', null], ['artist', undefined], ['album', 123]]) {
+        assert.equal(tracksMatch(track, { ...track, [field]: value }, options), false);
+    }
+});
+
+test('featured artist filtering composes with existing filters before periods are removed', () => {
+    const first = { ...track, title: 'Rise & Shine' };
+    const second = {
+        ...track,
+        title: 'R!$E. AND $H!NE? (Live) feat. Artist B',
+        artist: '\u00c1RTIST [FEAT. Artist C]',
+        album: 'Different album'
+    };
+    const options = {
+        ignoreCapitalization: true,
+        ignoreParentheticals: true,
+        ignoreSpecialCharacters: true,
+        ignoreQuestionMarks: true,
+        ignorePeriods: true,
+        ignoreAmpersands: true,
+        ignoreSymbolSubstitutions: true,
+        ignoreAlbumMatching: true
+    };
+
+    assert.equal(tracksMatch(first, second, options), false);
+    assert.equal(tracksMatch(first, second, { ...options, ignoreFeaturedArtists: true }), true);
+});
+
+test('featured artist filtering preserves the duration tolerance', () => {
+    const options = { ignoreFeaturedArtists: true };
+    const second = { ...track, artist: `${track.artist} feat. Artist B`, durationInMillis: 186000 };
+
+    assert.equal(tracksMatch(track, second, options), true);
+    assert.equal(tracksMatch(track, { ...second, durationInMillis: 186001 }, options), false);
+    assert.equal(tracksMatch(track, { ...second, durationInMillis: null }, options), false);
+});
+
+test('toggling featured artist filtering updates results without mutating metadata or reusing matches', () => {
+    const youtubeTracks = Object.freeze([
+        Object.freeze({ ...track, title: `${track.title} (feat. Artist B)`, artist: 'Artist A feat. Artist B' }),
+        Object.freeze({ ...track, title: `${track.title} (feat. Artist B)`, artist: 'Artist A feat. Artist B', playlistIndex: 2 })
+    ]);
+    const appleTracks = Object.freeze([Object.freeze({ ...track, artist: 'Artist A' })]);
+
+    for (const ignoreFeaturedArtists of [false, true, false]) {
+        const result = compareTracklists(youtubeTracks, appleTracks, { ignoreFeaturedArtists });
+
+        assert.deepEqual(result, ignoreFeaturedArtists ? {
+            matchedTracks: [{
+                youtubeTrack: youtubeTracks[0],
+                appleTrack: appleTracks[0],
+                youtubePlaylistIndex: 1,
+                applePlaylistIndex: 1
+            }],
+            removedTracks: [youtubeTracks[1]],
+            addedTracks: []
+        } : {
+            matchedTracks: [],
+            removedTracks: youtubeTracks,
+            addedTracks: appleTracks
+        });
+        assert.equal(youtubeTracks[0].title, `${track.title} (feat. Artist B)`);
+        assert.equal(youtubeTracks[0].artist, 'Artist A feat. Artist B');
+    }
+});
