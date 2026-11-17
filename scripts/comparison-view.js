@@ -13,6 +13,7 @@ export function createComparisonView(elements) {
         ignoreQuestionMarksCheckboxEl,
         ignorePeriodsCheckboxEl,
         ignoreAmpersandsCheckboxEl,
+        ignoreSymbolSubstitutionsCheckboxEl,
         copyComparisonButtonEl,
         copyVisibleComparisonButtonEl,
         comparisonStatusEl,
@@ -32,7 +33,8 @@ export function createComparisonView(elements) {
         ignoreSpecialCharactersCheckboxEl,
         ignoreQuestionMarksCheckboxEl,
         ignorePeriodsCheckboxEl,
-        ignoreAmpersandsCheckboxEl
+        ignoreAmpersandsCheckboxEl,
+        ignoreSymbolSubstitutionsCheckboxEl
     ];
 
     const scrollButtons = {
@@ -312,7 +314,8 @@ export function createComparisonView(elements) {
             ignoreSpecialCharacters: ignoreSpecialCharactersCheckboxEl.checked,
             ignoreQuestionMarks: ignoreQuestionMarksCheckboxEl.checked,
             ignorePeriods: ignorePeriodsCheckboxEl.checked,
-            ignoreAmpersands: ignoreAmpersandsCheckboxEl.checked
+            ignoreAmpersands: ignoreAmpersandsCheckboxEl.checked,
+            ignoreSymbolSubstitutions: ignoreSymbolSubstitutionsCheckboxEl.checked
         };
     }
 

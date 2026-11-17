@@ -292,3 +292,100 @@ test('toggling ampersand filtering updates results without mutating metadata or 
         assert.equal(appleTracks[0].title, 'Rock and Roll');
     }
 });
+
+for (const field of ['title', 'artist', 'album']) {
+    test(`symbol substitutions match both letter cases in ${field} in either track`, () => {
+        for (const [symbol, letters] of [['$', ['s', 'S']], ['!', ['i', 'I']]]) {
+            const first = { ...track, [field]: `A${symbol}${symbol}a${symbol}` };
+
+            for (const letter of letters) {
+                const second = { ...track, [field]: `A${letter}${letter}a${letter}` };
+
+                for (const options of [{}, { ignoreCapitalization: false }, { ignoreCapitalization: true }]) {
+                    assert.equal(tracksMatch(first, second, options), false);
+                    assert.equal(tracksMatch(first, second, { ...options, ignoreSymbolSubstitutions: false }), false);
+                    assert.equal(tracksMatch(first, second, { ...options, ignoreSymbolSubstitutions: true }), true);
+                    assert.equal(tracksMatch(second, first, { ...options, ignoreSymbolSubstitutions: true }), true);
+                }
+            }
+        }
+    });
+}
+
+test('symbol substitutions preserve unrelated case, punctuation, and metadata differences', () => {
+    const first = { ...track, title: 'RiSe' };
+    const options = { ignoreSymbolSubstitutions: true };
+
+    assert.equal(tracksMatch(first, { ...first, title: 'R!$e' }, options), true);
+    for (const title of ['r!$e', 'R!$E', 'R!$e?', 'R!$e.', 'R !$e', 'R!$e ', 'R!$']) {
+        assert.equal(tracksMatch(first, { ...first, title }, options), false);
+    }
+    assert.equal(tracksMatch(first, { ...first, title: 'r!$e' }, {
+        ...options,
+        ignoreCapitalization: true
+    }), true);
+    for (const [field, value] of [['title', null], ['artist', undefined], ['album', 123]]) {
+        assert.equal(tracksMatch(first, { ...first, [field]: value }, options), false);
+    }
+});
+
+test('symbol substitutions compose with all existing text and field filters', () => {
+    const first = { ...track, title: 'Rise & Shine' };
+    const second = {
+        ...track,
+        title: 'R!$E. AND $H!NE? (Live)',
+        artist: '\u00c1rtist',
+        album: 'Different album'
+    };
+    const options = {
+        ignoreCapitalization: true,
+        ignoreParentheticals: true,
+        ignoreSpecialCharacters: true,
+        ignoreQuestionMarks: true,
+        ignorePeriods: true,
+        ignoreAmpersands: true,
+        ignoreAlbumMatching: true
+    };
+
+    assert.equal(tracksMatch(first, second, options), false);
+    assert.equal(tracksMatch(first, second, { ...options, ignoreSymbolSubstitutions: true }), true);
+});
+
+test('symbol substitutions preserve the duration tolerance', () => {
+    const first = { ...track, title: 'Rise' };
+    const second = { ...track, title: 'R!$e', durationInMillis: 186000 };
+    const options = { ignoreSymbolSubstitutions: true };
+
+    assert.equal(tracksMatch(first, second, options), true);
+    assert.equal(tracksMatch(first, { ...second, durationInMillis: 186001 }, options), false);
+    assert.equal(tracksMatch(first, { ...second, durationInMillis: null }, options), false);
+});
+
+test('toggling symbol substitutions updates results without mutating metadata or reusing matches', () => {
+    const youtubeTracks = Object.freeze([
+        Object.freeze({ ...track, title: 'R!$e' }),
+        Object.freeze({ ...track, title: 'R!$e', playlistIndex: 2 })
+    ]);
+    const appleTracks = Object.freeze([Object.freeze({ ...track, title: 'RiSe' })]);
+
+    for (const ignoreSymbolSubstitutions of [false, true, false]) {
+        const result = compareTracklists(youtubeTracks, appleTracks, { ignoreSymbolSubstitutions });
+
+        assert.deepEqual(result, ignoreSymbolSubstitutions ? {
+            matchedTracks: [{
+                youtubeTrack: youtubeTracks[0],
+                appleTrack: appleTracks[0],
+                youtubePlaylistIndex: 1,
+                applePlaylistIndex: 1
+            }],
+            removedTracks: [youtubeTracks[1]],
+            addedTracks: []
+        } : {
+            matchedTracks: [],
+            removedTracks: youtubeTracks,
+            addedTracks: appleTracks
+        });
+        assert.equal(youtubeTracks[0].title, 'R!$e');
+        assert.equal(appleTracks[0].title, 'RiSe');
+    }
+});

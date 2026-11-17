@@ -29,6 +29,7 @@ Comparison view:
     - An "ignore question marks (?)" checkbox, disabled by default, removes all "?" characters when comparing titles, artists, and albums
     - An "ignore periods (.)" checkbox, disabled by default, removes all "." characters when comparing titles, artists, and albums
     - A 'Treat "&" and "and" as matching' checkbox, disabled by default, matches ampersands with whole-word "and" in titles, artists, and albums, ignoring whitespace around ampersands (e.g. "R&B" matches "R and B"). Matching "and" is case-insensitive (including "And", "AND", and mixed-case variants), regardless of "Ignore capitalization"; other text remains case-sensitive unless that option is enabled.
+    - A 'Treat "$" as "s/S" and "!" as "i/I"' checkbox, disabled by default, normalizes "$", "s", and "S" to "s", and "!", "i", and "I" to "i" in titles, artists, and albums. This is independent of "Ignore capitalization"; other letters remain case-sensitive unless that option is enabled. Original metadata is unchanged.
     - "Removed" tracks on the left; "Added" tracks on the right
     - "Removed" and "Added" tracks are determined based on a metadata comparison check. 
         - A track in the YouTube Music playlist which doesn't have a match in Apple Music will be in the "Removed" section
@@ -48,6 +49,7 @@ Comparison logic notes:
       - Ignore question marks
       - Ignore periods
       - Treat "&" and "and" as matching
+      - Treat "$" as "s/S" and "!" as "i/I"
       - Ignore parentheses
       - Ignore accents & apostrophes
 
