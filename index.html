@@ -129,22 +129,15 @@
                     <section id="comparisonView" class="detailScrollView comparisonView" hidden>
                         <div class="comparisonHeader">
                             <div class="comparisonActions">
-                                <label class="comparisonOption">
-                                    <input id="ignoreCapitalizationCheckbox" type="checkbox" />
-                                    <span>Ignore capitalization</span>
-                                </label>
-                                <label class="comparisonOption">
-                                    <input id="ignoreAlbumMatchingCheckbox" type="checkbox" />
-                                    <span>Ignore album matching</span>
-                                </label>
-                                <label class="comparisonOption">
-                                    <input id="ignoreParentheticalsCheckbox" type="checkbox" />
-                                    <span>Ignore parens</span>
-                                </label>
-                                <label class="comparisonOption">
-                                    <input id="ignoreSpecialCharactersCheckbox" type="checkbox" />
-                                    <span>Ignore accents & apostrophes</span>
-                                </label>
+                                <button id="toggleComparisonFiltersButton"
+                                    class="secondaryButton comparisonFilterToggle" type="button" aria-expanded="false"
+                                    aria-controls="comparisonFilters">
+                                    <span id="comparisonFiltersLabel">Filters</span>
+                                    <span id="comparisonFilterCount" class="comparisonFilterCount">0 active</span>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="m7 10 5 5 5-5z" />
+                                    </svg>
+                                </button>
                                 <button id="copyComparisonButton" class="iconButton" type="button"
                                     title="Copy comparison">
                                     <svg viewBox="0 0 24 24">
@@ -161,6 +154,55 @@
                                     </svg>
                                 </button>
                                 <div id="comparisonStatus" class="copyFeedback"></div>
+                            </div>
+                            <div id="comparisonFilters" class="comparisonFilters" role="region"
+                                aria-labelledby="comparisonFiltersLabel" hidden>
+                                <fieldset class="comparisonFilterGroup">
+                                    <legend>Text matching</legend>
+                                    <label class="comparisonOption">
+                                        <input id="ignoreCapitalizationCheckbox" type="checkbox" />
+                                        <span>Ignore capitalization</span>
+                                    </label>
+                                    <label class="comparisonOption">
+                                        <input id="ignoreParentheticalsCheckbox" type="checkbox" />
+                                        <span>Ignore parentheticals</span>
+                                    </label>
+                                    <label class="comparisonOption">
+                                        <input id="ignoreSpecialCharactersCheckbox" type="checkbox" />
+                                        <span>Ignore accents & apostrophes</span>
+                                    </label>
+                                    <label class="comparisonOption">
+                                        <input id="ignoreQuestionMarksCheckbox" type="checkbox" />
+                                        <span>Ignore question marks (?)</span>
+                                    </label>
+                                    <label class="comparisonOption">
+                                        <input id="ignorePeriodsCheckbox" type="checkbox" />
+                                        <span>Ignore periods (.)</span>
+                                    </label>
+                                    <label class="comparisonOption">
+                                        <input id="ignoreAmpersandsCheckbox" type="checkbox" />
+                                        <span>Treat "&amp;" and "and" as matching</span>
+                                    </label>
+                                    <label class="comparisonOption">
+                                        <input id="ignoreSymbolSubstitutionsCheckbox" type="checkbox" />
+                                        <span>Ignore symbol substitutions ($ , !)</span>
+                                    </label>
+                                    <label class="comparisonOption">
+                                        <input id="ignoreFeaturedArtistsCheckbox" type="checkbox" />
+                                        <span>Ignore featured artists (feat.) in artist/title</span>
+                                    </label>
+                                    <label class="comparisonOption">
+                                        <input id="ignoreThirtySpellingCheckbox" type="checkbox" />
+                                        <span>30 = "THIRTY"</span>
+                                    </label>
+                                </fieldset>
+                                <fieldset class="comparisonFilterGroup">
+                                    <legend>Fields to compare</legend>
+                                    <label class="comparisonOption">
+                                        <input id="ignoreAlbumMatchingCheckbox" type="checkbox" />
+                                        <span>Ignore album matching</span>
+                                    </label>
+                                </fieldset>
                             </div>
                         </div>
 

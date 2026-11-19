@@ -3,10 +3,19 @@ import { copyTextToClipboard, formatComparisonExport, formatTrackMetadataRow } f
 export function createComparisonView(elements) {
     const {
         comparisonViewEl,
+        toggleComparisonFiltersButtonEl,
+        comparisonFiltersEl,
+        comparisonFilterCountEl,
         ignoreCapitalizationCheckboxEl,
         ignoreAlbumMatchingCheckboxEl,
         ignoreParentheticalsCheckboxEl,
         ignoreSpecialCharactersCheckboxEl,
+        ignoreQuestionMarksCheckboxEl,
+        ignorePeriodsCheckboxEl,
+        ignoreAmpersandsCheckboxEl,
+        ignoreSymbolSubstitutionsCheckboxEl,
+        ignoreFeaturedArtistsCheckboxEl,
+        ignoreThirtySpellingCheckboxEl,
         copyComparisonButtonEl,
         copyVisibleComparisonButtonEl,
         comparisonStatusEl,
@@ -19,6 +28,18 @@ export function createComparisonView(elements) {
 
     const comparisonColumnsEl = comparisonViewEl.querySelector('.comparisonColumns');
     const comparisonListEls = [removedComparisonListEl, addedComparisonListEl];
+    const optionEls = [
+        ignoreCapitalizationCheckboxEl,
+        ignoreAlbumMatchingCheckboxEl,
+        ignoreParentheticalsCheckboxEl,
+        ignoreSpecialCharactersCheckboxEl,
+        ignoreQuestionMarksCheckboxEl,
+        ignorePeriodsCheckboxEl,
+        ignoreAmpersandsCheckboxEl,
+        ignoreSymbolSubstitutionsCheckboxEl,
+        ignoreFeaturedArtistsCheckboxEl,
+        ignoreThirtySpellingCheckboxEl
+    ];
 
     const scrollButtons = {
         removed: {
@@ -294,7 +315,13 @@ export function createComparisonView(elements) {
             ignoreCapitalization: ignoreCapitalizationCheckboxEl.checked,
             ignoreAlbumMatching: ignoreAlbumMatchingCheckboxEl.checked,
             ignoreParentheticals: ignoreParentheticalsCheckboxEl.checked,
-            ignoreSpecialCharacters: ignoreSpecialCharactersCheckboxEl.checked
+            ignoreSpecialCharacters: ignoreSpecialCharactersCheckboxEl.checked,
+            ignoreQuestionMarks: ignoreQuestionMarksCheckboxEl.checked,
+            ignorePeriods: ignorePeriodsCheckboxEl.checked,
+            ignoreAmpersands: ignoreAmpersandsCheckboxEl.checked,
+            ignoreSymbolSubstitutions: ignoreSymbolSubstitutionsCheckboxEl.checked,
+            ignoreFeaturedArtists: ignoreFeaturedArtistsCheckboxEl.checked,
+            ignoreThirtySpelling: ignoreThirtySpellingCheckboxEl.checked
         };
     }
 
@@ -330,18 +357,27 @@ export function createComparisonView(elements) {
         }
     }
 
-    function onComparisonOptionsChanged(handler) {
-        const optionEls = [
-            ignoreCapitalizationCheckboxEl,
-            ignoreAlbumMatchingCheckboxEl,
-            ignoreParentheticalsCheckboxEl,
-            ignoreSpecialCharactersCheckboxEl
-        ];
+    function setupComparisonFilters() {
+        toggleComparisonFiltersButtonEl.addEventListener('click', () => {
+            comparisonFiltersEl.hidden = !comparisonFiltersEl.hidden;
+            toggleComparisonFiltersButtonEl.setAttribute('aria-expanded', String(!comparisonFiltersEl.hidden));
+        });
 
         for (const optionEl of optionEls) {
-            optionEl.addEventListener('change', () => {
-                handler();
-            });
+            optionEl.addEventListener('change', updateComparisonFilterCount);
+        }
+
+        updateComparisonFilterCount();
+    }
+
+    function updateComparisonFilterCount() {
+        const activeCount = optionEls.filter((optionEl) => optionEl.checked).length;
+        comparisonFilterCountEl.textContent = `${activeCount} active`;
+    }
+
+    function onComparisonOptionsChanged(handler) {
+        for (const optionEl of optionEls) {
+            optionEl.addEventListener('change', () => handler());
         }
     }
 
@@ -391,8 +427,12 @@ export function createComparisonView(elements) {
         setupColumnScrollButton(scrollButtons.added.up, addedComparisonListEl, -1);
         setupColumnScrollButton(scrollButtons.added.down, addedComparisonListEl, 1);
 
+        // Filters and responsive layouts can resize the lists without scrolling them.
+        const resizeObserver = new ResizeObserver(updateScrollButtonStates);
+
         for (const listEl of comparisonListEls) {
             listEl.addEventListener('scroll', updateScrollButtonStates);
+            resizeObserver.observe(listEl);
         }
     }
 
@@ -442,6 +482,7 @@ export function createComparisonView(elements) {
         return Math.min(Math.max(0, top), getMaxScrollTop(listEl));
     }
 
+    setupComparisonFilters();
     setupSharedComparisonScrolling();
     setupColumnScrollButtons();
     updateScrollButtonStates();

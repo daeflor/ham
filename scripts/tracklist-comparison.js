@@ -32,10 +32,11 @@ export function compareTracklists(youtubeTracks, appleTracks, options) {
 }
 
 export function tracksMatch(firstTrack, secondTrack, options = {}) {
-    const { ignoreAlbumMatching, ...textOptions } = options;
+    const { ignoreAlbumMatching, ignoreFeaturedArtists, ...textOptions } = options;
+    const titleAndArtistOptions = { ...textOptions, ignoreFeaturedArtists };
 
-    return textFieldsMatch(firstTrack?.title, secondTrack?.title, textOptions)
-        && textFieldsMatch(firstTrack?.artist, secondTrack?.artist, textOptions)
+    return textFieldsMatch(firstTrack?.title, secondTrack?.title, titleAndArtistOptions)
+        && textFieldsMatch(firstTrack?.artist, secondTrack?.artist, titleAndArtistOptions)
         && (ignoreAlbumMatching || textFieldsMatch(firstTrack?.album, secondTrack?.album, textOptions))
         && durationsMatch(firstTrack, secondTrack);
 }
@@ -51,10 +52,16 @@ function textFieldsMatch(firstValue, secondValue, textOptions) {
     return firstValue === secondValue;
 }
 
-function normalizeTextForComparison(value, { ignoreCapitalization, ignoreParentheticals, ignoreSpecialCharacters }) {
+function normalizeTextForComparison(value, { ignoreCapitalization, ignoreParentheticals, ignoreSpecialCharacters, ignoreQuestionMarks, ignorePeriods, ignoreAmpersands, ignoreSymbolSubstitutions, ignoreFeaturedArtists, ignoreThirtySpelling }) {
+    value = ignoreFeaturedArtists ? value.replace(/\s*[(\[]?\s*\bfeat\.[\s\S]*$/i, '') : value;
     value = ignoreParentheticals ? removeParentheticalText(value) : value;
     value = ignoreSpecialCharacters ? normalizeSpecialCharacters(value) : value;
+    value = ignoreQuestionMarks ? value.replace(/\?/g, '') : value;
+    value = ignorePeriods ? value.replace(/\./g, '') : value;
+    value = ignoreSymbolSubstitutions ? value.replace(/[$s]/gi, 's').replace(/[!i]/gi, 'i') : value;
     value = ignoreCapitalization ? value.toLocaleLowerCase() : value;
+    value = ignoreAmpersands ? value.replace(/\band\b/gi, '&').replace(/\s*&\s*/g, '&') : value;
+    value = ignoreThirtySpelling ? value.replace(/\bthirty\b/gi, '30') : value;
 
     return value;
 }

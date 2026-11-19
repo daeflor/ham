@@ -503,6 +503,7 @@ p {
 
 .comparisonHeader {
     display: grid;
+    min-width: 0;
     gap: 8px;
 }
 
@@ -514,17 +515,97 @@ p {
     gap: 10px;
 }
 
-.comparisonOption {
-    display: inline-flex;
-    align-items: center;
-    min-height: 38px;
+.comparisonActions>.iconButton {
+    flex: 0 0 auto;
+}
+
+.comparisonActions>.copyFeedback {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.comparisonFilterToggle {
     gap: 8px;
-    color: var(--muted);
-    font-size: 0.9rem;
+    padding: 0 12px;
+    cursor: pointer;
     font-weight: 600;
 }
 
+.comparisonFilterToggle[aria-expanded="true"] {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.comparisonFilterCount {
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.comparisonFilterToggle svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+.comparisonFilterToggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+}
+
+.comparisonFilters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: 16px;
+    max-height: min(260px, 30dvh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding: 14px;
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-muted);
+}
+
+.comparisonFilterGroup {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.comparisonFilterGroup legend {
+    margin-bottom: 6px;
+    padding: 0;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.comparisonOption {
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+    gap: 8px;
+    padding: 4px 2px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.comparisonOption span {
+    overflow-wrap: anywhere;
+}
+
+.comparisonFilterToggle:focus-visible,
+.comparisonOption input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
 .comparisonOption input {
+    flex: 0 0 auto;
     width: 16px;
     height: 16px;
     margin: 0;
@@ -954,7 +1035,6 @@ tbody tr:last-child td {
 
     .heroActions,
     .contentActions,
-    .comparisonActions,
     .appHeaderActions {
         flex-direction: column;
         align-items: stretch;
