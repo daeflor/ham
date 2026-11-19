@@ -41,6 +41,7 @@ export function getAppElements() {
         ignoreAmpersandsCheckboxEl: document.getElementById('ignoreAmpersandsCheckbox'),
         ignoreSymbolSubstitutionsCheckboxEl: document.getElementById('ignoreSymbolSubstitutionsCheckbox'),
         ignoreFeaturedArtistsCheckboxEl: document.getElementById('ignoreFeaturedArtistsCheckbox'),
+        ignoreThirtySpellingCheckboxEl: document.getElementById('ignoreThirtySpellingCheckbox'),
         copyComparisonButtonEl: document.getElementById('copyComparisonButton'),
         copyVisibleComparisonButtonEl: document.getElementById('copyVisibleComparisonButton'),
         comparisonStatusEl: document.getElementById('comparisonStatus'),

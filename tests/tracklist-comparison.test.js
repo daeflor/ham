@@ -10,6 +10,98 @@ const track = {
     playlistIndex: 1
 };
 
+for (const field of ['title', 'artist', 'album']) {
+    test(`thirty filtering is opt-in and case-insensitive in ${field} in either track`, () => {
+        const first = { ...track, [field]: '30 Seconds' };
+
+        for (const word of ['thirty', 'THIRTY', 'Thirty', 'tHiRtY']) {
+            const second = { ...track, [field]: `${word} Seconds` };
+
+            assert.equal(tracksMatch(first, second), false);
+            assert.equal(tracksMatch(first, second, { ignoreThirtySpelling: false }), false);
+            assert.equal(tracksMatch(first, second, { ignoreThirtySpelling: true }), true);
+            assert.equal(tracksMatch(second, first, {
+                ignoreThirtySpelling: true,
+                ignoreCapitalization: false
+            }), true);
+        }
+    });
+}
+
+test('thirty filtering handles repeated whole words without ignoring unrelated differences', () => {
+    const options = { ignoreThirtySpelling: true };
+    const first = { ...track, title: '30 (30)-30' };
+
+    assert.equal(tracksMatch(first, { ...track, title: 'thirty (THIRTY)-Thirty' }, options), true);
+    for (const [title, variant] of [
+        ['Thirtysomething', '30something'],
+        ['prethirty', 'pre30'],
+        ['thirty30', '3030'],
+        ['Thirty Seconds', '30 seconds'],
+        ['Thirty Seconds', '30 Seconds?'],
+        ['Thirty Seconds', '30 Seconds '],
+        ['Thirty Seconds', '40 Seconds']
+    ]) {
+        assert.equal(tracksMatch({ ...track, title }, { ...track, title: variant }, options), false);
+    }
+    assert.equal(tracksMatch(track, { ...track, title: null }, options), false);
+});
+
+test('thirty filtering composes with existing filters and preserves duration matching', () => {
+    const first = { ...track, title: '30 & Rising' };
+    const second = {
+        ...track,
+        title: 'THIRTY. AND R!SING? (Live) feat. Guest',
+        artist: '\u00c1RTIST',
+        album: 'Different album',
+        durationInMillis: 186000
+    };
+    const options = {
+        ignoreCapitalization: true,
+        ignoreParentheticals: true,
+        ignoreSpecialCharacters: true,
+        ignoreQuestionMarks: true,
+        ignorePeriods: true,
+        ignoreAmpersands: true,
+        ignoreSymbolSubstitutions: true,
+        ignoreFeaturedArtists: true,
+        ignoreAlbumMatching: true
+    };
+
+    assert.equal(tracksMatch(first, second, options), false);
+    assert.equal(tracksMatch(first, second, { ...options, ignoreThirtySpelling: true }), true);
+    for (const durationInMillis of [186001, null]) {
+        assert.equal(tracksMatch(first, { ...second, durationInMillis }, {
+            ...options,
+            ignoreThirtySpelling: true
+        }), false);
+    }
+});
+
+test('toggling thirty filtering updates comparison results without changing metadata', () => {
+    const youtubeTracks = [Object.freeze({ ...track, title: 'THIRTY Seconds' })];
+    const appleTracks = [Object.freeze({ ...track, title: '30 Seconds' })];
+
+    for (const ignoreThirtySpelling of [false, true, false]) {
+        const result = compareTracklists(youtubeTracks, appleTracks, { ignoreThirtySpelling });
+
+        assert.deepEqual(result, ignoreThirtySpelling ? {
+            matchedTracks: [{
+                youtubeTrack: youtubeTracks[0],
+                appleTrack: appleTracks[0],
+                youtubePlaylistIndex: 1,
+                applePlaylistIndex: 1
+            }],
+            removedTracks: [],
+            addedTracks: []
+        } : {
+            matchedTracks: [],
+            removedTracks: youtubeTracks,
+            addedTracks: appleTracks
+        });
+    }
+});
+
 test('question marks remain significant by default and when explicitly disabled', () => {
     const withQuestionMark = { ...track, title: `${track.title}?` };
 

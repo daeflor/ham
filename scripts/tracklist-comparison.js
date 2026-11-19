@@ -52,7 +52,7 @@ function textFieldsMatch(firstValue, secondValue, textOptions) {
     return firstValue === secondValue;
 }
 
-function normalizeTextForComparison(value, { ignoreCapitalization, ignoreParentheticals, ignoreSpecialCharacters, ignoreQuestionMarks, ignorePeriods, ignoreAmpersands, ignoreSymbolSubstitutions, ignoreFeaturedArtists }) {
+function normalizeTextForComparison(value, { ignoreCapitalization, ignoreParentheticals, ignoreSpecialCharacters, ignoreQuestionMarks, ignorePeriods, ignoreAmpersands, ignoreSymbolSubstitutions, ignoreFeaturedArtists, ignoreThirtySpelling }) {
     value = ignoreFeaturedArtists ? value.replace(/\s*[(\[]?\s*\bfeat\.[\s\S]*$/i, '') : value;
     value = ignoreParentheticals ? removeParentheticalText(value) : value;
     value = ignoreSpecialCharacters ? normalizeSpecialCharacters(value) : value;
@@ -61,6 +61,7 @@ function normalizeTextForComparison(value, { ignoreCapitalization, ignoreParenth
     value = ignoreSymbolSubstitutions ? value.replace(/[$s]/gi, 's').replace(/[!i]/gi, 'i') : value;
     value = ignoreCapitalization ? value.toLocaleLowerCase() : value;
     value = ignoreAmpersands ? value.replace(/\band\b/gi, '&').replace(/\s*&\s*/g, '&') : value;
+    value = ignoreThirtySpelling ? value.replace(/\bthirty\b/gi, '30') : value;
 
     return value;
 }
